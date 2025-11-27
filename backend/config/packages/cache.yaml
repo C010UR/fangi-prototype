@@ -1,0 +1,5 @@
+framework:
+  cache:
+    prefix_seed: fangi/mycelium
+    app: cache.adapter.redis
+    default_redis_provider: "%env(resolve:REDIS_URL)%"

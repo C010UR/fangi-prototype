@@ -1,0 +1,37 @@
+mycelium:
+  security:
+    state_manager:
+      class: App\Security\State\RedisStateManager
+      key_length: 32
+      key_prefix: "mycelium:state:"
+      ttl: null # time to live in seconds
+    mfa:
+      email:
+        provider: App\Security\MFA\Email\EmailTwoFactorProvider
+        generator: App\Security\MFA\Email\CodeGenerator
+        code_length: 6
+        code_expiration_time: P1D
+        subject: "subject.mfa"
+        template: "emails/security/mfa_form.html.twig"
+    password_reset:
+      signing_key: "%env(resolve:APP_SECRET)%"
+      selector_length: 20
+      verifier_length: 20
+      token_expiration_time: PT60M
+      email:
+        password_reset:
+          url_template: "%frontend_host%/password-reset/{token}"
+          subject: "subject.password_reset"
+          template: "emails/security/password_reset.html.twig"
+        account_activation:
+          url_template: "%frontend_host%/account-activation/{token}"
+          subject: "subject.account_activation"
+          template: "emails/security/account_activation.html.twig"
+    account_registration:
+      signing_key: "%env(resolve:APP_SECRET)%"
+      selector_length: 20
+      verifier_length: 20
+      email:
+        url_template: "%frontend_host%/account-registration/{token}"
+        subject: "subject.account_registration"
+        template: "emails/security/account_registration.html.twig"

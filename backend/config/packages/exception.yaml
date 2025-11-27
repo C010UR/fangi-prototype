@@ -1,0 +1,5 @@
+framework:
+  exceptions:
+    JsonException:
+      log_level: "warning"
+      status_code: 400

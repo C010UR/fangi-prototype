@@ -1,0 +1,79 @@
+security:
+  credentials:
+    logout: "Successfully logged out."
+    deactivated: "Account was deactivated."
+    not_activated: "Account is not activated. Please follow instructions sent to your email to activate your account."
+    banned: "Account is banned. Please contact support for more information."
+  mfa:
+    access_denied: "Multi-factor Authentication process must be completed before accessing this resource."
+    unsupported: "Request Multi-factor Authentication method is not supported by the user."
+    too_many_requests: "Too many requests. You can request a new code in {time}"
+  password_reset:
+    too_many_requests: "Too many requests. You can make a new request in {time}"
+    request_success: "Your password reset request was successful. Check your email to set a new password."
+    reset_success: "Your password was reset successfully. You can now log in using the new password."
+    invalid: "Password reset request is invalid. Please send a new request."
+    expired: "Password reset request has expired. Please send a new request."
+  account_registration:
+    already_exists: "Account registration request already exists. Please check your email for the activation link."
+    invalid: "Account registration request is invalid. Please send a password reset request."
+    success: "Account registered successfully. Please check your email for the activation link."
+    success_confirmation: "Account registered successfully. You can now log in using your email and password."
+
+entity:
+  user:
+    activated: "User activated successfully."
+    deactivated: "User deactivated successfully."
+    resend_activation_email: "A new activation email was sent successfully."
+
+form:
+  generic:
+    extra_fields: "Form should not contain extra fields."
+    empty: "Form cannot be empty."
+    invalid_form_data: "Form is not valid."
+    validation_failed: "Form validation failed. Please contact support."
+  email:
+    empty: "Email cannot be empty."
+    invalid: "Email is not valid."
+    too_long: "Email must contain at most {limit} characters."
+    already_taken: "Email is already taken."
+    not_found: "Email not found."
+  password:
+    empty: "Password cannot be empty."
+    too_weak: "Password is too weak."
+  username:
+    invalid: "Username is not valid."
+    empty: "Username cannot be empty."
+    too_short: "Username must contain at least {limit} characters."
+    too_long: "Username must contain at most {limit} characters."
+    already_taken: "Username is already taken."
+  name:
+    invalid: "Name is not valid."
+    empty: "Name cannot be empty."
+    too_short: "Name must contain at least {limit} characters."
+    too_long: "Name must contain at most {limit} characters."
+    already_taken: "Name already taken."
+  image:
+    invalid: "Image is not valid."
+    invalid_mime_type: "Image must be a valid image file."
+    too_large: "Image must be less than {limit} kilobytes."
+  allowed_urls:
+    invalid: "Allowed URLs are not valid."
+    invalid_url: "One or more URLs are not valid."
+
+# Framework's internal messages
+"Credentials invalid.": "Credentials invalid."
+"Access Denied.": "Access Denied."
+"Full authentication is required to access this resource.": "Full authentication is required to access this resource."
+"Invalid two-factor authentication code.": "Invalid Multi-factor Authentication code."
+"User is not in a two-factor authentication process.": "User is not in a Multi-factor authentication process."
+"Request payload is empty.": "Request payload is empty."
+"Invalid JSON.": "Invalid JSON."
+
+# DateInterval translation
+"{count} year": "{count, plural, =1 {# year} other {# years}}"
+"{count} month": "{count, plural, =1 {# month} other {# months}}"
+"{count} day": "{count, plural, =1 {# day} other {# days}}"
+"{count} hour": "{count, plural, =1 {# hour} other {# hours}}"
+"{count} minute": "{count, plural, =1 {# minute} other {# minutes}}"
+"{count} second": "{count, plural, =1 {# second} other {# seconds}}"

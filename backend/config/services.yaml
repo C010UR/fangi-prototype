@@ -1,0 +1,67 @@
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters:
+  api_host: "%env(string:API_HOST)%"
+  frontend_host: "%env(string:FRONTEND_HOST)%"
+  word_template_path: "%kernel.project_dir%/templates/word"
+
+# https://symfony.com/doc/current/service_container.html
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  App\:
+    resource: "../src/"
+    exclude:
+      - "../src/DependencyInjection"
+      - "../src/DataFixtures/Faker"
+      - "../src/Doctrine"
+      - "../src/Dto"
+      - "../src/Entity"
+      - "../src/Enum"
+      - "../src/Event"
+      - "../src/Util"
+      - "../src/Kernel.php"
+      - "../src/ListQueryManagement/LqmProcessor.php"
+      - "../src/ListQueryManagement/LqmResult.php"
+      - "../src/ListQueryManagement/LqmQueryExtractor.php"
+      - "../src/ListQueryManagement/LqmDoctrineQueryBuilder.php"
+      # Managed with extension
+      - "../src/Security/MFA"
+      - "../src/Security/PasswordReset"
+      - "../src/Security/AccountRegistration"
+      - "../src/Security/State"
+      # Generic folders
+      - "../src/**/Abstract"
+      - "../src/**/Attribute"
+      - "../src/**/Exception"
+      - "../src/**/Interface"
+      - "../src/**/Trait"
+      - "../src/**/Consts"
+      - "../src/**/Model"
+
+  #### Redis
+  redis.connection:
+    class: Redis
+    calls:
+      - [connect, ["%env(string:REDIS_HOST)%", "%env(int:REDIS_PORT)%"]]
+      - [setOption, [!php/const Redis::OPT_SERIALIZER, !php/const Redis::SERIALIZER_JSON]]
+      - [setOption, [!php/const Redis::OPT_PREFIX, "app:"]]
+  Redis:
+    alias: redis.connection
+
+  App\Twig\Extension\TranslatorExtension:
+    tags:
+      - { name: twig.extension }
+
+  App\OpenApi\Processor\ModelOpenApiProcessor:
+    tags:
+      - { name: nelmio_api_doc.swagger.processor }
+
+  App\OpenApi\Processor\LqmOpenApiProcessor:
+    tags:
+      - { name: nelmio_api_doc.swagger.processor }
+
+  App\OpenApi\Processor\RoleOpenApiProcessor:
+    tags:
+      - { name: nelmio_api_doc.swagger.processor }

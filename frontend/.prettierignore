@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+shared/
+
+# Build outputs
+dist/
+build/
+
+# Generated files
+*.min.js
+*.min.css
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Coverage
+coverage/
+
+# Cache
+.cache/
+.parcel-cache/

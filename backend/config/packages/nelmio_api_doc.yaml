@@ -1,0 +1,277 @@
+nelmio_api_doc:
+  html_config:
+    assets_mode: offline
+    stoplight_config:
+      layout: "responsive"
+      router: "hash"
+  documentation:
+    info:
+      title: Mycelium
+      version: 0.1.0
+      description: "Fangi Mycelium is an Authentication and Authorization platform for Fangi ecosystem."
+    x-logo:
+      url: /logo.svg
+      altText: Fangi Mycelium
+      href: https://www.fangi.org/
+    servers:
+      - url: http://localhost:8000/
+        description: "Local Mycelium API"
+    components:
+      schemas:
+        Email:
+          description: "Email."
+          type: string
+          example: "example@example.com"
+          format: email
+        Password:
+          description: "Password."
+          type: string
+          example: "SuperStr0ngP#55w0rd!"
+        MFAType:
+          description: "MFA Type."
+          type: string
+          example: "email"
+          enum: ["email"]
+        MFAMethod:
+          type: "object"
+          required:
+            - method
+            - recipient
+          properties:
+            method:
+              $ref: "#/components/schemas/MFAType"
+            recipient:
+              description: "Recipient of MFA code."
+              type: string
+              example: "ex****e@e******.com"
+        DatabaseID:
+          type: integer
+          format: int32
+          minimum: 0
+          description: "ID."
+          example: 82
+        UserRole:
+          type: string
+          enum: [ROLE_USER, ROLE_ADMIN]
+          description: "Authorization Role."
+          example: ROLE_USER
+        User:
+          type: object
+          required:
+            - id
+            - email
+            - username
+            - image_url
+            - roles
+            - is_active
+            - is_banned
+            - is_activated
+            - created_by
+            - created_at
+            - updated_at
+            - last_login_at
+          properties:
+            id:
+              $ref: "#/components/schemas/DatabaseID"
+            email:
+              $ref: "#/components/schemas/Email"
+            username:
+              type: string
+              description: "Username."
+              example: "johndoe"
+            image_url:
+              type: string
+              nullable: true
+              description: "User image URL."
+              example: "https://example.com/image.jpg"
+            roles:
+              type: array
+              description: "User roles."
+              items:
+                $ref: "#/components/schemas/UserRole"
+            is_active:
+              type: boolean
+              description: "Whether user is active."
+              example: true
+            is_banned:
+              type: boolean
+              description: "Whether user is banned."
+              example: false
+            is_activated:
+              type: boolean
+              description: "Whether user is activated."
+              example: true
+            created_by:
+              type: string
+              nullable: true
+              description: "Who created the user (full name + email)."
+              example: "Olivia Rhye (example@example.com)"
+            created_at:
+              type: string
+              format: date-time
+              description: "Date of creation."
+              example: "2017-07-21T17:32:28Z"
+            updated_at:
+              type: string
+              format: date-time
+              description: "Date of the last update."
+              example: "2017-07-21T17:32:28Z"
+            last_login_at:
+              type: string
+              format: date-time
+              description: "Date of the last login."
+              example: "2017-07-21T17:32:28Z"
+              nullable: true
+        Server:
+          type: object
+          required:
+            - id
+            - name
+            - image_url
+            - allowed_urls
+            - url
+            - is_active
+            - is_banned
+            - created_by
+            - created_at
+            - updated_at
+          properties:
+            id:
+              $ref: "#/components/schemas/DatabaseID"
+            name:
+              type: string
+              description: "Server name."
+              example: "Mycelium"
+            image_url:
+              type: string
+              nullable: true
+              description: "Server image URL."
+              example: "https://example.com/image.jpg"
+            allowed_urls:
+              type: array
+              description: "List of allowed URLs."
+              items:
+                type: string
+                example: "https://example.com"
+            url:
+              type: string
+              description: "First URL."
+              example: "https://example.com"
+            is_active:
+              type: boolean
+              description: "Whether server is active."
+              example: true
+            is_banned:
+              type: boolean
+              description: "Whether server is banned."
+              example: false
+            created_by:
+              type: string
+              nullable: true
+              description: "Who created the server (full name + email)."
+              example: "Olivia Rhye (example@example.com)"
+            created_at:
+              type: string
+              format: date-time
+              description: "Date of creation."
+              example: "2017-07-21T17:32:28Z"
+            updated_at:
+              type: string
+              format: date-time
+              description: "Date of the last update."
+              example: "2017-07-21T17:32:28Z"
+        PasswordResetForm:
+          type: object
+          required:
+            - password
+          properties:
+            password:
+              type: string
+              description: "User password."
+              example: "SuperStr0ngP#55w0rd!"
+        PasswordResetRequestForm:
+          type: object
+          required:
+            - email
+          properties:
+            email:
+              type: string
+              format: email
+              maxLength: 180
+              description: "User email."
+              example: "admin@example.com"
+        RegistrationForm:
+          type: object
+          required:
+            - email
+            - username
+            - image
+            - password
+          properties:
+            email:
+              type: string
+              format: email
+              maxLength: 180
+              description: "User email."
+              example: "user@example.com"
+            username:
+              type: string
+              minLength: 3
+              maxLength: 255
+              description: "Username."
+              example: "johndoe"
+            image:
+              type: string
+              format: binary
+              description: "User image file."
+              nullable: true
+            password:
+              type: string
+              description: "User password."
+              example: "SuperStr0ngP#55w0rd!"
+        ServerForm:
+          type: object
+          required:
+            - name
+            - allowed_urls
+          properties:
+            name:
+              type: string
+              minLength: 3
+              maxLength: 255
+              description: "Server name."
+              example: "My Server"
+            image:
+              type: string
+              format: binary
+              description: "Server image file."
+              nullable: true
+            allowed_urls:
+              type: array
+              description: "List of allowed URLs."
+              items:
+                type: string
+                format: uri
+                example: "https://example.com"
+              nullable: true
+      securitySchemes:
+        token_auth:
+          type: http
+          scheme: Bearer
+          description: |
+            Bearer token authentication.
+            Provide your token in the Authorization header as: `Bearer <token>`
+    security:
+      - token_auth: ["c79cbf9fe36bb9d05d0639c70c265c18d37"]
+    tags:
+      - name: auth
+        description: Authentication and session management endpoints.
+      - name: mfa
+        description: Multi-factor authentication endpoints.
+      - name: password-reset
+        description: Password reset endpoints.
+      - name: registration
+        description: Account registration endpoints.
+  areas: # to filter documented areas
+    path_patterns:
+      - ^/api(?!/doc$) # Accepts routes under /api except /api/doc
