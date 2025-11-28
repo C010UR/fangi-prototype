@@ -62,3 +62,47 @@ export interface RegistrationResponse {
   message?: string;
   error_description?: string;
 }
+
+export type FilterOperator =
+  | 'eq'
+  | 'ne'
+  | 'gt'
+  | 'gte'
+  | 'lt'
+  | 'lte'
+  | 'like'
+  | 'in'
+  | 'nin'
+  | 'null'
+  | 'notnull'
+  | 'true'
+  | 'false';
+
+export interface Filter {
+  field: string;
+  operator: FilterOperator;
+  value: string | string[] | null;
+}
+
+export type OrderDirection = 'asc' | 'desc';
+
+export interface Order {
+  field: string;
+  order: OrderDirection;
+}
+
+export interface ListMeta {
+  additional_data: Record<string, unknown> | null;
+  filters: Filter[];
+  orders: Order[];
+  search: string;
+  page: number;
+  page_size: number;
+  total_items: number;
+  total_pages: number;
+}
+
+export interface ListResult<T> {
+  meta: ListMeta;
+  data: T[];
+}
