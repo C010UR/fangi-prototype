@@ -11,7 +11,6 @@ use App\Repository\AccountRegistrationRequestRepository;
 use App\Security\AccountRegistration\Exception\AccountRegistrationAlreadyExistsException;
 use App\Security\AccountRegistration\Exception\InvalidAccountRegistrationTokenException;
 use App\Service\MailerService;
-use App\Util\StringHelper;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 

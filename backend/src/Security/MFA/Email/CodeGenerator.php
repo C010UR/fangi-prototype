@@ -9,7 +9,6 @@ use App\Service\MailerService;
 use DateInterval;
 use DateTimeImmutable;
 use Scheb\TwoFactorBundle\Model\PersisterInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class CodeGenerator
 {
@@ -18,7 +17,8 @@ final class CodeGenerator
         private MailerService $mailer,
         private int $digits,
         private string $expirationTime,
-    ) {}
+    ) {
+    }
 
     public function generateAndSend(EmailTwoFactorInterface $user): void
     {

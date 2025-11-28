@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace App\Security\PasswordReset;
 
 use App\Entity\PasswordResetRequest;
-use App\Entity\Server;
 use App\Entity\User;
 use App\Model\UserActionToken\UserActionToken;
 use App\Repository\PasswordResetRequestRepository;
 use App\Security\PasswordReset\Exception\ExpiredPasswordResetTokenException;
 use App\Security\PasswordReset\Exception\InvalidPasswordResetTokenException;
 use App\Service\MailerService;
-use App\Util\StringHelper;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;

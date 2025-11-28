@@ -13,7 +13,6 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -23,8 +22,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 class ServerType extends AbstractType implements PostSubmitFormInterface
 {
     public function __construct(
-        private FileService $fileService
-    ) {}
+        private FileService $fileService,
+    ) {
+    }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -47,12 +47,19 @@ class ServerType extends AbstractType implements PostSubmitFormInterface
                 'mapped' => false,
             ])
             ->add('allowed_urls', CollectionType::class, [
-                'entry_type' => UrlType::class,
+                'entry_type' => TextType::class,
                 'invalid_message' => 'form.allowed_urls.invalid',
                 'constraints' => [
                     new Assert\All([
-                        new Assert\Url(message: 'form.allowed_urls.invalid_url'),
+                        new Assert\NotBlank(message: 'form.allowed_urls.empty_url'),
+                        new Assert\Regex(
+                            pattern: '/^https?:\/\/([a-zA-Z0-9.-]+|[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})(:\d{1,5})?$/',
+                            message: 'form.allowed_urls.invalid_format',
+                        ),
                     ]),
+                    new Assert\Unique(message: 'form.allowed_urls.duplicate'),
+                    new Assert\Count(min: 1, minMessage: 'form.allowed_urls.at_least_one'),
+                    new Assert\Count(max: 10, maxMessage: 'form.allowed_urls.too_many'),
                 ],
                 'allow_add' => true,
                 'allow_delete' => true,
@@ -73,10 +80,8 @@ class ServerType extends AbstractType implements PostSubmitFormInterface
     }
 
     /**
-     *
-     * @param FormInterface $form
      * @param Server $entity
-     * @param array $options
+     *
      * @return Server
      */
     public function postSubmit(FormInterface $form, object $entity, array $options): object
@@ -90,9 +95,8 @@ class ServerType extends AbstractType implements PostSubmitFormInterface
 
         if (null === $entity->getClientId()) {
             $entity->generateClientId();
+            $entity->generateSecret();
         }
-
-        $entity->generateSecret();
 
         $options['created_by']->addServer($entity);
 

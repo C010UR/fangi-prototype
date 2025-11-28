@@ -36,7 +36,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { ApiRoutes, fangiFetch, FetchError } from '@/lib/api';
-import type { RegistrationResponse } from '@/lib/types';
+import type { RegistrationResponse } from '@/types';
 
 const registrationSchema = z.object({
   email: z

@@ -21,29 +21,33 @@ type AcceptType =
 
 type TBody = Record<string, unknown>;
 
+export type ParamsType =
+  | Record<string, string | number | boolean | (string | number | boolean)[] | undefined>
+  | URLSearchParams;
+
 interface FetchOptions<TBody = unknown> {
   route: string;
   method?: HttpMethod;
-  params?: Record<string, string | number | boolean | undefined>;
+  params?: ParamsType;
   contentType?: ContentType;
   accept?: AcceptType;
   body?: TBody;
   headers?: Record<string, string>;
-  credentials?: RequestCredentials;
+  useCredentials?: boolean;
 }
 
 interface ApiError {
-  error?: string | string[];
+  error?: string | string[] | boolean;
   error_description?: string | string[];
   message?: string | string[];
 }
 
 class FetchError extends Error {
   status: number;
-  data: ApiError;
+  data: ApiError | unknown;
   errors: string[];
 
-  constructor(message: string, status: number, data: ApiError, errors: string[]) {
+  constructor(message: string, status: number, data: ApiError | unknown, errors: string[]) {
     super(message);
     this.name = 'FetchError';
     this.status = status;
@@ -52,20 +56,27 @@ class FetchError extends Error {
   }
 }
 
-function buildUrlWithParams(
-  route: string,
-  params?: Record<string, string | number | boolean | undefined>
-): string {
+function buildUrlWithParams(route: string, params?: ParamsType): string {
   if (!params) return route;
 
-  const searchParams = new URLSearchParams();
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined) {
-      searchParams.append(key, String(value));
-    }
-  });
+  let queryString = '';
 
-  const queryString = searchParams.toString();
+  if (params instanceof URLSearchParams) {
+    queryString = params.toString();
+  } else {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value === undefined) return;
+
+      if (Array.isArray(value)) {
+        value.forEach(v => searchParams.append(key, String(v)));
+      } else {
+        searchParams.append(key, String(value));
+      }
+    });
+    queryString = searchParams.toString();
+  }
+
   if (!queryString) return route;
 
   return `${route}${route.includes('?') ? '&' : '?'}${queryString}`;
@@ -82,6 +93,7 @@ async function fangiFetch<TResponse, TBody = unknown>(
     accept = 'application/json',
     body,
     headers: additionalHeaders = {},
+    useCredentials = false,
   } = options;
 
   const url = buildUrlWithParams(route, params);
@@ -105,45 +117,60 @@ async function fangiFetch<TResponse, TBody = unknown>(
     }
   }
 
+  if (useCredentials) {
+    const token = getAuthToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+
   const response = await fetch(url, config);
-  const data = await response.json();
+
+  let data: unknown;
+  const responseContentType = response.headers.get('content-type');
+  if (responseContentType && responseContentType.includes('application/json')) {
+    try {
+      data = await response.json();
+    } catch {
+      data = null;
+    }
+  } else {
+    data = await response.text();
+    if (typeof data === 'string' && (data.startsWith('{') || data.startsWith('['))) {
+      try {
+        data = JSON.parse(data);
+      } catch {
+        // ignore
+      }
+    }
+  }
 
   if (!response.ok) {
-    const errors = extractErrors(data);
-    throw new FetchError(errors[0], response.status, data, errors);
+    if (data && typeof data === 'object') {
+      const errors = extractErrors(data as ApiError);
+      throw new FetchError(errors[0], response.status, data as ApiError, errors);
+    }
+    throw new FetchError(response.statusText, response.status, {}, [response.statusText]);
   }
 
   return data as TResponse;
 }
 
-async function fangiFetchWithCredentials<TResponse, TBody = unknown>(
-  options: FetchOptions<TBody>
-): Promise<TResponse> {
-  const token = getAuthToken();
-  const authHeaders: Record<string, string> = {};
-
-  if (token) {
-    authHeaders['Authorization'] = `Bearer ${token}`;
-  }
-
-  return fangiFetch<TResponse, TBody>({
-    ...options,
-    headers: {
-      ...options.headers,
-      ...authHeaders,
-    },
-  });
-}
-
-function parseErrorMessages(value: string | string[] | undefined): string[] {
+function parseErrorMessages(value: unknown): string[] {
   if (!value) return [];
   if (Array.isArray(value)) {
-    return value.flatMap(v => v.split('|').map(s => s.trim())).filter(Boolean);
+    return value
+      .filter(v => typeof v === 'string')
+      .flatMap(v => v.split('||').map(s => s.trim()))
+      .filter(Boolean);
   }
-  return value
-    .split('|')
-    .map(s => s.trim())
-    .filter(Boolean);
+  if (typeof value === 'string') {
+    return value
+      .split('||')
+      .map(s => s.trim())
+      .filter(Boolean);
+  }
+  return [];
 }
 
 function extractErrors(data: ApiError): string[] {
@@ -209,5 +236,5 @@ function processBody<TBody>(body: TBody, contentType: ContentType): BodyInit {
   return body as unknown as BodyInit;
 }
 
-export { fangiFetch, fangiFetchWithCredentials as fetchWithCredentials, FetchError };
+export { fangiFetch, FetchError };
 export type { FetchOptions, HttpMethod, ApiError, ContentType, AcceptType };

@@ -28,6 +28,7 @@ entity:
   server:
     activated: "Server activated successfully."
     deactivated: "Server deactivated successfully."
+    secret_generated: "Server secret generated successfully. Please check your email for the new secret."
 
 form:
   generic:
@@ -63,6 +64,11 @@ form:
   allowed_urls:
     invalid: "Allowed URLs are not valid."
     invalid_url: "One or more URLs are not valid."
+    at_least_one: "At least one URL is required."
+    too_many: "At most {limit} URLs are allowed."
+    duplicate: "URLs must be unique."
+    invalid_format: "URL must be a valid URL: (http|https)://(<domain>|<ip>)(:<port>)?"
+    empty_url: "URL cannot be empty."
 
 # Framework's internal messages
 "Credentials invalid.": "Credentials invalid."

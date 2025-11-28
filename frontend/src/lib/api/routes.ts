@@ -1,4 +1,4 @@
-import type { MFAType } from '@/lib/types';
+import type { MFAType } from '@/types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
@@ -26,6 +26,16 @@ class ApiRoutes {
     POST: `${this.BASE}/register`,
     CONFIRM: (token: string) => `${this.BASE}/register/${token}`,
   } as const;
+
+  static readonly SERVER = {
+    LIST: `${this.BASE}/servers`,
+    CREATE: `${this.BASE}/servers/create`,
+    GET: (id: string) => `${this.BASE}/servers/${id}`,
+    UPDATE: (id: string) => `${this.BASE}/servers/${id}`,
+    ACTIVATE: (id: string) => `${this.BASE}/servers/${id}/activate`,
+    DEACTIVATE: (id: string) => `${this.BASE}/servers/${id}/deactivate`,
+    GENERATE_SECRET: (id: string) => `${this.BASE}/servers/${id}/generate-secret`,
+  };
 }
 
 export { ApiRoutes };

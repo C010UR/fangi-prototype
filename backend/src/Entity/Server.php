@@ -134,7 +134,7 @@ class Server implements DepthAwareNormalizableInterface
     #[Serializer\SerializedName('url')]
     public function getUrl(): ?string
     {
-        return reset($this->allowedUrls);
+        return empty($this->allowedUrls) ? null : reset($this->allowedUrls);
     }
 
     public function setAllowedUrls(array $allowedUrls): static

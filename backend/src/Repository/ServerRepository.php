@@ -7,12 +7,11 @@ namespace App\Repository;
 use App\Entity\Server;
 use App\Entity\User;
 use App\Enum\UserRole;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Persistence\ManagerRegistry;
 use App\ListQueryManagement\LqmFactory;
 use App\ListQueryManagement\LqmResult;
 use App\ListQueryManagement\Model\QueryParamAliasMap;
-use App\Service\UserService;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -24,7 +23,7 @@ class ServerRepository extends ServiceEntityRepository
     public function __construct(
         ManagerRegistry $registry,
         private LqmFactory $lqmFactory,
-        private Security $security
+        private Security $security,
     ) {
         parent::__construct($registry, Server::class);
     }

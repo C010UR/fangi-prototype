@@ -9,7 +9,6 @@ import {
   isMfaPending as checkMfaPending,
   getMfaToken,
   fangiFetch,
-  fetchWithCredentials,
 } from '@/lib/api';
 import type {
   AuthResponse,
@@ -18,7 +17,7 @@ import type {
   MfaVerifyRequest,
   MFAType,
   User,
-} from '@/lib/types';
+} from '@/types';
 
 interface LoginCredentials {
   username: string;
@@ -58,8 +57,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (token) {
         try {
-          const userData: User = await fetchWithCredentials({
+          const userData: User = await fangiFetch({
             route: ApiRoutes.AUTH.PROFILE,
+            useCredentials: true,
           });
           setUser(userData);
           setIsAuthenticated(true);
@@ -93,8 +93,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsAuthenticated(true);
 
       try {
-        const userData: User = await fetchWithCredentials({
+        const userData: User = await fangiFetch({
           route: ApiRoutes.AUTH.PROFILE,
+          useCredentials: true,
         });
         setUser(userData);
       } catch {
@@ -107,9 +108,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
-      await fetchWithCredentials({
+      await fangiFetch({
         route: ApiRoutes.AUTH.LOGOUT,
         method: 'GET',
+        useCredentials: true,
       });
     } catch {
       // Logout request failed, but we still clear local state
@@ -147,8 +149,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsAuthenticated(true);
 
       try {
-        const userData: User = await fetchWithCredentials({
+        const userData: User = await fangiFetch({
           route: ApiRoutes.AUTH.PROFILE,
+          useCredentials: true,
         });
         setUser(userData);
       } catch {

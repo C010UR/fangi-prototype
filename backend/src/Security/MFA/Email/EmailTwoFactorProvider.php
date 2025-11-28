@@ -9,7 +9,6 @@ use DateTimeImmutable;
 use Scheb\TwoFactorBundle\Security\TwoFactor\AuthenticationContextInterface;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\TwoFactorFormRendererInterface;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\TwoFactorProviderInterface;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 final class EmailTwoFactorProvider implements TwoFactorProviderInterface
 {

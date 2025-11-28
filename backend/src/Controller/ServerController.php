@@ -6,19 +6,18 @@ namespace App\Controller;
 
 use App\Controller\Abstract\ExtendedAbstractController;
 use App\Entity\Server;
-use App\Entity\User;
 use App\Enum\UserRole;
 use App\Form\ServerType;
+use App\ListQueryManagement\Attribute\OpenApi as LqmA;
 use App\OpenApi\Attribute as OAC;
+use App\Repository\ServerRepository;
+use App\Service\MailerService;
 use Doctrine\ORM\EntityManagerInterface;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use App\ListQueryManagement\Attribute\OpenApi as LqmA;
-use App\Repository\ServerRepository;
-use App\Service\MailerService;
 
 #[Route('/api/v1/servers', name: 'api_v1_server_')]
 final class ServerController extends ExtendedAbstractController
@@ -26,7 +25,8 @@ final class ServerController extends ExtendedAbstractController
     public function __construct(
         private EntityManagerInterface $entityManager,
         private ServerRepository $serverRepository,
-    ) {}
+    ) {
+    }
 
     #[Route('', name: 'list', methods: ['GET'])]
     #[IsGranted(UserRole::USER)]
@@ -87,7 +87,7 @@ final class ServerController extends ExtendedAbstractController
         ],
         requestBody: new OAC\FormDataBody(
             'Server creation information.',
-            schema: new OAC\Model(ServerType::class)
+            schema: new OAC\Model(ServerType::class),
         ),
         responses: [
             new OAC\JsonResponse(200, 'Server', schema: new LqmA\Model(Server::class)),
@@ -105,7 +105,7 @@ final class ServerController extends ExtendedAbstractController
             new Server(),
             [
                 'created_by' => $this->getUser(),
-            ]
+            ],
         );
 
         $mailer->sendServerSetupEmail($server);
@@ -130,7 +130,7 @@ final class ServerController extends ExtendedAbstractController
         ],
         requestBody: new OAC\FormDataBody(
             'Server update information.',
-            schema: new OAC\Model(ServerType::class)
+            schema: new OAC\Model(ServerType::class),
         ),
         responses: [
             new OAC\JsonResponse(200, 'Server', schema: new LqmA\Model(Server::class)),
@@ -149,13 +149,45 @@ final class ServerController extends ExtendedAbstractController
             $server,
             [
                 'created_by' => $this->getUser(),
-            ]
+            ],
         );
 
         $this->entityManager->persist($server);
         $this->entityManager->flush();
 
         return $this->jsonl($server);
+    }
+
+    #[Route('/{id}/generate-secret', name: 'generate_secret', requirements: ['id' => '\d+'], methods: ['GET'])]
+    #[IsGranted(UserRole::ADMIN)]
+    #[IsGranted('view_server', subject: 'server')]
+    #[OA\Get(
+        operationId: 'v1ServerGenerateSecret',
+        summary: 'Generate Server Secret',
+        tags: [
+            'servers',
+        ],
+        parameters: [
+            new OAC\DatabaseIdParameter('Server ID'),
+        ],
+        responses: [
+            new OAC\SuccessResponse('Server secret generated successfully.'),
+            new OAC\UnauthorizedResponse(),
+            new OAC\AccessDeniedResponse(UserRole::ADMIN),
+            new OAC\NotFoundResponse(),
+            new OAC\InternalServerErrorResponse(),
+        ],
+    )]
+    public function generateSecret(Server $server, MailerService $mailer): JsonResponse
+    {
+        $server->generateSecret();
+        $server->generateClientId();
+        $this->entityManager->persist($server);
+        $this->entityManager->flush();
+
+        $mailer->sendServerSetupEmail($server);
+
+        return $this->jsonm('entity.server.secret_generated');
     }
 
     #[Route('/{id}/activate', name: 'activate', requirements: ['id' => '\d+'], methods: ['GET'])]

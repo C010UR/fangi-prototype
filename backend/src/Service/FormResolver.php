@@ -123,6 +123,6 @@ class FormResolver
             }
         }
 
-        throw new FormException(implode('|', $errors));
+        throw new FormException(implode('||', $errors));
     }
 }

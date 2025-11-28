@@ -1,7 +1,8 @@
+import { Link } from '@tanstack/react-router';
 import { LogOut, ChevronsUpDown, Building2, Users, Settings, Puzzle } from 'lucide-react';
 
 import { useAuth } from '@/lib/auth/context';
-import type { UserRole } from '@/lib/types';
+import type { UserRole } from '@/types';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -43,9 +44,11 @@ function SidePanel({ activeItem = 'servers' }: SidePanelProps) {
       <SidebarContent>
         <SidebarMenu className="p-2">
           <SidebarMenuItem>
-            <SidebarMenuButton isActive={activeItem === 'servers'} tooltip="Servers">
-              <Building2 />
-              <span>Servers</span>
+            <SidebarMenuButton asChild isActive={activeItem === 'servers'} tooltip="Servers">
+              <Link to="/servers">
+                <Building2 />
+                <span>Servers</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>

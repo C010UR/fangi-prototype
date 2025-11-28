@@ -12,6 +12,7 @@ import ResetPasswordPage from './pages/auth/forgot-password/reset';
 import RegisterPage from './pages/auth/register';
 import AccountRegistrationPage from './pages/auth/register/reset';
 import DashboardPage from './pages/dashboard';
+import ServersPage from './pages/servers';
 
 interface AuthContext {
   isAuthenticated: boolean;
@@ -109,6 +110,20 @@ const dashboardRoute = createRoute({
   component: DashboardPage,
 });
 
+const serversRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/servers',
+  beforeLoad: ({ context }) => {
+    if (context.auth.isMfaPending) {
+      throw redirect({ to: '/mfa' });
+    }
+    if (!context.auth.isAuthenticated) {
+      throw redirect({ to: '/login' });
+    }
+  },
+  component: ServersPage,
+});
+
 const routeTree = rootRoute.addChildren([
   loginRoute,
   mfaRoute,
@@ -117,6 +132,7 @@ const routeTree = rootRoute.addChildren([
   registerRoute,
   accountRegistrationRoute,
   dashboardRoute,
+  serversRoute,
 ]);
 
 export const createAppRouter = (context: RouterContext) =>

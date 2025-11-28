@@ -106,3 +106,22 @@ export interface ListResult<T> {
   meta: ListMeta;
   data: T[];
 }
+
+export interface Server {
+  id: number;
+  name: string;
+  image_url: string | null;
+  allowed_urls: string[];
+  url: string;
+  is_active: boolean;
+  is_banned: boolean;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ServerForm {
+  name: string;
+  image: File | null;
+  allowed_urls: string[] | null;
+}

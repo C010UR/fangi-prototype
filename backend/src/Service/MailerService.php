@@ -10,7 +10,6 @@ use App\Model\MFA\EmailTwoFactorInterface;
 use App\Model\UserActionToken\UserActionToken;
 use App\Util\StringHelper;
 use SensitiveParameter;
-use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Mailer\MailerInterface;
@@ -23,7 +22,8 @@ class MailerService
         private TranslatorInterface $translator,
         #[Autowire(param: 'mycelium.emails')]
         private array $templates,
-    ) {}
+    ) {
+    }
 
     public function sendEmailMfa(EmailTwoFactorInterface $user): void
     {

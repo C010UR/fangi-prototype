@@ -22,9 +22,9 @@ class LqmProcessor
     public const string KEY_PAGE_SIZE = 'page_size';
 
     public const int DEFAULT_PAGE = 1;
-    public const int DEFAULT_PAGE_SIZE = 0;
+    public const int DEFAULT_PAGE_SIZE = 20;
 
-    public const float SEARCH_SIMILARITY = 0.5;
+    public const float SEARCH_SIMILARITY = 0.3;
 
     /** @var QueryFilter[] */
     private array $filters = [];
