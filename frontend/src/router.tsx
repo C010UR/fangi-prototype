@@ -12,6 +12,7 @@ import ResetPasswordPage from './pages/auth/forgot-password/reset';
 import RegisterPage from './pages/auth/register';
 import AccountRegistrationPage from './pages/auth/register/reset';
 import ServersPage from './pages/servers';
+import ServerDetailPage from './pages/servers/detail';
 import NotFoundPage from './pages/not-found';
 
 interface AuthContext {
@@ -114,6 +115,13 @@ const serversRoute = createRoute({
   component: ServersPage,
 });
 
+const serverDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/servers/$serverId',
+  beforeLoad: beforeLoadAuthenticated,
+  component: ServerDetailPage,
+});
+
 const notFoundRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '*',
@@ -129,6 +137,7 @@ const routeTree = rootRoute.addChildren([
   accountRegistrationRoute,
   dashboardRoute,
   serversRoute,
+  serverDetailRoute,
   notFoundRoute,
 ]);
 

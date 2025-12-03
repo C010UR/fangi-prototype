@@ -22,6 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { usePermissions } from '@/hooks/use-permissions';
 
 const ROLE_LABELS: Record<UserRole, string> = {
   ROLE_USER: 'User',
@@ -33,6 +34,8 @@ interface SidePanelProps {
 }
 
 function SidePanel({ activeItem = 'servers' }: SidePanelProps) {
+  const { isAdmin } = usePermissions();
+
   return (
     <Sidebar variant="inset">
       <SidebarHeader className="border-b p-4">
@@ -57,12 +60,14 @@ function SidePanel({ activeItem = 'servers' }: SidePanelProps) {
               <span>Modules</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton isActive={activeItem === 'users'} tooltip="Users">
-              <Users />
-              <span>Users</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          {isAdmin && (
+            <SidebarMenuItem>
+              <SidebarMenuButton isActive={activeItem === 'users'} tooltip="Users">
+                <Users />
+                <span>Users</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter className="border-t p-3">

@@ -11,7 +11,6 @@ use App\Entity\User;
 use App\Form\Interface\PostSubmitFormInterface;
 use App\OpenApi\Attribute as OAC;
 use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -30,15 +29,13 @@ class ServerAllowedModuleType extends AbstractType implements PostSubmitFormInte
                 'choice_label' => 'id',
                 'invalid_message' => 'form.module.invalid_inchoice',
                 'query_builder' => function (EntityRepository $er) use ($options): QueryBuilder {
-                    $expr = new Expr();
-
                     return $er
                         ->createQueryBuilder('module')
-                        ->leftJoin('module.serverAllowedModules', 'server_allowed_modules')
-                        ->andWhere($expr->orX(
-                            $expr->isNull('server_allowed_modules'),
-                            $expr->neq('server_allowed_modules.server', ':server'),
-                        ))
+                        ->andWhere('module.id NOT IN (
+                            SELECT IDENTITY(sam.module)
+                            FROM App\Entity\ServerAllowedModule sam
+                            WHERE sam.server = :server
+                        )')
                         ->andWhere('module.isActive = true')
                         ->andWhere('module.isBanned = false')
                         ->setParameter('server', $options['server']);

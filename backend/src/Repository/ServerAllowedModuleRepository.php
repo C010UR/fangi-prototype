@@ -50,19 +50,6 @@ class ServerAllowedModuleRepository extends ServiceEntityRepository
         return $result;
     }
 
-    public function findAvailableModules(Server $server): array
-    {
-        $query = $this->createQueryBuilder('server_allowed_module')
-            ->select('IDENTITY(module)')
-            ->leftJoin('server_allowed_module.module', 'module')
-            ->andWhere('server_allowed_module.server != :server')
-            ->setParameter('server', $server)
-            ->andWhere('module.isActive = true')
-            ->andWhere('module.isBanned = false');
-
-        return $query->getQuery()->getArrayResult();
-    }
-
     public function findOneByServerAndModule(Server $server, Module $module): ?ServerAllowedModule
     {
         return $this->createQueryBuilder('server_allowed_module')

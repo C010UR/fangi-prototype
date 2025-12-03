@@ -68,15 +68,11 @@ class ModuleRepository extends ServiceEntityRepository
         $processor = $this->lqmFactory->create($request, Module::class, $user);
 
         $query = $this->createQueryBuilder('module')
-            ->leftJoin('module.serverAllowedModules', 'server_allowed_modules');
-
-        $expr = $query->expr();
-
-        $query
-            ->andWhere($expr->orX(
-                $expr->isNull('server_allowed_modules'),
-                $expr->neq('server_allowed_modules.server', ':server'),
-            ))
+            ->andWhere('module.id NOT IN (
+                SELECT IDENTITY(sam.module)
+                FROM App\Entity\ServerAllowedModule sam
+                WHERE sam.server = :server
+            )')
             ->andWhere('module.isActive = true')
             ->andWhere('module.isBanned = false')
             ->setParameter('server', $server);

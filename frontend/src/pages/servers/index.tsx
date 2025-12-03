@@ -34,69 +34,49 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { toast } from 'sonner';
 import { ApiRoutes } from '@/lib/api';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { fangiFetch } from '@/lib/api/fetch';
+import { useNavigate } from '@tanstack/react-router';
+import { useQueryClient } from '@tanstack/react-query';
 import { FormDialog } from '@/components/ui/form-dialog';
 import { ServerForm } from '@/components/servers/server-form';
+import { Code } from '@/components/ui/code';
+import { useServerActions } from '@/hooks/use-server-actions';
+import { ServerActionDialogs } from '@/components/servers/server-action-dialogs';
+import { usePermissions } from '@/hooks/use-permissions';
 
 export default function ServersPage() {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { isAdmin } = usePermissions();
   const { data, setParams, meta } = useList<Server>({
     route: ApiRoutes.SERVER.LIST,
     queryKey: ['servers'],
   });
 
   const [editingServer, setEditingServer] = React.useState<Server | null>(null);
-
-  const { mutate: activateServer } = useMutation({
-    mutationFn: (id: string) =>
-      fangiFetch({
-        route: ApiRoutes.SERVER.ACTIVATE(id),
-        method: 'GET',
-        useCredentials: true,
-      }),
-    onSuccess: () => {
-      toast.success('Server activated successfully');
-      queryClient.invalidateQueries({ queryKey: ['servers'] });
-    },
-    onError: () => {
-      toast.error('Failed to activate server');
-    },
+  const [activateDialog, setActivateDialog] = React.useState<{
+    open: boolean;
+    server: Server | null;
+  }>({
+    open: false,
+    server: null,
+  });
+  const [deactivateDialog, setDeactivateDialog] = React.useState<{
+    open: boolean;
+    server: Server | null;
+  }>({
+    open: false,
+    server: null,
+  });
+  const [generateSecretDialog, setGenerateSecretDialog] = React.useState<{
+    open: boolean;
+    server: Server | null;
+  }>({
+    open: false,
+    server: null,
   });
 
-  const { mutate: deactivateServer } = useMutation({
-    mutationFn: (id: string) =>
-      fangiFetch({
-        route: ApiRoutes.SERVER.DEACTIVATE(id),
-        method: 'GET',
-        useCredentials: true,
-      }),
-    onSuccess: () => {
-      toast.success('Server deactivated successfully');
-      queryClient.invalidateQueries({ queryKey: ['servers'] });
-    },
-    onError: () => {
-      toast.error('Failed to deactivate server');
-    },
-  });
-
-  const { mutate: generateSecret } = useMutation({
-    mutationFn: (id: string) =>
-      fangiFetch({
-        route: ApiRoutes.SERVER.GENERATE_SECRET(id),
-        method: 'GET',
-        useCredentials: true,
-      }),
-    onSuccess: () => {
-      toast.success('Secret was sent to your email inbox');
-      queryClient.invalidateQueries({ queryKey: ['servers'] });
-    },
-    onError: () => {
-      toast.error('Failed to generate secret');
-    },
-  });
+  const { activateServer, deactivateServer, generateSecret } = useServerActions();
 
   const onSearch = useDebouncedCallback((value: string) => {
     setParams({ search: value });
@@ -109,8 +89,8 @@ export default function ServersPage() {
     }));
   }, [meta.orders]);
 
-  const columns = React.useMemo<ColumnDef<Server>[]>(
-    () => [
+  const columns = React.useMemo<ColumnDef<Server>[]>(() => {
+    const baseColumns: ColumnDef<Server>[] = [
       {
         accessorKey: 'image_url',
         header: 'Image',
@@ -130,64 +110,84 @@ export default function ServersPage() {
         accessorKey: 'name',
         header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
       },
-      {
-        accessorKey: 'urls',
-        header: 'Allowed URLs',
-        size: 250,
-        cell: ({ row }) => {
-          const urls = row.original.urls || [];
-          const maxVisible = 2;
+    ];
 
-          if (urls.length === 0) {
-            return <div className="text-muted-foreground">-</div>;
-          }
+    if (isAdmin) {
+      baseColumns.push(
+        {
+          accessorKey: 'urls',
+          header: 'Allowed URLs',
+          size: 250,
+          cell: ({ row }) => {
+            const urls = row.original.urls || [];
+            const maxVisible = 1;
 
-          if (urls.length <= maxVisible) {
-            return <div className="truncate">{urls.join('; ')}</div>;
-          }
+            if (urls.length === 0) {
+              return (
+                <div className="text-muted-foreground">
+                  <Code>-</Code>
+                </div>
+              );
+            }
 
-          return (
-            <div>
-              <HoverCard>
-                <HoverCardTrigger asChild>
-                  <span className="cursor-pointer underline decoration-dotted truncate">
-                    {urls.slice(0, maxVisible).join('; ')} (+
-                    {urls.length - maxVisible})
-                  </span>
-                </HoverCardTrigger>
-                <HoverCardContent className="w-80" align="start">
-                  <div className="flex flex-col gap-2">
-                    <h4 className="font-medium leading-none">Allowed URLs</h4>
-                    <div className="text-sm text-muted-foreground">
-                      <ul className="space-y-1">
-                        {urls.map((url, i) => (
-                          <li key={i} className="break-all">
-                            {url}
-                          </li>
-                        ))}
-                      </ul>
+            if (urls.length <= maxVisible) {
+              return (
+                <div className="truncate">
+                  {urls.map(url => (
+                    <Code copy>{url}</Code>
+                  ))}
+                </div>
+              );
+            }
+
+            return (
+              <div>
+                <HoverCard>
+                  <HoverCardTrigger asChild onClick={e => e.stopPropagation()}>
+                    <div>
+                      {urls.slice(0, maxVisible).map(url => (
+                        <Code copy>{url}</Code>
+                      ))}
+                      <span className="text-muted-foreground">+ {urls.length - maxVisible}</span>
                     </div>
-                  </div>
-                </HoverCardContent>
-              </HoverCard>
-            </div>
-          );
+                  </HoverCardTrigger>
+                  <HoverCardContent align="start">
+                    <div className="flex flex-col gap-2">
+                      <h4 className="font-medium leading-none">Allowed URLs</h4>
+                      <div className="text-sm text-muted-foreground">
+                        <ul className="space-y-1">
+                          {urls.map((url, i) => (
+                            <li key={i} className="break-all">
+                              <Code copy>{url}</Code>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
+              </div>
+            );
+          },
         },
-      },
-      {
-        accessorKey: 'client_id',
-        header: 'Client ID',
-      },
-      {
-        accessorKey: 'is_active',
-        header: 'Active',
-        size: 100,
-        cell: ({ row }) => (
-          <Badge variant={row.original.is_active ? 'default' : 'secondary'}>
-            {row.original.is_active ? 'Active' : 'Inactive'}
-          </Badge>
-        ),
-      },
+        {
+          header: 'Client ID',
+          cell: ({ row }) => <Code copy>{row.original.client_id}</Code>,
+        },
+        {
+          accessorKey: 'is_active',
+          header: 'Active',
+          size: 100,
+          cell: ({ row }) => (
+            <Badge variant={row.original.is_active ? 'default' : 'secondary'}>
+              {row.original.is_active ? 'Active' : 'Inactive'}
+            </Badge>
+          ),
+        }
+      );
+    }
+
+    baseColumns.push(
       {
         accessorKey: 'created_by',
         header: 'Created By',
@@ -201,28 +201,31 @@ export default function ServersPage() {
         accessorKey: 'updated_at',
         header: ({ column }) => <DataTableColumnHeader column={column} title="Updated At" />,
         cell: ({ row }) => new Date(row.original.updated_at).toLocaleDateString(),
-      },
-      {
+      }
+    );
+
+    if (isAdmin) {
+      baseColumns.push({
         id: 'actions',
         size: 50,
         cell: ({ row }) => {
           const server = row.original;
           return (
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
+              <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
+                <Button variant="table-action" className="h-8 w-8 p-0">
                   <span className="sr-only">Open menu</span>
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" onClick={e => e.stopPropagation()}>
                 <DropdownMenuItem onClick={() => setEditingServer(server)}>
                   <Pencil className="mr-2 h-4 w-4" />
                   Update server
                 </DropdownMenuItem>
                 {server.is_active ? (
                   <DropdownMenuItem
-                    onClick={() => deactivateServer(String(server.id))}
+                    onClick={() => setDeactivateDialog({ open: true, server })}
                     className="text-red-600 focus:text-red-600 focus:bg-red-50"
                   >
                     <Ban className="mr-2 h-4 w-4" />
@@ -230,14 +233,14 @@ export default function ServersPage() {
                   </DropdownMenuItem>
                 ) : (
                   <DropdownMenuItem
-                    onClick={() => activateServer(String(server.id))}
+                    onClick={() => setActivateDialog({ open: true, server })}
                     className="text-green-600 focus:text-green-600 focus:bg-green-50"
                   >
                     <CheckCircle className="mr-2 h-4 w-4" />
                     Activate Server
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onClick={() => generateSecret(String(server.id))}>
+                <DropdownMenuItem onClick={() => setGenerateSecretDialog({ open: true, server })}>
                   <Key className="mr-2 h-4 w-4" />
                   Generate Secret
                 </DropdownMenuItem>
@@ -245,10 +248,11 @@ export default function ServersPage() {
             </DropdownMenu>
           );
         },
-      },
-    ],
-    [activateServer, deactivateServer]
-  );
+      });
+    }
+
+    return baseColumns;
+  }, [isAdmin]);
 
   const table = useReactTable({
     data: data?.data || [],
@@ -278,20 +282,22 @@ export default function ServersPage() {
         <div className="flex-1 p-4 flex flex-col gap-4">
           <div className="flex justify-between items-center">
             <div className="flex gap-2">
-              <FormDialog
-                trigger={<Button>Create Server</Button>}
-                title="Create New Server"
-                description="Fill in the details below to create a new server."
-              >
-                {({ close }) => (
-                  <ServerForm
-                    onSuccess={() => {
-                      close();
-                      queryClient.invalidateQueries({ queryKey: ['servers'] });
-                    }}
-                  />
-                )}
-              </FormDialog>
+              {isAdmin && (
+                <FormDialog
+                  trigger={<Button>Create Server</Button>}
+                  title="Create New Server"
+                  description="Fill in the details below to create a new server."
+                >
+                  {({ close }) => (
+                    <ServerForm
+                      onSuccess={() => {
+                        close();
+                        queryClient.invalidateQueries({ queryKey: ['servers'] });
+                      }}
+                    />
+                  )}
+                </FormDialog>
+              )}
             </div>
             <div className="w-72">
               <Input
@@ -328,7 +334,12 @@ export default function ServersPage() {
                 <TableBody>
                   {table.getRowModel().rows?.length ? (
                     table.getRowModel().rows.map(row => (
-                      <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                      <TableRow
+                        key={row.id}
+                        data-state={row.getIsSelected() && 'selected'}
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => navigate({ to: `/servers/${row.original.id}` })}
+                      >
                         {row.getVisibleCells().map(cell => (
                           <TableCell key={cell.id}>
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -348,7 +359,6 @@ export default function ServersPage() {
             </div>
           </div>
 
-          {/* Pagination */}
           {data?.meta && (
             <ListPagination
               page={data.meta.page}
@@ -358,25 +368,31 @@ export default function ServersPage() {
           )}
         </div>
 
-        {/* Edit Server Dialog */}
-        <FormDialog
-          open={!!editingServer}
-          onOpenChange={open => !open && setEditingServer(null)}
-          title="Update Server"
-          description="Update server details."
-        >
-          {({ close }) =>
-            editingServer && (
-              <ServerForm
-                initialData={editingServer}
-                onSuccess={() => {
-                  close();
-                  queryClient.invalidateQueries({ queryKey: ['servers'] });
-                }}
-              />
-            )
-          }
-        </FormDialog>
+        <ServerActionDialogs
+          editingServer={editingServer}
+          activateDialog={activateDialog}
+          deactivateDialog={deactivateDialog}
+          generateSecretDialog={generateSecretDialog}
+          onEditClose={() => setEditingServer(null)}
+          onActivateClose={() => setActivateDialog({ open: false, server: null })}
+          onDeactivateClose={() => setDeactivateDialog({ open: false, server: null })}
+          onGenerateSecretClose={() => setGenerateSecretDialog({ open: false, server: null })}
+          onActivateConfirm={serverId => {
+            activateServer(serverId);
+            setActivateDialog({ open: false, server: null });
+          }}
+          onDeactivateConfirm={serverId => {
+            deactivateServer(serverId);
+            setDeactivateDialog({ open: false, server: null });
+          }}
+          onGenerateSecretConfirm={serverId => {
+            generateSecret(serverId);
+            setGenerateSecretDialog({ open: false, server: null });
+          }}
+          onEditSuccess={() => {
+            queryClient.invalidateQueries({ queryKey: ['servers'] });
+          }}
+        />
       </SidebarInset>
     </SidebarProvider>
   );

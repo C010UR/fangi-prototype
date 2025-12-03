@@ -68,7 +68,6 @@ final class ServerController extends ExtendedAbstractController
         ],
         parameters: [
             new OAC\DatabaseIdParameter(description: 'Server ID'),
-            new LqmA\ListParameters(Server::class),
         ],
         responses: [
             new OAC\JsonResponse(200, 'Server', schema: new LqmA\Model(Server::class)),
