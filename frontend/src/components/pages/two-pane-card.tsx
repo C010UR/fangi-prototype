@@ -25,7 +25,7 @@ function TwoPaneCard({
   ...props
 }: TwoPaneCardProps) {
   const imageSection = (
-    <div className="hidden md:block md:w-1/2 relative">
+    <div className="hidden md:block md:w-1/2 relative z-0">
       <img src={imageSrc} alt={imageAlt} className="absolute inset-0 w-full h-full object-cover" />
       <div className="absolute inset-0 bg-linear-to-r from-black/5 to-transparent" />
     </div>
@@ -37,7 +37,7 @@ function TwoPaneCard({
 
   return (
     <>
-      <div className="fixed top-6 left-6 z-10 flex items-center gap-2">
+      <div className="fixed top-6 left-6 z-0 flex items-center gap-2">
         <img src="/logo.svg" alt="Fangi logo" className="h-12 w-12" />
         <span className="text-2xl font-semibold tracking-tight text-foreground">Fangi</span>
       </div>

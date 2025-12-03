@@ -46,6 +46,7 @@ export function InfiniteFetchSelect<T extends { value: string; label: string }>(
 }: InfiniteFetchSelectProps<T>) {
   const [open, setOpen] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState('');
+  const listRef = React.useRef<HTMLDivElement>(null);
 
   const debouncedSearch = useDebouncedCallback((value: string) => {
     onSearch(value);
@@ -58,8 +59,31 @@ export function InfiniteFetchSelect<T extends { value: string; label: string }>(
 
   const selectedOption = options.find(option => option.value === value);
 
-  const onScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+  React.useEffect(() => {
+    const listElement = listRef.current;
+    if (!listElement) return;
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = listElement;
+      if (scrollTop + clientHeight >= scrollHeight - 5) {
+        if (hasMore && !isLoading) {
+          onLoadMore();
+        }
+      }
+    };
+
+    listElement.addEventListener('scroll', handleScroll);
+    return () => {
+      listElement.removeEventListener('scroll', handleScroll);
+    };
+  }, [hasMore, isLoading, onLoadMore]);
+
+  const handleWheel = (e: React.WheelEvent) => {
+    const listElement = listRef.current;
+    if (!listElement) return;
+    listElement.scrollTop += e.deltaY;
+
+    const { scrollTop, scrollHeight, clientHeight } = listElement;
     if (scrollTop + clientHeight >= scrollHeight - 5) {
       if (hasMore && !isLoading) {
         onLoadMore();
@@ -101,9 +125,9 @@ export function InfiniteFetchSelect<T extends { value: string; label: string }>(
           className="w-[--radix-popover-trigger-width] min-w-[8rem] p-0"
           align="start"
         >
-          <Command shouldFilter={false}>
+          <Command shouldFilter={false} onWheelCapture={handleWheel}>
             <CommandInput value={searchTerm} onValueChange={handleSearch} placeholder="Search..." />
-            <CommandList onScroll={onScroll} className="max-h-[300px] w-full">
+            <CommandList ref={listRef} className="max-h-[300px] w-full scrollbar-thin">
               {!isLoading && options.length === 0 && <CommandEmpty>No results found.</CommandEmpty>}
               <CommandGroup>
                 {options.map(option => {
