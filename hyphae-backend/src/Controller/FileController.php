@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Controller\Abstract\ExtendedAbstractController;
+use App\OpenApi\Attribute as OAC;
 use App\Service\FileService;
 use Doctrine\ORM\EntityManagerInterface;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,7 +24,8 @@ class FileController extends ExtendedAbstractController
     public function __construct(
         private FileService $fileService,
         private EntityManagerInterface $entityManager,
-    ) {}
+    ) {
+    }
 
     private function normalizePath(string $path): string
     {
@@ -31,6 +34,36 @@ class FileController extends ExtendedAbstractController
 
     #[Route('/ls/{path}', name: 'list', requirements: ['path' => '.*'], defaults: ['path' => '/'], methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
+    #[OA\Get(
+        operationId: 'v1FileList',
+        summary: 'List files',
+        tags: [
+            'files',
+        ],
+        parameters: [
+            new OA\Parameter(
+                name: 'path',
+                in: 'path',
+                description: 'File path.',
+                required: false,
+                schema: new OA\Schema(type: 'string', example: '/path/to/file.txt'),
+            ),
+        ],
+        responses: [
+            new OAC\JsonResponse(
+                response: 200,
+                description: 'Successfully listed files.',
+                type: 'array',
+                items: new OA\Items(
+                    ref: '#/components/schemas/ServerFile',
+                ),
+            ),
+            new OAC\UnauthorizedResponse(),
+            new OAC\BadRequestResponse(),
+            new OAC\AccessDeniedResponse(),
+            new OAC\InternalServerErrorResponse(),
+        ],
+    )]
     public function list(string $path): JsonResponse
     {
         $files = $this->fileService->list($this->normalizePath($path));
@@ -40,6 +73,33 @@ class FileController extends ExtendedAbstractController
 
     #[Route('/head/{path}', name: 'head', requirements: ['path' => '.+'], methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
+    #[OA\Get(
+        operationId: 'v1FileHead',
+        summary: 'Get file Header',
+        tags: [
+            'files',
+        ],
+        parameters: [
+            new OA\Parameter(
+                name: 'path',
+                in: 'path',
+                description: 'File path.',
+                required: false,
+                schema: new OA\Schema(type: 'string', example: '/path/to/file.txt'),
+            ),
+        ],
+        responses: [
+            new OAC\JsonResponse(
+                response: 200,
+                description: 'Successfully retrieved file information.',
+                schema: '#/components/schemas/ServerFile',
+            ),
+            new OAC\UnauthorizedResponse(),
+            new OAC\BadRequestResponse(),
+            new OAC\AccessDeniedResponse(),
+            new OAC\InternalServerErrorResponse(),
+        ],
+    )]
     public function head(string $path): JsonResponse
     {
         $file = $this->fileService->head($this->normalizePath($path));
@@ -49,6 +109,32 @@ class FileController extends ExtendedAbstractController
 
     #[Route('/read/{path}', name: 'read', requirements: ['path' => '.+'], methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
+    #[OA\Get(
+        operationId: 'v1FileRead',
+        summary: 'Read file',
+        tags: [
+            'files',
+        ],
+        parameters: [
+            new OA\Parameter(
+                name: 'path',
+                in: 'path',
+                description: 'File path.',
+                required: false,
+                schema: new OA\Schema(type: 'string', example: '/path/to/file.txt'),
+            ),
+        ],
+        responses: [
+            new OAC\BinaryFileResponse(
+                response: 200,
+                description: 'Successfully read file.',
+            ),
+            new OAC\UnauthorizedResponse(),
+            new OAC\BadRequestResponse(),
+            new OAC\AccessDeniedResponse(),
+            new OAC\InternalServerErrorResponse(),
+        ],
+    )]
     public function read(Request $request, string $path): BinaryFileResponse
     {
         $path = $this->normalizePath($path);
@@ -67,10 +153,36 @@ class FileController extends ExtendedAbstractController
 
     #[Route('/mkdir/{path}', name: 'mkdir', requirements: ['path' => '.+'], methods: ['POST'])]
     #[IsGranted('ROLE_USER')]
+    #[OA\Post(
+        operationId: 'v1FileMkdir',
+        summary: 'Create directory',
+        tags: [
+            'files',
+        ],
+        parameters: [
+            new OA\Parameter(
+                name: 'path',
+                in: 'path',
+                description: 'File path.',
+                required: false,
+                schema: new OA\Schema(type: 'string', example: '/path/to/file.txt'),
+            ),
+        ],
+        responses: [
+            new OAC\JsonResponse(
+                response: 200,
+                description: 'Successfully created directory.',
+                schema: '#/components/schemas/ServerFile',
+            ),
+            new OAC\UnauthorizedResponse(),
+            new OAC\BadRequestResponse(),
+            new OAC\AccessDeniedResponse(),
+            new OAC\InternalServerErrorResponse(),
+        ],
+    )]
     public function mkdir(string $path): JsonResponse
     {
         $file = $this->fileService->createDirectory($this->normalizePath($path));
-        dd($file);
         $this->entityManager->flush();
 
         return $this->jsonl($file);
@@ -78,6 +190,33 @@ class FileController extends ExtendedAbstractController
 
     #[Route('/touch/{path}', name: 'touch', requirements: ['path' => '.+'], methods: ['POST'])]
     #[IsGranted('ROLE_USER')]
+    #[OA\Post(
+        operationId: 'v1FileTouch',
+        summary: 'Create file',
+        tags: [
+            'files',
+        ],
+        parameters: [
+            new OA\Parameter(
+                name: 'path',
+                in: 'path',
+                description: 'File path.',
+                required: false,
+                schema: new OA\Schema(type: 'string', example: '/path/to/file.txt'),
+            ),
+        ],
+        responses: [
+            new OAC\JsonResponse(
+                response: 200,
+                description: 'Successfully created file.',
+                schema: '#/components/schemas/ServerFile',
+            ),
+            new OAC\UnauthorizedResponse(),
+            new OAC\BadRequestResponse(),
+            new OAC\AccessDeniedResponse(),
+            new OAC\InternalServerErrorResponse(),
+        ],
+    )]
     public function touch(Request $request, string $path): JsonResponse
     {
         /** @var UploadedFile|null $file */
@@ -93,8 +232,34 @@ class FileController extends ExtendedAbstractController
         return $this->jsonl($file);
     }
 
-    #[Route('/rm/{path}', name: 'delete', requirements: ['path' => '.+'], methods: ['DELETE'])]
+    #[Route('/rm/{path}', name: 'delete', requirements: ['path' => '.+'], methods: ['POST'])]
     #[IsGranted('ROLE_USER')]
+    #[OA\Post(
+        operationId: 'v1FileDelete',
+        summary: 'Delete file',
+        tags: [
+            'files',
+        ],
+        parameters: [
+            new OA\Parameter(
+                name: 'path',
+                in: 'path',
+                description: 'File path.',
+                required: false,
+                schema: new OA\Schema(type: 'string', example: '/path/to/file.txt'),
+            ),
+        ],
+        responses: [
+            new OAC\JsonResponse(
+                response: 200,
+                description: 'Empty response.',
+            ),
+            new OAC\UnauthorizedResponse(),
+            new OAC\BadRequestResponse(),
+            new OAC\AccessDeniedResponse(),
+            new OAC\InternalServerErrorResponse(),
+        ],
+    )]
     public function delete(string $path): JsonResponse
     {
         $this->fileService->delete($this->normalizePath($path));
@@ -105,6 +270,40 @@ class FileController extends ExtendedAbstractController
 
     #[Route('/mv/{path}:{newPath}', name: 'move', requirements: ['path' => '[^:]+', 'newPath' => '.+'], methods: ['POST'])]
     #[IsGranted('ROLE_USER')]
+    #[OA\Post(
+        operationId: 'v1FileMove',
+        summary: 'Move file',
+        tags: [
+            'files',
+        ],
+        parameters: [
+            new OA\Parameter(
+                name: 'path',
+                in: 'path',
+                description: 'File path.',
+                required: false,
+                schema: new OA\Schema(type: 'string', example: '/path/to/file.txt'),
+            ),
+            new OA\Parameter(
+                name: 'newPath',
+                in: 'path',
+                description: 'New file path.',
+                required: false,
+                schema: new OA\Schema(type: 'string', example: '/path/to/file.txt'),
+            ),
+        ],
+        responses: [
+            new OAC\JsonResponse(
+                response: 200,
+                description: 'Successfully moved file.',
+                schema: '#/components/schemas/ServerFile',
+            ),
+            new OAC\UnauthorizedResponse(),
+            new OAC\BadRequestResponse(),
+            new OAC\AccessDeniedResponse(),
+            new OAC\InternalServerErrorResponse(),
+        ],
+    )]
     public function move(string $path, string $newPath): JsonResponse
     {
         $file = $this->fileService->move($this->normalizePath($path), $this->normalizePath($newPath));
@@ -115,6 +314,40 @@ class FileController extends ExtendedAbstractController
 
     #[Route('/cp/{path}:{newPath}', name: 'copy', requirements: ['path' => '[^:]+', 'newPath' => '.+'], methods: ['POST'])]
     #[IsGranted('ROLE_USER')]
+    #[OA\Post(
+        operationId: 'v1FileCopy',
+        summary: 'Copy file',
+        tags: [
+            'files',
+        ],
+        parameters: [
+            new OA\Parameter(
+                name: 'path',
+                in: 'path',
+                description: 'File path.',
+                required: false,
+                schema: new OA\Schema(type: 'string', example: '/path/to/file.txt'),
+            ),
+            new OA\Parameter(
+                name: 'newPath',
+                in: 'path',
+                description: 'New file path.',
+                required: false,
+                schema: new OA\Schema(type: 'string', example: '/path/to/file.txt'),
+            ),
+        ],
+        responses: [
+            new OAC\JsonResponse(
+                response: 200,
+                description: 'Successfully copied file.',
+                schema: '#/components/schemas/ServerFile',
+            ),
+            new OAC\UnauthorizedResponse(),
+            new OAC\BadRequestResponse(),
+            new OAC\AccessDeniedResponse(),
+            new OAC\InternalServerErrorResponse(),
+        ],
+    )]
     public function copy(string $path, string $newPath): JsonResponse
     {
         $file = $this->fileService->copy($this->normalizePath($path), $this->normalizePath($newPath));

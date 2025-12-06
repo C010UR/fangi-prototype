@@ -26,7 +26,7 @@ final class Version20251127171332 extends AbstractMigration
                 image_url TEXT DEFAULT NULL,
                 urls JSONB NOT NULL,
                 secret VARCHAR(255) NOT NULL,
-                auth_token VARCHAR(100) DEFAULT NULL,
+                auth_token TEXT DEFAULT NULL,
                 client_id UUID NOT NULL,
                 is_active BOOLEAN NOT NULL,
                 is_banned BOOLEAN NOT NULL,

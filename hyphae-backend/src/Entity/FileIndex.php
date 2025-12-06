@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Entity\Trait\TimestampableEntityTrait;
+use App\Entity\Trait\SerializableTimestampableEntityTrait;
 use App\Repository\FileIndexRepository;
 use App\Serializer\Interface\DepthAwareNormalizableInterface;
 use Doctrine\ORM\Mapping as ORM;
@@ -14,7 +14,7 @@ use Symfony\Component\Serializer\Attribute as Serializer;
 #[ORM\HasLifecycleCallbacks]
 class FileIndex implements DepthAwareNormalizableInterface
 {
-    use TimestampableEntityTrait;
+    use SerializableTimestampableEntityTrait;
 
     #[ORM\Id]
     #[ORM\Column(length: 1024)]

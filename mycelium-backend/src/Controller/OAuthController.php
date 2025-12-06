@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[Route('', name: '')]
 class OAuthController extends ExtendedAbstractController
 {
     public function __construct(
@@ -35,12 +36,14 @@ class OAuthController extends ExtendedAbstractController
     #[OA\Post(
         operationId: 'oauthAuthorize',
         summary: 'OAuth 2.0 Authorization',
-        tags: ['oauth'],
+        tags: [
+            'oauth',
+        ],
         parameters: [
-            new OA\Parameter(name: 'client_id', in: 'query', required: true, schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'redirect_uri', in: 'query', required: true, schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'state', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'nonce', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'client_id', in: 'query', required: true, schema: new OA\Schema(type: 'string'), description: 'Client ID.'),
+            new OA\Parameter(name: 'redirect_uri', in: 'query', required: true, schema: new OA\Schema(type: 'string'), description: 'Redirect URI.'),
+            new OA\Parameter(name: 'state', in: 'query', schema: new OA\Schema(type: 'string'), description: 'State.'),
+            new OA\Parameter(name: 'nonce', in: 'query', schema: new OA\Schema(type: 'string'), description: 'Nonce.'),
         ],
         requestBody: new OAC\JsonBody(
             description: 'Authorization Form',
@@ -48,7 +51,9 @@ class OAuthController extends ExtendedAbstractController
         ),
         responses: [
             new OA\Response(response: 302, description: 'Redirect to redirect_uri with code'),
+            new OAC\UnauthorizedResponse(),
             new OAC\BadRequestResponse(),
+            new OAC\InternalServerErrorResponse(),
         ],
     )]
     public function submit(Request $request): Response
@@ -75,7 +80,6 @@ class OAuthController extends ExtendedAbstractController
             $files,
             $request->query->get('state', ''),
             $request->query->get('nonce', ''),
-            $redirectUri,
         );
 
         $queryParams = ['code' => $tokenString, 'server_url' => $authorizedServer->getUrl()];
@@ -100,33 +104,50 @@ class OAuthController extends ExtendedAbstractController
     #[OA\Post(
         operationId: 'oauthToken',
         summary: 'OAuth 2.0 Token Endpoint',
-        tags: ['oauth'],
-        requestBody: new OA\RequestBody(
-            content: new OA\MediaType(
-                mediaType: 'application/x-www-form-urlencoded',
-                schema: new OA\Schema(
-                    properties: [
-                        new OA\Property(property: 'grant_type', type: 'string', enum: ['authorization_code', 'refresh_token']),
-                        new OA\Property(property: 'code', type: 'string'),
-                        new OA\Property(property: 'redirect_uri', type: 'string'),
-                        new OA\Property(property: 'client_id', type: 'string'),
-                        new OA\Property(property: 'client_secret', type: 'string'),
-                        new OA\Property(property: 'refresh_token', type: 'string'),
-                    ],
-                    required: ['grant_type'],
-                ),
-            ),
+        tags: [
+            'oauth',
+        ],
+        requestBody: new OAC\JsonBody(
+            description: 'Authorization Form',
+            schema: new OAC\Model(AuthorizationCodeExchangeType::class),
         ),
         responses: [
-            new OAC\JsonResponse(200, 'Token Response', schema: new OA\Schema(properties: [
-                new OA\Property(property: 'access_token', type: 'string'),
-                new OA\Property(property: 'token_type', type: 'string'),
-                new OA\Property(property: 'expires_in', type: 'integer'),
-                new OA\Property(property: 'refresh_token', type: 'string'),
-                new OA\Property(property: 'id_token', type: 'string'),
-            ])),
+            new OAC\JsonResponse(
+                response: 200,
+                description: 'Token Response',
+                type: 'object',
+                properties: [
+                    new OA\Property(
+                        property: 'token_type',
+                        type: 'enum',
+                        enum: ['Bearer'],
+                        description: 'Token Type.',
+                        example: 'Bearer',
+                    ),
+                    new OA\Property(
+                        property: 'access_token',
+                        type: 'string',
+                        description: 'Access Token.',
+                        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30',
+                    ),
+                    new OA\Property(
+                        property: 'refresh_token',
+                        type: 'string',
+                        description: 'Refresh Token.',
+                        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30',
+                    ),
+                    new OA\Property(
+                        property: 'id_token',
+                        type: 'string',
+                        description: 'ID Token.',
+                        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30',
+                    ),
+                ],
+            ),
             new OAC\BadRequestResponse(),
+            new OAC\InternalServerErrorResponse(),
         ],
+        security: [],
     )]
     public function token(Request $request): JsonResponse
     {
@@ -148,14 +169,60 @@ class OAuthController extends ExtendedAbstractController
 
     #[Route('/.well-known/jwks.json', name: 'well_known_jwks', methods: ['GET'])]
     #[OA\Get(
-        operationId: 'oauthJwks',
-        summary: 'OAuth 2.0 JWKS Endpoint',
-        tags: ['oauth'],
-        responses: [
-            new OAC\JsonResponse(200, 'JWKS', schema: new OA\Schema(properties: [
-                new OA\Property(property: 'keys', type: 'array', items: new OA\Items(type: 'object')),
-            ])),
+        operationId: 'wellKnownJwks',
+        summary: 'Well-known JWKS Endpoint',
+        tags: [
+            'well-known',
         ],
+        responses: [
+            new OAC\JsonResponse(
+                response: 200,
+                description: 'JWKS',
+                type: 'object',
+                properties: [
+                    new OA\Property(property: 'keys', type: 'array', items: new OA\Items(type: 'object', properties: [
+                        new OA\Property(
+                            property: 'kty',
+                            type: 'string',
+                            description: 'Key Type.',
+                            example: 'RSA',
+                        ),
+                        new OA\Property(
+                            property: 'alg',
+                            type: 'string',
+                            description: 'Algorithm.',
+                            example: 'RS256',
+                        ),
+                        new OA\Property(
+                            property: 'use',
+                            type: 'string',
+                            description: 'Key Use.',
+                            example: 'sig',
+                        ),
+                        new OA\Property(
+                            property: 'kid',
+                            type: 'string',
+                            description: 'Key ID.',
+                            example: 'e43fc84d9f48fca7',
+                        ),
+                        new OA\Property(
+                            property: 'n',
+                            type: 'string',
+                            description: 'Modulus.',
+                            example: 'fOajtMW20x6nghfKl2sTaD1CaK39WRlaPos3gcwFVHuEJPeYQ7Hz6knVb-1bbDITTbvk2hkU51ToX7iUCjcPaOyJNeRYc8LEMamSdN81oQXE9LVQ2QRGh99aiVkhPoxCkeTRwsQONk8-m2Y-xstewzG0uhKbnAEZpBqFyyuHXCU',
+                        ),
+                        new OA\Property(
+                            property: 'e',
+                            type: 'string',
+                            description: 'Exponent.',
+                            example: 'AQAB',
+                        ),
+                    ])),
+                ],
+            ),
+            new OAC\InternalServerErrorResponse(),
+        ],
+        security: [],
     )]
     public function jwks(): JsonResponse
     {

@@ -16,12 +16,15 @@ use App\OpenApi\Attribute as OAC;
 use App\Repository\ModuleRepository;
 use App\Repository\ServerAllowedModuleRepository;
 use App\Repository\ServerRepository;
+use App\Service\FileServerIntegrationService;
 use App\Service\MailerService;
+use App\Util\Path;
 use Doctrine\ORM\EntityManagerInterface;
 use OpenApi\Attributes as OA;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -401,5 +404,47 @@ final class ServerController extends ExtendedAbstractController
         $this->entityManager->flush();
 
         return $this->jsonm('entity.server.module_removed');
+    }
+
+    #[Route('/{id}/ls/{path}', name: 'ls', requirements: ['path' => '.*'], defaults: ['path' => '/'], methods: ['GET'], priority: -10)]
+    #[IsGranted(UserRole::USER)]
+    #[IsGranted('view_server', subject: 'server')]
+    #[OA\Get(
+        operationId: 'v1ServerLs',
+        summary: 'List files in a server',
+        tags: [
+            'servers',
+        ],
+        parameters: [
+            new OAC\DatabaseIdParameter(description: 'Server ID'),
+            new OA\Parameter(name: 'path', in: 'path', required: true, schema: new OA\Schema(type: 'string')),
+        ],
+        responses: [
+            new OAC\JsonResponse(
+                response: 200,
+                description: 'File list.',
+                type: 'array',
+                items: new OA\Items(ref: '#/components/schemas/ServerFile'),
+            ),
+            new OAC\UnauthorizedResponse(),
+            new OAC\AccessDeniedResponse(UserRole::USER),
+            new OAC\NotFoundResponse(),
+            new OAC\InternalServerErrorResponse(),
+        ],
+    )]
+    public function ls(
+        #[MapEntity(mapping: ['id' => 'id'])]
+        Server $server,
+        string $path,
+        FileServerIntegrationService $fileServerIntegrationService,
+    ): JsonResponse {
+
+        if (!Path::isValid($path)) {
+            throw new BadRequestHttpException('file.invalid_path');
+        }
+
+        $files = $fileServerIntegrationService->listFiles($server, $path);
+
+        return $this->jsons($files);
     }
 }

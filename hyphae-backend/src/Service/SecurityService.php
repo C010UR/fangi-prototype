@@ -44,7 +44,7 @@ class SecurityService
         $scopeMap = [];
         foreach ($scopes as $scope) {
             $parts = explode(':', $scope, 2);
-            if (\count($parts) === 2) {
+            if (2 === \count($parts)) {
                 $scopeMap[$parts[0]] = $parts[1];
             }
         }
@@ -64,12 +64,12 @@ class SecurityService
 
     private function isReadPermission(?string $permission): bool
     {
-        return $permission !== null && \in_array($permission, ['r', 'rw'], true);
+        return null !== $permission && \in_array($permission, ['r', 'rw'], true);
     }
 
     private function isWritePermission(?string $permission): bool
     {
-        return $permission !== null && \in_array($permission, ['rw'], true);
+        return null !== $permission && \in_array($permission, ['rw'], true);
     }
 
     public function canRead(string $path): bool
@@ -84,6 +84,7 @@ class SecurityService
 
     /**
      * @param FileIndex[] $files
+     *
      * @return FileIndex[]
      */
     public function filterFilesByPermissions(string $path, array $files): ?array
@@ -97,7 +98,7 @@ class SecurityService
 
         foreach ($scopes as $scope) {
             $parts = explode(':', $scope, 2);
-            if (\count($parts) === 2 && $this->isReadPermission($parts[1])) {
+            if (2 === \count($parts) && $this->isReadPermission($parts[1])) {
                 $scopePaths[] = $parts[0];
             }
         }
@@ -107,7 +108,7 @@ class SecurityService
         foreach ($files as $file) {
             $filePath = $file->getPath();
 
-            if ($filePath === null) {
+            if (null === $filePath) {
                 continue;
             }
 

@@ -1,0 +1,130 @@
+nelmio_api_doc:
+  html_config:
+    assets_mode: offline
+    stoplight_config:
+      layout: "responsive"
+      router: "hash"
+  documentation:
+    info:
+      title: Hyphae
+      version: 0.1.0
+      description: "Fangi Hyphae is an File Management System for Fangi ecosystem."
+    x-logo:
+      url: /logo.svg
+      altText: Fangi Hyphae
+      href: https://www.fangi.org/
+    servers:
+      - url: http://localhost:9000/
+        description: "Local Hyphae API"
+    components:
+      schemas:
+        User:
+          type: object
+          required:
+            - id
+            - email
+            - username
+            - image_url
+            - is_system
+            - formatted_name
+          properties:
+            id:
+              type: integer
+              format: int32
+              minimum: 0
+              description: "ID."
+              example: 82
+            email:
+             description: "Email."
+             type: string
+             example: "example@example.com"
+             format: email
+            username:
+              type: string
+              description: "Username."
+              example: "johndoe"
+            image_url:
+              type: string
+              nullable: true
+              description: "User image URL."
+              example: "https://example.com/image.jpg"
+            is_system:
+              type: boolean
+              description: "Whether the user is a system user."
+              example: false
+            formatted_name:
+              type: string
+              nullable: true
+              description: "Formatted name."
+              example: "John Doe"
+        ServerFile:
+          type: object
+          required:
+            - path
+            - parent
+            - name
+            - content_type
+            - is_directory
+            - created_by
+            - updated_by
+            - created_at
+            - updated_at
+          properties:
+            path:
+              type: string
+              description: "File path."
+              example: "/path/to/file.txt"
+            parent:
+              type: string
+              nullable: true
+              description: "Parent path."
+              example: "/path/to"
+            name:
+              type: string
+              description: "File name."
+              example: "file.txt"
+            content_type:
+              type: string
+              description: "File content type."
+              example: "text/plain"
+            is_directory:
+              type: boolean
+              description: "Whether the file is a directory."
+              example: false
+            created_by:
+              type: string
+              nullable: true
+              description: "Who created the file (full name + email)."
+              example: "Olivia Rhye (example@example.com)"
+            updated_by:
+              type: string
+              nullable: true
+              description: "Who updated the file (full name + email)."
+              example: "Olivia Rhye (example@example.com)"
+            created_at:
+              type: string
+              format: date-time
+              description: "Date of creation."
+              example: "2017-07-21T17:32:28Z"
+            updated_at:
+              type: string
+              format: date-time
+              description: "Date of the last update."
+              example: "2017-07-21T17:32:28Z"
+      securitySchemes:
+        token_auth:
+          type: http
+          scheme: Bearer
+          description: |
+            Bearer token authentication.
+            Provide your token in the Authorization header as: `Bearer <token>`
+    security:
+      - token_auth: ["019af545-4bda-7285-928b-c9d4a5001f1b"]
+    tags:
+      - name: auth
+        description: Authentication and session management endpoints.
+      - name: files
+        description: File endpoints.
+  areas: # to filter documented areas
+    path_patterns:
+      - ^/api(?!/doc$) # Accepts routes under /api except /api/doc

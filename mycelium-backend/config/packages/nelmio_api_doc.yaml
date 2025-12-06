@@ -621,6 +621,136 @@ nelmio_api_doc:
               format: binary
               description: "User image file."
               nullable: true
+        AuthorizeForm:
+          type: object
+          required:
+            - server
+            - files
+          properties:
+            server:
+              type: integer
+              format: int32
+              description: "Server ID."
+              example: 1
+            files:
+              type: array
+              description: "List of file paths."
+              items:
+                type: string
+                format: uri
+                example: "/path/to/file.txt"
+              minItems: 1
+        AuthorizationCodeExchangeForm:
+          type: object
+          oneOf:
+            - title: Authorization Code Exchange
+              required:
+                - grant_type
+                - redirect_uri
+                - client_id
+                - client_secret
+                - code
+              properties:
+                grant_type:
+                  type: string
+                  enum: [authorization_code]
+                  description: "Grant type."
+                  example: "authorization_code"
+                redirect_uri:
+                  type: string
+                  description: "Redirect URI."
+                  example: "https://example.com/callback"
+                client_id:
+                  $ref: "#/components/schemas/UUID"
+                client_secret:
+                  type: string
+                  description: "Client secret."
+                  example: "SuperStr0ngP#55w0rd!"
+                code:
+                  type: string
+                  description: "Authorization code."
+                  example: "auth_code_123"
+            - title: Refresh Token Exchange
+              required:
+                - grant_type
+                - redirect_uri
+                - client_id
+                - client_secret
+                - refresh_token
+              properties:
+                grant_type:
+                  type: string
+                  enum: [refresh_token]
+                  description: "Grant type."
+                  example: "refresh_token"
+                redirect_uri:
+                  type: string
+                  description: "Redirect URI."
+                  example: "https://example.com/callback"
+                client_id:
+                  $ref: "#/components/schemas/UUID"
+                client_secret:
+                  type: string
+                  description: "Client secret."
+                  example: "SuperStr0ngP#55w0rd!"
+                refresh_token:
+                  type: string
+                  description: "Refresh token."
+                  example: "refresh_token_123"
+        ServerFile:
+          type: object
+          required:
+            - path
+            - parent
+            - name
+            - content_type
+            - is_directory
+            - created_by
+            - updated_by
+            - created_at
+            - updated_at
+          properties:
+            path:
+              type: string
+              description: "File path."
+              example: "/path/to/file.txt"
+            parent:
+              type: string
+              nullable: true
+              description: "Parent path."
+              example: "/path/to"
+            name:
+              type: string
+              description: "File name."
+              example: "file.txt"
+            content_type:
+              type: string
+              description: "File content type."
+              example: "text/plain"
+            is_directory:
+              type: boolean
+              description: "Whether the file is a directory."
+              example: false
+            created_by:
+              type: string
+              nullable: true
+              description: "Who created the file (full name + email)."
+              example: "Olivia Rhye (example@example.com)"
+            updated_by:
+              type: string
+              nullable: true
+              description: "Who updated the file (full name + email)."
+              example: "Olivia Rhye (example@example.com)"
+            created_at:
+              type: string
+              format: date-time
+              description: "Date of creation."
+              example: "2017-07-21T17:32:28Z"
+            updated_at:
+              type: string
+              format: date-time
+              description: "Date of the last update."
+              example: "2017-07-21T17:32:28Z"
       securitySchemes:
         token_auth:
           type: http
@@ -645,6 +775,12 @@ nelmio_api_doc:
         description: Module management endpoints.
       - name: users
         description: User management endpoints.
+      - name: oauth
+        description: OAuth 2.0 endpoints.
+      - name: well-known
+        description: Well-known endpoints.
   areas: # to filter documented areas
     path_patterns:
       - ^/api(?!/doc$) # Accepts routes under /api except /api/doc
+      - ^/.well-known
+      - ^/oauth

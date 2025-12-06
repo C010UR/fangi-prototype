@@ -58,7 +58,7 @@ class FileService
             ->setName(basename($path))
             ->setContentType('directory')
             ->setIsDirectory(true)
-            ->setPermissions(0777)
+            ->setPermissions(0o777)
             ->setCreatedBy($this->securityService->getUser())
             ->setUpdatedBy($this->securityService->getUser());
     }
@@ -71,7 +71,7 @@ class FileService
             ->setName(basename($path))
             ->setContentType($file->getMimeType())
             ->setIsDirectory(false)
-            ->setPermissions(0777)
+            ->setPermissions(0o777)
             ->setCreatedBy($this->securityService->getUser())
             ->setUpdatedBy($this->securityService->getUser());
     }
@@ -93,7 +93,7 @@ class FileService
     {
         $parentPath = \dirname($path);
 
-        if ($parentPath === '/') {
+        if ('/' === $parentPath) {
             return;
         }
 
@@ -200,7 +200,7 @@ class FileService
 
         $result = $this->securityService->filterFilesByPermissions(
             $path,
-            $this->fileIndexRepository->findDirectChildrenByParent($path)
+            $this->fileIndexRepository->findDirectChildrenByParent($path),
         );
 
         if (null === $result) {

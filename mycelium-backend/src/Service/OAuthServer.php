@@ -158,7 +158,6 @@ class OAuthServer
         array $scopes = [],
         string $state = '',
         string $nonce = '',
-        string $redirectUri = '',
     ): string {
         $now = new DateTimeImmutable();
         $expiresAt = $now->modify('+' . $this->authorizationCodeTtl . ' seconds');

@@ -62,7 +62,7 @@ class Server implements DepthAwareNormalizableInterface
 
     private ?string $plainSecret = null;
 
-    #[ORM\Column(length: 100, nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $authToken = null;
 
     #[ORM\Column]

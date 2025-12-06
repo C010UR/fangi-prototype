@@ -102,6 +102,10 @@ file:
   parent_not_found: "Parent not found."
   parent_not_directory: "Parent directory not found."
 
+server:
+  unavailable: "Server returned {status}. Please check if your server is running and accessible. Message from server: {message}"
+  not_working: "Server is not working. Please check your server configuration."
+
 # Framework's internal messages
 "Credentials invalid.": "Credentials invalid."
 "Access Denied.": "Access Denied."

@@ -20,7 +20,7 @@ abstract class ExtendedAbstractController extends AbstractController
 
     protected function getUser(): User
     {
-        return parent::getUser();
+        return parent::getUser()?->getUser();
     }
 
     protected function jsons(

@@ -142,7 +142,6 @@ class OAuthClient
 
     public function refreshSession(#[SensitiveParameter] Session $session): Session
     {
-        dd('here');
         $refreshTokenData = $session->getRefreshToken();
 
         if (empty($refreshTokenData['raw'])) {
