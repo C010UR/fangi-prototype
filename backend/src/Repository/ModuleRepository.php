@@ -13,6 +13,7 @@ use App\ListQueryManagement\Model\QueryParamAliasMap;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * @extends ServiceEntityRepository<Module>
@@ -82,5 +83,16 @@ class ModuleRepository extends ServiceEntityRepository
         ));
 
         return $result;
+    }
+
+    public function findOneByClientId(Uuid $clientId): ?Module
+    {
+        return $this->createQueryBuilder('module')
+            ->andWhere('module.clientId = :clientId')
+            ->setParameter('clientId', $clientId)
+            ->andWhere('module.isActive = true')
+            ->andWhere('module.isBanned = false')
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 }

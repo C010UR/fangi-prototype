@@ -14,6 +14,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * @extends ServiceEntityRepository<Server>
@@ -72,5 +73,16 @@ class ServerRepository extends ServiceEntityRepository
         ));
 
         return $result;
+    }
+
+    public function findOneByClientId(Uuid $clientId): ?Server
+    {
+        return $this->createQueryBuilder('server')
+            ->andWhere('server.clientId = :clientId')
+            ->setParameter('clientId', $clientId)
+            ->andWhere('server.isActive = true')
+            ->andWhere('server.isBanned = false')
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 }

@@ -72,6 +72,12 @@ form:
     duplicate: "URLs must be unique."
     invalid_format: "URL must be a valid URL: (http|https)://(<domain>|<ip>)(:<port>)?"
     empty_url: "URL cannot be empty."
+  files:
+    invalid: "Files are not valid."
+    invalid_format: "File must be a valid URL: /<path>"
+    at_least_one: "At least one file is required."
+    duplicate: "Files must be unique."
+    empty_file: "File cannot be empty."
   module:
     invalid_inchoice: "Module is not valid or already added to server."
   description:
