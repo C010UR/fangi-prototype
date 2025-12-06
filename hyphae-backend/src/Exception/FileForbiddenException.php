@@ -1,0 +1,18 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Exception;
+
+use Exception;
+use Symfony\Component\HttpKernel\Attribute\WithHttpStatus;
+use Throwable;
+
+#[WithHttpStatus(403)]
+class FileForbiddenException extends Exception
+{
+    public function __construct(string $message = 'File forbidden', int $code = 403, ?Throwable $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
+    }
+}

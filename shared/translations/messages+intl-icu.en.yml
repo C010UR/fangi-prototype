@@ -74,7 +74,7 @@ form:
     empty_url: "URL cannot be empty."
   files:
     invalid: "Files are not valid."
-    invalid_format: "File must be a valid URL: /<path>"
+    invalid_format: "File must be a valid path: /<path>"
     at_least_one: "At least one file is required."
     duplicate: "Files must be unique."
     empty_file: "File cannot be empty."
@@ -90,7 +90,17 @@ form:
     invalid: "Servers are not valid."
     not_unique: "Servers must be unique."
     at_least_one: "At least one server is required."
+  server:
+    invalid: "Server is not valid."
 
+file:
+  path_not_found: "Path not found."
+  inconsistent_index: "Inconsistent index."
+  path_is_file: "Path is a file."
+  path_is_dir: "Path is a directory."
+  no_file_provided: "No file provided."
+  parent_not_found: "Parent not found."
+  parent_not_directory: "Parent directory not found."
 
 # Framework's internal messages
 "Credentials invalid.": "Credentials invalid."

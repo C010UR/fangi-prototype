@@ -1,0 +1,5 @@
+hyphae:
+  oauth:
+    server: "http://host.docker.internal:8000"
+    client_id: "6f7bc4d2-1855-4ba4-978d-b28003dd66f4"
+    client_secret: "e9d2c8fa3bd40e31f67fa050599eb5ad853a15ad0ccaa1b50f78c8fe4c7ebed369fd815290f7962fd4bec84e5b0293afe02888477d9b53cb11bdf1a09dd6f25f"

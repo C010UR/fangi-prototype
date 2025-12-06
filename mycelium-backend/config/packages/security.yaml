@@ -1,0 +1,77 @@
+security:
+  # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
+  password_hashers:
+    Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: "auto"
+  # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
+  providers:
+    # used to reload user from session & other features (e.g. switch_user)
+    app_user_provider:
+      entity:
+        class: App\Entity\User
+  role_hierarchy:
+    ROLE_ADMIN: ROLE_USER
+  firewalls:
+    dev:
+      pattern: ^/_(profiler|wdt)/
+      security: false
+    main:
+      lazy: true
+      stateless: true
+      provider: app_user_provider
+      user_checker: App\Security\UserChecker
+      logout:
+        path: api_v1_auth_logout
+      json_login:
+        check_path: api_v1_auth_login
+        success_handler: App\Security\AuthenticationHandler
+        failure_handler: App\Security\AuthenticationHandler
+      two_factor:
+        prepare_on_login: false
+        prepare_on_access_denied: false
+        check_path: api_v1_auth_mfa_verify
+        auth_code_parameter_name: code
+        enable_csrf: false
+        success_handler: App\Security\AuthenticationHandler
+        failure_handler: App\Security\MFAAuthenticationHandler
+        authentication_required_handler: App\Security\MFAAuthenticationHandler
+      login_throttling:
+        max_attempts: 5
+        interval: "5 minutes"
+
+  access_control:
+    # API Documentation
+    - { path: ^/api/doc, roles: PUBLIC_ACCESS }
+
+    # Authentication
+    - { path: ^/api/v1/login, roles: PUBLIC_ACCESS }
+
+    # Registration
+    - { path: ^/api/v1/register, roles: PUBLIC_ACCESS }
+
+    # OAuth
+    - { path: ^/.well-known, roles: PUBLIC_ACCESS }
+    - { path: ^/oauth/token, roles: PUBLIC_ACCESS }
+
+    # MFA
+    - { path: ^/api/v1/mfa/send-request, roles: IS_AUTHENTICATED_2FA_IN_PROGRESS }
+    - { path: ^/api/v1/mfa/verify, roles: IS_AUTHENTICATED_2FA_IN_PROGRESS }
+    - { path: ^/api/v1/mfa/available, roles: IS_AUTHENTICATED_2FA_IN_PROGRESS }
+
+    # Password Reset
+    - { path: ^/api/v1/password-reset, roles: PUBLIC_ACCESS }
+
+    # Basic
+    - { path: ^/api, roles: ROLE_USER }
+
+when@test:
+  security:
+    password_hashers:
+      # By default, password hashers are resource intensive and take time. This is
+      # important to generate secure password hashes. In tests however, secure hashes
+      # are not important, waste resources and increase test times. The following
+      # reduces the work factor to the lowest possible values.
+      Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+        algorithm: auto
+        cost: 4 # Lowest possible value for bcrypt
+        time_cost: 3 # Lowest possible value for argon
+        memory_cost: 10 # Lowest possible value for argon

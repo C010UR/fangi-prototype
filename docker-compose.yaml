@@ -1,54 +1,51 @@
 services:
-  nginx:
+  mycelium-nginx:
     image: nginx:1.27-alpine3.20
     container_name: mycelium-nginx
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app:delegated
+      - ./mycelium-backend:/app:delegated
       - ./shared:/app/shared:ro
-      - ./.env.local:/app/.env:rw
-      - php-socket:/etc/nginx/php/sock:rw
-      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - mycelium-php-socket:/etc/nginx/php/sock:rw
+      - ./docker/mycelium-nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    env_file: ${ENV_FILE:-./mycelium-backend/.env.local}
 
-  api:
+  mycelium-api:
     build:
-      context: docker/php
+      context: docker/mycelium-php
       args:
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
     container_name: mycelium-api
     volumes:
-      - ./backend:/app:rw
+      - ./mycelium-backend:/app:rw
       - ./shared:/app/shared:ro
-      - ./.env.local:/app/.env:rw
-      - php-socket:/etc/php/sock:rw
+      - mycelium-php-socket:/etc/php/sock:rw
     extra_hosts:
       - host.docker.internal:host-gateway
-    env_file: .env.local
+    env_file: ${ENV_FILE:-./mycelium-backend/.env.local}
 
-  queues:
+  mycelium-queues:
     build:
-      context: docker/php
+      context: docker/mycelium-php
       dockerfile: Dockerfile.queue
       args:
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
     container_name: mycelium-queues
     volumes:
-      - ./backend:/app:rw
+      - ./mycelium-backend:/app:rw
       - ./shared:/app/shared:ro
-      - ./.env.local:/app/.env:rw
-      - php-socket:/etc/php/sock:rw
     extra_hosts:
       - host.docker.internal:host-gateway
-    env_file: .env.local
+    env_file: ${ENV_FILE:-./mycelium-backend/.env.local}
     depends_on:
-      - localstack
+      - mycelium-localstack
 
-  frontend:
+  mycelium-frontend:
     build:
-      context: docker/node
+      context: docker/mycelium-node
       args:
         USER_ID: ${USER_ID:-1000}
         GROUP_ID: ${GROUP_ID:-1000}
@@ -56,12 +53,11 @@ services:
     ports:
       - "8001:8001"
     volumes:
-      - ./frontend:/app:delegated
+      - ./mycelium-frontend:/app:delegated
       - ./shared:/app/shared:ro
-      - ./.env.local:/app/.env.local:rw
-    env_file: .env.local
+    env_file: ${ENV_FILE:-./mycelium-frontend/.env.local}
 
-  localstack:
+  mycelium-localstack:
     image: localstack/localstack:4.9
     container_name: mycelium-localstack
     ports:
@@ -77,10 +73,10 @@ services:
       SKIP_SSL_CERT_DOWNLOAD: "1"
       PERSISTENCE: "1"
     volumes:
-      - ./docker/localstack:/var/lib/localstack:rw
-      - /var/run/docker.s1ock:/var/run/docker.sock:rw
+      - ./docker/mycelium-localstack:/var/lib/localstack:rw
+      - /var/run/docker.sock:/var/run/docker.sock:rw
     env_file:
-      - ./.env.local
+      - ${ENV_FILE:-./mycelium-backend/.env.local}
     networks:
       default:
         aliases:
@@ -88,7 +84,7 @@ services:
           - sqs.us-east-1.${LOCALSTACK_URL:-localstack}
 
   ###> doctrine/doctrine-bundle ###
-  database:
+  mycelium-database:
     image: postgres:18-alpine
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-app}
@@ -98,21 +94,52 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./docker/database:/var/lib/postgresql/18/docker
+      - ./docker/mycelium-database:/var/lib/postgresql/18/docker
+    env_file:
+      - ${ENV_FILE:-./mycelium-backend/.env.local}
   ###< doctrine/doctrine-bundle ###
 
-  redis:
+  mycelium-redis:
     image: redis:8.2-alpine
     container_name: mycelium-redis
     volumes:
-      - ./docker/redis/data/redis:/data
+      - ./docker/mycelium-redis/data/redis:/data
     ports:
       - "6379:6379"
+    env_file:
+      - ${ENV_FILE:-./mycelium-backend/.env.local}
+
+  hyphae-nginx:
+    image: nginx:1.27-alpine3.20
+    container_name: hyphae-nginx
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./hyphae-backend:/app:delegated
+      - ./shared:/app/shared:ro
+      - hyphae-php-socket:/etc/nginx/php/sock:rw
+      - ./docker/hyphae-nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    env_file: ${ENV_FILE:-./hyphae-backend/.env.local}
+
+  hyphae-api:
+    build:
+      context: docker/hyphae-php
+      args:
+        USER_ID: ${USER_ID}
+        GROUP_ID: ${GROUP_ID}
+    container_name: hyphae-api
+    volumes:
+      - ./hyphae-backend:/app:rw
+      - ./shared:/app/shared:ro
+      - hyphae-php-socket:/etc/php/sock:rw
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    env_file: ${ENV_FILE:-./hyphae-backend/.env.local}
 
   ###> symfony/mailer ###
-  mailer:
+  fangi-mailer:
     image: axllent/mailpit:v1.27
-    container_name: mycelium-mail
+    container_name: fangi-mailer
     ports:
       - "1025:1025"
       - "8025:8025"
@@ -122,4 +149,5 @@ services:
   ###< symfony/mailer ###
 
 volumes:
-  php-socket:
+  mycelium-php-socket:
+  hyphae-php-socket:

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+USER_ID="${USER_ID:-$(id -u)}"
+GROUP_ID="${GROUP_ID:-$(id -g)}"
+
+export USER_ID
+export GROUP_ID
+
+echo "docker compose exec mycelium-frontend npm $@"
+docker compose exec mycelium-frontend npm "$@"
