@@ -24,7 +24,6 @@ use OpenApi\Attributes as OA;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -406,7 +405,7 @@ final class ServerController extends ExtendedAbstractController
         return $this->jsonm('entity.server.module_removed');
     }
 
-    #[Route('/{id}/ls/{path}', name: 'ls', requirements: ['path' => '.*'], defaults: ['path' => '/'], methods: ['GET'], priority: -10)]
+    #[Route('/{id}/ls{path}', name: 'ls', requirements: ['path' => '.*'], defaults: ['path' => '/'], methods: ['GET'], priority: -10)]
     #[IsGranted(UserRole::USER)]
     #[IsGranted('view_server', subject: 'server')]
     #[OA\Get(
@@ -438,9 +437,12 @@ final class ServerController extends ExtendedAbstractController
         string $path,
         FileServerIntegrationService $fileServerIntegrationService,
     ): JsonResponse {
+        if (empty($path)) {
+            $path = '/';
+        }
 
         if (!Path::isValid($path)) {
-            throw new BadRequestHttpException('file.invalid_path');
+            return $this->jsonm('file.invalid_path');
         }
 
         $files = $fileServerIntegrationService->listFiles($server, $path);

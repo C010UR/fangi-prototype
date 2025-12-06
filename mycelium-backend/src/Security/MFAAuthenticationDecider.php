@@ -17,6 +17,7 @@ class MFAAuthenticationDecider implements TwoFactorConditionInterface, TwoFactor
 {
     public function shouldPerformTwoFactorAuthentication(AuthenticationContextInterface $context): bool
     {
+        return false;
         $request = $context->getRequest();
         $user = $context->getUser();
 

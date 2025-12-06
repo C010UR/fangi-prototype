@@ -116,8 +116,6 @@ class FileServerIntegrationService
 
         $data = $this->readDataFromResponse($response);
 
-        dd($data);
-
         if (self::SERVICE_USER_EMAIL !== $data['email'] || true !== $data['is_system']) {
             throw new ServerUnavailableException($this->translator->trans('server.not_working'));
         }

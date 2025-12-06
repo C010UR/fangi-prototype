@@ -40,10 +40,10 @@ class OAuthController extends ExtendedAbstractController
             'oauth',
         ],
         parameters: [
-            new OA\Parameter(name: 'client_id', in: 'query', required: true, schema: new OA\Schema(type: 'string'), description: 'Client ID.'),
-            new OA\Parameter(name: 'redirect_uri', in: 'query', required: true, schema: new OA\Schema(type: 'string'), description: 'Redirect URI.'),
-            new OA\Parameter(name: 'state', in: 'query', schema: new OA\Schema(type: 'string'), description: 'State.'),
-            new OA\Parameter(name: 'nonce', in: 'query', schema: new OA\Schema(type: 'string'), description: 'Nonce.'),
+            new OA\Parameter(name: 'client_id', in: 'query', required: true, schema: new OA\Schema(type: 'string'), description: 'Client ID.', example: 'e4f171b0-fe35-4416-8f7f-daadb9f91f27'),
+            new OA\Parameter(name: 'redirect_uri', in: 'query', required: true, schema: new OA\Schema(type: 'string'), description: 'Redirect URI.', example: 'https://example.com/callback'),
+            new OA\Parameter(name: 'state', in: 'query', schema: new OA\Schema(type: 'string'), description: 'State.', example: '1234567890'),
+            new OA\Parameter(name: 'nonce', in: 'query', schema: new OA\Schema(type: 'string'), description: 'Nonce.', example: '1234567890'),
         ],
         requestBody: new OAC\JsonBody(
             description: 'Authorization Form',

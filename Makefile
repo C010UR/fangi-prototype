@@ -112,8 +112,12 @@ hyphae-migrations-reset: ## Reset database migrations
 hyphae-data-delete: ## Delete data
 	@ $(HYPHAE_BACKEND_CONT) rm -rf var/hyphae/data
 
+.PHONY: hyphae-fixtures-load
+hyphae-fixtures-load: ## Load database fixtures
+	@ $(HYPHAE_SYMFONY) doctrine:fixtures:load --no-interaction
+
 .PHONY: hyphae-database-reset
-hyphae-database-reset: hyphae-migrations-reset hyphae-migrations-migrate hyphae-data-delete ## Drop database, rerun migrations and load fixtures
+hyphae-database-reset: hyphae-migrations-reset hyphae-migrations-migrate hyphae-data-delete hyphae-fixtures-load ## Drop database, rerun migrations and load fixtures
 
 ## ——  Shared Commands  ————————————————————————————————————————————————————————————————————————————————————————————————
 .PHONY: mycelium-vendor

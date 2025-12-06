@@ -13,6 +13,7 @@ use App\OpenApi\Attribute as OAC;
 use App\Repository\ModuleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use OpenApi\Attributes as OA;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -72,6 +73,34 @@ final class ModuleController extends ExtendedAbstractController
     )]
     public function get(Request $request, Module $module): JsonResponse
     {
+        return $this->jsonl($module);
+    }
+
+    #[Route('/{client_id}', name: 'get_by_client_id', requirements: ['client_id' => '\w{8}-\w{4}-\w{4}-\w{4}-\w{12}'], methods: ['GET'])]
+    #[IsGranted(UserRole::USER)]
+    #[IsGranted('view_module', subject: 'module')]
+    #[OA\Get(
+        operationId: 'v1ModuleGetByClientId',
+        summary: 'Fetch Module by Client ID',
+        tags: [
+            'modules',
+        ],
+        parameters: [
+            new OAC\UuidParameter(name: 'client_id', description: 'Module Client ID'),
+        ],
+        responses: [
+            new OAC\JsonResponse(200, 'Module', schema: new LqmA\Model(Module::class)),
+            new OAC\UnauthorizedResponse(),
+            new OAC\AccessDeniedResponse(UserRole::USER),
+            new OAC\NotFoundResponse(),
+            new OAC\InternalServerErrorResponse(),
+        ],
+    )]
+    public function getByClientId(
+        Request $request,
+        #[MapEntity(mapping: ['client_id' => 'clientId'])]
+        Module $module,
+    ): JsonResponse {
         return $this->jsonl($module);
     }
 

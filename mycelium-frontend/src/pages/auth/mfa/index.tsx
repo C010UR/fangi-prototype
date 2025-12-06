@@ -25,6 +25,7 @@ import {
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import { useAuth } from '@/lib/auth/context';
+import { getStoredRedirect } from '@/lib/router-utils';
 
 const MFA_CODE_LENGTH = 6;
 
@@ -56,7 +57,13 @@ function MfaPage() {
       const response = await verifyMfa({ code: values.code });
 
       if (!response.mfa_required) {
-        navigate({ to: '/' });
+        const redirect = getStoredRedirect();
+        if (redirect) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          navigate({ ...redirect } as any);
+        } else {
+          navigate({ to: '/' });
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Verification failed');

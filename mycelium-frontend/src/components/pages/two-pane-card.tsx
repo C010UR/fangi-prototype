@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
+import { BrandLogo } from './brand-logo';
 import {
   Card,
   CardHeader,
@@ -37,10 +38,7 @@ function TwoPaneCard({
 
   return (
     <>
-      <div className="fixed top-6 left-6 z-0 flex items-center gap-2">
-        <img src="/logo.svg" alt="Fangi logo" className="h-12 w-12" />
-        <span className="text-2xl font-semibold tracking-tight text-foreground">Fangi</span>
-      </div>
+      <BrandLogo />
       <Card
         className={cn('w-full max-w-6xl h-[600px] flex-row p-0 overflow-hidden', className)}
         {...props}

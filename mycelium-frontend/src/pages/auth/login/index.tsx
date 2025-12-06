@@ -27,9 +27,10 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { useAuth } from '@/lib/auth/context';
+import { getStoredRedirect } from '@/lib/router-utils';
 
 const loginSchema = z.object({
-  email: z.string().email('Please enter a valid email address').min(1, 'Email is required'),
+  email: z.email('Please enter a valid email address').min(1, 'Email is required'),
   password: z
     .string()
     .min(1, 'Password is required')
@@ -65,7 +66,13 @@ function LoginPage() {
       if (response.mfa_required) {
         navigate({ to: '/mfa' });
       } else {
-        navigate({ to: '/' });
+        const redirect = getStoredRedirect();
+        if (redirect) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          navigate({ ...redirect } as any);
+        } else {
+          navigate({ to: '/' });
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');

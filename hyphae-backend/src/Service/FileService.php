@@ -41,6 +41,11 @@ class FileService
         }
     }
 
+    public function getUploadsDir(): string
+    {
+        return $this->uploadsDir;
+    }
+
     private function toFullPath(string $path): string
     {
         if (!Path::isValid($path)) {

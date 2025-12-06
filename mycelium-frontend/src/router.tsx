@@ -5,6 +5,13 @@ import {
   redirect,
   Outlet,
 } from '@tanstack/react-router';
+import {
+  beforeLoadAuthenticated,
+  beforeLoadMfa,
+  beforeLoadUnauthenticated,
+  handleRedirectAfterLogin,
+} from '@/lib/router-utils';
+import { type RouterContext } from '@/types/router';
 import LoginPage from './pages/auth/login';
 import MfaPage from './pages/auth/mfa';
 import ForgotPasswordPage from './pages/auth/forgot-password';
@@ -17,34 +24,8 @@ import ServerDetailPage from './pages/servers/detail';
 import ModulesPage from './pages/modules';
 import UsersPage from './pages/users';
 import ProfilePage from './pages/profile';
+import AuthorizePage from './pages/oauth';
 import NotFoundPage from './pages/not-found';
-
-interface AuthContext {
-  isAuthenticated: boolean;
-  isMfaPending: boolean;
-}
-
-interface RouterContext {
-  auth: AuthContext;
-}
-
-const beforeLoadAuthenticated = ({ context }: { context: RouterContext }) => {
-  if (context.auth.isMfaPending) {
-    throw redirect({ to: '/mfa' });
-  }
-  if (!context.auth.isAuthenticated) {
-    throw redirect({ to: '/login' });
-  }
-};
-
-const beforeLoadUnauthenticated = ({ context }: { context: RouterContext }) => {
-  if (context.auth.isMfaPending) {
-    throw redirect({ to: '/mfa' });
-  }
-  if (context.auth.isAuthenticated) {
-    throw redirect({ to: '/' });
-  }
-};
 
 const rootRoute = createRootRouteWithContext<RouterContext>()({
   component: () => <Outlet />,
@@ -54,25 +35,14 @@ const rootRoute = createRootRouteWithContext<RouterContext>()({
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/login',
-  beforeLoad: ({ context }) => {
-    if (context.auth.isMfaPending) {
-      throw redirect({ to: '/mfa' });
-    }
-    if (context.auth.isAuthenticated) {
-      throw redirect({ to: '/' });
-    }
-  },
+  beforeLoad: beforeLoadUnauthenticated,
   component: LoginPage,
 });
 
 const mfaRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/mfa',
-  beforeLoad: ({ context }) => {
-    if (!context.auth.isMfaPending) {
-      throw redirect({ to: '/login' });
-    }
-  },
+  beforeLoad: beforeLoadMfa,
   component: MfaPage,
 });
 
@@ -115,6 +85,7 @@ const dashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   beforeLoad: () => {
+    handleRedirectAfterLogin();
     throw redirect({ to: '/servers' });
   },
 });
@@ -154,6 +125,13 @@ const profileRoute = createRoute({
   component: ProfilePage,
 });
 
+const authorizeRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/oauth/authorize',
+  beforeLoad: beforeLoadAuthenticated,
+  component: AuthorizePage,
+});
+
 const notFoundRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '*',
@@ -174,6 +152,7 @@ const routeTree = rootRoute.addChildren([
   modulesRoute,
   usersRoute,
   profileRoute,
+  authorizeRoute,
   notFoundRoute,
 ]);
 

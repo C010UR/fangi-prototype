@@ -158,6 +158,18 @@ export interface ServerForm {
   urls: string[] | null;
 }
 
+export interface ServerFile {
+  path: string;
+  parent: string | null;
+  name: string;
+  content_type: string;
+  is_directory: boolean;
+  created_by: string | null;
+  updated_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Module {
   id: number;
   name: string;
@@ -171,6 +183,11 @@ export interface Module {
   created_by_entity: UserShort;
   created_at: string;
   updated_at: string;
+}
+
+export interface OAuthAuthorizeRequest {
+  server: number;
+  files: string[];
 }
 
 export interface ServerAllowedModule {
