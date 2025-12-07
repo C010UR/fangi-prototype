@@ -3,7 +3,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap');
 
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Source Code Pro', monospace;
   line-height: 1.5;
   font-weight: 400;
 
@@ -20,6 +20,7 @@
   --white: #ffffff;
   --te-white: #f5f5f5;
   --te-black: #0f0e12;
+  --te-grey-50: #f0f0f0;
   --te-grey-100: #e5e5e5;
   --te-grey-200: #cccccc;
   --te-grey-300: #b2b2b2;
@@ -29,42 +30,48 @@
   --te-grey-1000: #272727;
   --te-blue: #0071bb;
   --te-green: #006837;
-  --te-orange: #f05a24;
+  --te-orange: #ff4400;
   --te-red: #b81d13;
   --te-yellow: #fab413;
   --success: var(--te-green);
   --error: #c0262c;
 
   /* Theme Variables */
-  --radius: 0.625rem;
+  --radius: 0.25rem;
 
-  --background: var(--te-white);
+  --background: var(--te-grey-100);
   --foreground: var(--te-black);
 
-  --card: var(--white);
+  --card: var(--te-white);
   --card-foreground: var(--te-black);
 
-  --popover: var(--white);
+  --popover: var(--te-white);
   --popover-foreground: var(--te-black);
 
   --primary: var(--te-orange);
   --primary-foreground: var(--white);
 
-  --secondary: var(--te-grey-200);
-  --secondary-foreground: var(--te-black);
+  --secondary: var(--te-grey-900);
+  --secondary-foreground: var(--white);
 
-  --muted: var(--te-grey-100);
-  --muted-foreground: var(--te-grey-700);
+  --tertiary: var(--te-green);
+  --tertiary-foreground: var(--white);
 
-  --accent: var(--te-grey-200);
+  --quaternary: var(--te-blue);
+  --quaternary-foreground: var(--white);
+
+  --muted: var(--te-grey-200);
+  --muted-foreground: var(--te-grey-900);
+
+  --accent: var(--te-grey-300);
   --accent-foreground: var(--te-black);
 
   --destructive: var(--te-red);
   --destructive-foreground: var(--white);
 
-  --border: var(--te-grey-300);
-  --input: var(--te-grey-300);
-  --ring: var(--te-blue);
+  --border: var(--te-grey-500);
+  --input: var(--te-grey-500);
+  --ring: var(--te-orange);
 
   --chart-1: var(--te-blue);
   --chart-2: var(--te-green);
@@ -81,8 +88,8 @@
   --sidebar-border: var(--te-grey-300);
   --sidebar-ring: var(--te-blue);
 
-  --scrollbar-thumb: var(--te-grey-300);
-  --scrollbar-thumb-hover: var(--te-grey-500);
+  --scrollbar-thumb: var(--te-grey-500);
+  --scrollbar-thumb-hover: var(--te-grey-900);
 }
 
 @theme inline {
@@ -124,6 +131,10 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --color-scrollbar-thumb: var(--scrollbar-thumb);
   --color-scrollbar-thumb-hover: var(--scrollbar-thumb-hover);
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-foreground: var(--tertiary-foreground);
+  --color-quaternary: var(--quaternary);
+  --color-quaternary-foreground: var(--quaternary-foreground);
 }
 
 @layer base {

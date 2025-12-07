@@ -242,7 +242,7 @@ export default function MainPage() {
         <div className="h-10 w-10 bg-card/80 backdrop-blur-md border rounded-2xl flex items-center justify-center ">
           <img src="/logo.svg" alt="Fangi logo" className="h-6 w-6" />
         </div>
-        <h1 className="text-lg font-medium tracking-tight bg-card/80 backdrop-blur-md px-4 py-2 rounded-xl">
+        <h1 className="text-lg font-medium tracking-tight bg-card/80 backdrop-blur-md px-4 py-2 rounded-xl text-quaternary">
           Fangi Explorer
         </h1>
       </div>
@@ -493,7 +493,7 @@ export default function MainPage() {
                                       contentType={
                                         file.is_directory ? 'directory' : file.content_type
                                       }
-                                      className="size-5 text-primary"
+                                      className={cn('size-5', file.is_directory ? 'text-primary' : 'text-tertiary')}
                                     />
                                   </div>
 
