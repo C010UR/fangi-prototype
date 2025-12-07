@@ -40,7 +40,6 @@ export function parseListParams(searchParams: URLSearchParams): ListParams {
   const filterParams = [...searchParams.getAll('filter[]'), ...searchParams.getAll('filter')];
 
   filterParams.forEach(param => {
-    // If param is array, iterate over it
     const params = Array.isArray(param) ? param : [param];
     params.forEach(p => {
       const firstColonIndex = p.indexOf(':');
@@ -80,7 +79,6 @@ export function parseListParams(searchParams: URLSearchParams): ListParams {
   const sortParams = [...searchParams.getAll('sort[]'), ...searchParams.getAll('sort')];
 
   sortParams.forEach(param => {
-    // If param is array, iterate over it
     const params = Array.isArray(param) ? param : [param];
     params.forEach(p => {
       let field = p;

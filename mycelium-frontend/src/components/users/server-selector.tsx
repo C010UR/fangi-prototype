@@ -26,14 +26,12 @@ export function ServerSelector({ selectedIds, onSelect, disabled }: ServerSelect
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState('');
 
-  // Custom debounce implementation
   const [query, setQuery] = React.useState('');
   React.useEffect(() => {
     const timer = setTimeout(() => setQuery(search), 300);
     return () => clearTimeout(timer);
   }, [search]);
 
-  // Infinite scroll intersection observer
   const observerTarget = React.useRef<HTMLDivElement>(null);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({

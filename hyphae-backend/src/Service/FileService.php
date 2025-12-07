@@ -253,14 +253,21 @@ class FileService
 
         $fullPath = $this->toFullPath($path);
 
-        if (!file_exists($fullPath)) {
-            // Inconsistent index, but we remove it anyway
-        } elseif (is_dir($fullPath)) {
-            if (!rmdir($fullPath)) {
-                throw new FileException('file.cannot_delete_directory');
+        if ($fileIndex->isDirectory()) {
+            $descendants = $this->fileIndexRepository->findAllByParent($path);
+            foreach ($descendants as $descendant) {
+                if ($descendant->getParent() === $path || str_starts_with($descendant->getParent(), $path . '/')) {
+                    $this->entityManager->remove($descendant);
+                }
+            }
+
+            if (file_exists($fullPath)) {
+                $this->deleteDirectory($fullPath);
             }
         } else {
-            unlink($fullPath);
+            if (file_exists($fullPath)) {
+                unlink($fullPath);
+            }
         }
 
         $this->entityManager->remove($fileIndex);
@@ -301,6 +308,19 @@ class FileService
         }
 
         rename($fullPath, $newFullPath);
+
+        if ($fileIndex->isDirectory()) {
+            $descendants = $this->fileIndexRepository->findAllByParent($path);
+            foreach ($descendants as $descendant) {
+                if ($descendant->getParent() === $path || str_starts_with($descendant->getParent(), $path . '/')) {
+                    $relative = substr($descendant->getPath(), \strlen($path));
+                    $descendant->setPath($newPath . $relative);
+
+                    $relativeParent = substr($descendant->getParent(), \strlen($path));
+                    $descendant->setParent($newPath . $relativeParent);
+                }
+            }
+        }
 
         $fileIndex->setPath($newPath);
         $fileIndex->setParent(\dirname($newPath));
@@ -343,11 +363,62 @@ class FileService
             $this->entityManager->remove($existingTargetIndex);
         }
 
-        copy($fullPath, $newFullPath);
+        if (is_dir($fullPath)) {
+            $this->copyDirectory($fullPath, $newFullPath);
+
+            $descendants = $this->fileIndexRepository->findAllByParent($path);
+            foreach ($descendants as $descendant) {
+                if ($descendant->getParent() === $path || str_starts_with($descendant->getParent(), $path . '/')) {
+                    $relative = substr($descendant->getPath(), \strlen($path));
+                    $newDescendantPath = $newPath . $relative;
+
+                    $newDescendant = $this->copyFileIndex($descendant, $newDescendantPath);
+                    $this->entityManager->persist($newDescendant);
+                }
+            }
+        } else {
+            copy($fullPath, $newFullPath);
+        }
 
         $newFileIndex = $this->copyFileIndex($fileIndex, $newPath);
         $this->entityManager->persist($newFileIndex);
 
         return $newFileIndex;
+    }
+
+    private function deleteDirectory(string $dir): void
+    {
+        if (!is_dir($dir)) {
+            return;
+        }
+
+        $files = array_diff(scandir($dir), ['.', '..']);
+
+        foreach ($files as $file) {
+            $path = $dir . '/' . $file;
+            (is_dir($path)) ? $this->deleteDirectory($path) : unlink($path);
+        }
+
+        rmdir($dir);
+    }
+
+    private function copyDirectory(string $source, string $dest): void
+    {
+        if (!is_dir($dest)) {
+            mkdir($dest, 0o755, true);
+        }
+
+        $files = array_diff(scandir($source), ['.', '..']);
+
+        foreach ($files as $file) {
+            $sourcePath = $source . '/' . $file;
+            $destPath = $dest . '/' . $file;
+
+            if (is_dir($sourcePath)) {
+                $this->copyDirectory($sourcePath, $destPath);
+            } else {
+                copy($sourcePath, $destPath);
+            }
+        }
     }
 }

@@ -32,8 +32,9 @@ class FederatedAuthenticator extends AbstractAuthenticator
     public function authenticate(Request $request): Passport
     {
         $code = $request->query->getString('code');
+        $nonce = $request->query->getString('nonce');
 
-        $session = $this->oauthClient->authenticate($code);
+        $session = $this->oauthClient->authenticate($code, $nonce ?: null);
 
         return new SelfValidatingPassport(
             new UserBadge($session->getId()->toRfc4122(), fn() => $session),

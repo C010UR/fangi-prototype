@@ -64,6 +64,25 @@ class OAuthServer
         return hash('sha256', $token);
     }
 
+    private function validateRedirectUri(string $redirectUri, array $allowedHosts): void
+    {
+        if (empty($allowedHosts)) {
+            return;
+        }
+
+        $urlParts = parse_url($redirectUri);
+
+        $host = \sprintf('%s://%s', $urlParts['scheme'], $urlParts['host']);
+
+        if ($urlParts['port']) {
+            $host .= ':' . $urlParts['port'];
+        }
+
+        if (empty($host) || !\in_array($host, $allowedHosts, true)) {
+            throw new OAuthBadRequestException('Invalid redirect URI.');
+        }
+    }
+
     public function findAndValidateModule(string $clientId, string $redirectUri): Module
     {
         try {
@@ -78,9 +97,7 @@ class OAuthServer
             throw new OAuthBadRequestException('Invalid client.');
         }
 
-        if ($module->getUrls() && !\in_array($redirectUri, $module->getUrls(), true)) {
-            throw new OAuthBadRequestException('Invalid redirect URI.');
-        }
+        $this->validateRedirectUri($redirectUri, $module->getUrls());
 
         return $module;
     }
@@ -119,9 +136,7 @@ class OAuthServer
             throw new OAuthBadRequestException('Invalid secret.');
         }
 
-        if ($server->getUrls() && !\in_array($redirectUri, $server->getUrls(), true)) {
-            throw new OAuthBadRequestException('Invalid redirect URI.');
-        }
+        $this->validateRedirectUri($redirectUri, $server->getUrls());
 
         return $server;
     }
@@ -132,9 +147,7 @@ class OAuthServer
             throw new OAuthBadRequestException('Invalid client.');
         }
 
-        if ($authorizationCode->getRedirectUri() !== $redirectUri) {
-            throw new OAuthBadRequestException('Invalid redirect URI.');
-        }
+        $this->validateRedirectUri($redirectUri, [$authorizationCode->getRedirectUri()]);
     }
 
     private function findAndValidateRefreshToken(string $token): RefreshToken

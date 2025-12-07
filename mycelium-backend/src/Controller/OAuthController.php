@@ -82,7 +82,7 @@ class OAuthController extends ExtendedAbstractController
             $request->query->get('nonce', ''),
         );
 
-        $queryParams = ['code' => $tokenString, 'server_url' => $authorizedServer->getUrl()];
+        $queryParams = ['code' => $tokenString, 'server_uri' => $authorizedServer->getUrl()];
 
         if ($state = $request->query->get('state')) {
             $queryParams['state'] = $state;

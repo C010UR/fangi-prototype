@@ -35,7 +35,6 @@ export interface MfaVerifyRequest {
   code: string;
 }
 
-// List types
 export type FilterOperator =
   | 'eq'
   | 'ne'
@@ -80,7 +79,6 @@ export interface ListResult<T> {
   data: T[];
 }
 
-// Entity types
 export interface MFAMethod {
   method: MFAType;
   recipient: string;

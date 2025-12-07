@@ -129,19 +129,20 @@ class FileServerIntegrationService
             return;
         }
 
+        $nonce = base64_encode(random_bytes(16));
         $authorizationCode = $this->oauthServer->createAuthorizationCode(
             $this->getServiceUser(),
             $server,
             ['/:rw'],
             '',
-            '',
+            $nonce,
         );
 
         $this->entityManager->flush();
 
         $response = $this->client->request(
             'POST',
-            $server->getUrl() . '/api/v1/login?code=' . $authorizationCode,
+            $server->getUrl() . '/api/v1/login?code=' . $authorizationCode . '&nonce=' . $nonce,
             [
                 'headers' => [
                     'Accept' => 'application/json',

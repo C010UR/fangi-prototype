@@ -40,7 +40,6 @@ export default function ProfilePage() {
     return <div>User not found</div>;
   }
 
-  // Initialize username state when entering edit mode
   const handleEditUsername = () => {
     setUsername(user.username);
     setIsEditingUsername(true);

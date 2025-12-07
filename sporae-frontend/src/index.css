@@ -1,0 +1,162 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap');
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light;
+  color: var(--foreground);
+  background-color: var(--background);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Retro Tech Palette */
+  --white: #ffffff;
+  --te-white: #f5f5f5;
+  --te-black: #0f0e12;
+  --te-grey-100: #e5e5e5;
+  --te-grey-200: #cccccc;
+  --te-grey-300: #b2b2b2;
+  --te-grey-500: #a1a7af;
+  --te-grey-700: #7f7f7f;
+  --te-grey-900: #4d4d4d;
+  --te-grey-1000: #272727;
+  --te-blue: #0071bb;
+  --te-green: #006837;
+  --te-orange: #f05a24;
+  --te-red: #b81d13;
+  --te-yellow: #fab413;
+  --success: var(--te-green);
+  --error: #c0262c;
+
+  /* Theme Variables */
+  --radius: 0.625rem;
+
+  --background: var(--te-white);
+  --foreground: var(--te-black);
+
+  --card: var(--white);
+  --card-foreground: var(--te-black);
+
+  --popover: var(--white);
+  --popover-foreground: var(--te-black);
+
+  --primary: var(--te-orange);
+  --primary-foreground: var(--white);
+
+  --secondary: var(--te-grey-200);
+  --secondary-foreground: var(--te-black);
+
+  --muted: var(--te-grey-100);
+  --muted-foreground: var(--te-grey-700);
+
+  --accent: var(--te-grey-200);
+  --accent-foreground: var(--te-black);
+
+  --destructive: var(--te-red);
+  --destructive-foreground: var(--white);
+
+  --border: var(--te-grey-300);
+  --input: var(--te-grey-300);
+  --ring: var(--te-blue);
+
+  --chart-1: var(--te-blue);
+  --chart-2: var(--te-green);
+  --chart-3: var(--te-orange);
+  --chart-4: var(--te-yellow);
+  --chart-5: var(--te-red);
+
+  --sidebar: var(--te-white);
+  --sidebar-foreground: var(--te-black);
+  --sidebar-primary: var(--te-blue);
+  --sidebar-primary-foreground: var(--white);
+  --sidebar-accent: var(--te-grey-200);
+  --sidebar-accent-foreground: var(--te-black);
+  --sidebar-border: var(--te-grey-300);
+  --sidebar-ring: var(--te-blue);
+
+  --scrollbar-thumb: var(--te-grey-300);
+  --scrollbar-thumb-hover: var(--te-grey-500);
+}
+
+@theme inline {
+  --font-source-code: 'Source Code Pro', monospace;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-scrollbar-thumb: var(--scrollbar-thumb);
+  --color-scrollbar-thumb-hover: var(--scrollbar-thumb-hover);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 4px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 4px;
+  }
+
+  .scrollbar-thin:hover::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb-hover);
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+}

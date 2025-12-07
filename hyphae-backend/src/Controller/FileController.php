@@ -123,6 +123,13 @@ class FileController extends ExtendedAbstractController
                 required: false,
                 schema: new OA\Schema(type: 'string', example: '/path/to/file.txt'),
             ),
+            new OA\Parameter(
+                name: 'inline',
+                in: 'query',
+                description: 'Inline file.',
+                required: false,
+                schema: new OA\Schema(type: 'boolean', example: true),
+            ),
         ],
         responses: [
             new OAC\BinaryFileResponse(

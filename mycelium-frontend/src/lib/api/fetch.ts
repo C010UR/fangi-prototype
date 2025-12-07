@@ -106,6 +106,7 @@ async function fangiFetch<TResponse, TBody = unknown>(
   const config: RequestInit = {
     method,
     headers,
+    redirect: 'follow',
   };
 
   if (body) {
@@ -125,6 +126,11 @@ async function fangiFetch<TResponse, TBody = unknown>(
   }
 
   const response = await fetch(url, config);
+
+  if (response.redirected) {
+    window.location.href = response.url;
+    return new Promise(() => {}) as Promise<TResponse>;
+  }
 
   let data: unknown;
   const responseContentType = response.headers.get('content-type');

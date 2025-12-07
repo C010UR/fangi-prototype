@@ -136,6 +136,20 @@ services:
       - host.docker.internal:host-gateway
     env_file: ${ENV_FILE:-./hyphae-backend/.env.local}
 
+  sporae-frontend:
+    build:
+      context: docker/sporae-node
+      args:
+        USER_ID: ${USER_ID:-1000}
+        GROUP_ID: ${GROUP_ID:-1000}
+    container_name: sporae-frontend
+    ports:
+      - "10000:10000"
+    volumes:
+      - ./sporae-frontend:/app:delegated
+      - ./shared:/app/shared:ro
+    env_file: ${ENV_FILE:-./sporae-frontend/.env.local}
+
   ###> symfony/mailer ###
   fangi-mailer:
     image: axllent/mailpit:v1.27

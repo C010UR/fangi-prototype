@@ -35,7 +35,6 @@ function AccountRegistrationPage() {
   });
 
   useEffect(() => {
-    // Immediately send the registration confirmation request on page load
     registerConfirmMutation.mutate();
   }, []);
 

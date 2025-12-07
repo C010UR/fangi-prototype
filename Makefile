@@ -7,6 +7,7 @@ DOCKER_BUILD   = docker build
 MYCELIUM_BACKEND_CONT = $(DOCKER_COMPOSE) exec mycelium-api
 MYCELIUM_FRONTEND_CONT = $(DOCKER_COMPOSE) exec mycelium-frontend
 HYPHAE_BACKEND_CONT = $(DOCKER_COMPOSE) exec hyphae-api
+SPORAE_FRONTEND_CONT = $(DOCKER_COMPOSE) exec sporae-frontend
 
 # Executables
 MYCELIUM_PHP      = $(MYCELIUM_BACKEND_CONT) php
@@ -16,6 +17,7 @@ MYCELIUM_SYMFONY  = $(MYCELIUM_BACKEND_CONT) php bin/console
 HYPHAE_PHP      = $(HYPHAE_BACKEND_CONT) php
 HYPHAE_COMPOSER = $(HYPHAE_BACKEND_CONT) composer
 HYPHAE_SYMFONY  = $(HYPHAE_BACKEND_CONT) php bin/console
+SPORAE_NPM      = $(SPORAE_FRONTEND_CONT) npm
 
 # Misc
 .DEFAULT_GOAL = help
@@ -66,6 +68,10 @@ mycelium-frontend: ## Connect to the Mycelium frontend container
 .PHONY: hyphae-backend
 hyphae-backend: ## Connect to the Hyphae container
 	@ $(HYPHAE_BACKEND_CONT) fish
+
+.PHONY: sporae-frontend
+sporae-frontend: ## Connect to the Sporae frontend container
+	@ $(SPORAE_FRONTEND_CONT) sh
 
 ## ——  Mycelium  ———————————————————————————————————————————————————————————————————————————————————————————————————————
 .PHONY: mycelium-cc
@@ -134,6 +140,8 @@ lint: ## Lint the project using php-cs-fixer
 	@ PHP_CS_FIXER_IGNORE_ENV=1 $(HYPHAE_COMPOSER) run php-cs-fixer-lint
 	@ $(MYCELIUM_NPM) run lint:check
 	@ $(MYCELIUM_NPM) run format:check
+	@ $(SPORAE_NPM) run lint:check
+	@ $(SPORAE_NPM) run format:check
 
 .PHONY: lint-fix
 lint-fix: ## Lint and fix issues of the project using php-cs-fixer
@@ -141,6 +149,8 @@ lint-fix: ## Lint and fix issues of the project using php-cs-fixer
 	@ PHP_CS_FIXER_IGNORE_ENV=1 $(HYPHAE_COMPOSER) run php-cs-fixer-fix
 	@ $(MYCELIUM_NPM) run format
 	@ $(MYCELIUM_NPM) run lint
+	@ $(SPORAE_NPM) run format
+	@ $(SPORAE_NPM) run lint
 
 ## ——  Queue  ——————————————————————————————————————————————————————————————————————————————————————————————————————————
 .PHONY: mycelium-queue

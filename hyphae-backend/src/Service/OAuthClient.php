@@ -60,7 +60,7 @@ class OAuthClient
         return $data;
     }
 
-    private function processTokenResponse(ResponseInterface $response, #[SensitiveParameter] ?Session $session = null): Session
+    private function processTokenResponse(ResponseInterface $response, #[SensitiveParameter] ?Session $session = null, ?string $nonce = null): Session
     {
         $jwks = $this->getJWKS();
 
@@ -93,6 +93,10 @@ class OAuthClient
         $idToken = json_decode(json_encode(JWT::decode($data['id_token'], $keys)), true);
         $idToken['raw'] = $data['id_token'];
 
+        if (null !== $nonce && ($idToken['nonce'] ?? '') !== $nonce) {
+            throw new AuthenticationException('Invalid nonce');
+        }
+
         if (null === $session) {
             $user = $this->userRepository->findOneByEmail($idToken['email']);
             if (null === $user) {
@@ -122,7 +126,7 @@ class OAuthClient
         return $session;
     }
 
-    public function authenticate(#[SensitiveParameter] string $code): Session
+    public function authenticate(#[SensitiveParameter] string $code, ?string $nonce = null): Session
     {
         $response = $this->client->request('POST', $this->oauthServer . '/oauth/token', [
             'headers' => [
@@ -137,7 +141,7 @@ class OAuthClient
             ],
         ]);
 
-        return $this->processTokenResponse($response);
+        return $this->processTokenResponse($response, null, $nonce);
     }
 
     public function refreshSession(#[SensitiveParameter] Session $session): Session
