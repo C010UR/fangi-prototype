@@ -9,6 +9,7 @@ use App\ListQueryManagement\Attribute as LqmA;
 use App\Model\RelativeUrl;
 use App\Repository\ServerRepository;
 use App\Serializer\Interface\DepthAwareNormalizableInterface;
+use App\Util\TokenUtils;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -281,8 +282,8 @@ class Server implements DepthAwareNormalizableInterface
 
     public function generateSecret(): string
     {
-        $secret = bin2hex(random_bytes(64));
-        $this->secret = hash('sha256', $secret);
+        $secret = TokenUtils::generateToken();
+        $this->secret = TokenUtils::hash($secret);
         $this->plainSecret = $secret;
 
         return $secret;

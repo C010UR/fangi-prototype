@@ -11,6 +11,7 @@ use App\Form\AuthorizationCodeExchangeType;
 use App\Form\AuthorizeType;
 use App\OpenApi\Attribute as OAC;
 use App\Repository\ModuleRepository;
+use App\Service\EncryptionService;
 use App\Service\OAuthServer;
 use Doctrine\ORM\EntityManagerInterface;
 use OpenApi\Attributes as OA;
@@ -28,6 +29,7 @@ class OAuthController extends ExtendedAbstractController
         private OAuthServer $oauthServer,
         private ModuleRepository $moduleRepository,
         private EntityManagerInterface $entityManager,
+        private EncryptionService $encryptionService,
     ) {
     }
 
@@ -59,10 +61,15 @@ class OAuthController extends ExtendedAbstractController
     public function submit(Request $request): Response
     {
         $clientId = $request->query->get('client_id');
+
+        if (!$clientId) {
+            throw new OAuthBadRequestException($this->trans('oauth_server.missing_parameter', ['parameter' => 'client_id']));
+        }
+
         $redirectUri = $request->query->get('redirect_uri');
 
-        if (!$clientId || !$redirectUri) {
-            throw new OAuthBadRequestException('Missing parameter: client_id or redirect_uri');
+        if (!$redirectUri) {
+            throw new OAuthBadRequestException($this->trans('oauth_server.missing_parameter', ['parameter' => 'redirect_uri']));
         }
 
         $module = $this->oauthServer->findAndValidateModule($clientId, $redirectUri);
@@ -74,25 +81,13 @@ class OAuthController extends ExtendedAbstractController
         /** @var array $files */
         $files = array_map(fn(string $file) => $file . ':rw', $data['files']);
 
-        $tokenString = $this->oauthServer->createAuthorizationCode(
+        $url = $this->oauthServer->handleAuthCodeGenerationRequest(
             $this->getUser(),
             $authorizedServer,
-            $files,
-            $request->query->get('state', ''),
-            $request->query->get('nonce', ''),
-        );
-
-        $queryParams = ['code' => $tokenString, 'server_uri' => $authorizedServer->getUrl()];
-
-        if ($state = $request->query->get('state')) {
-            $queryParams['state'] = $state;
-        }
-
-        $url = \sprintf(
-            '%s%s%s',
             $redirectUri,
-            null === parse_url($redirectUri, \PHP_URL_QUERY) ? '?' : '&',
-            http_build_query($queryParams),
+            $files,
+            $request->query->get('state', null),
+            $request->query->get('nonce', null),
         );
 
         $this->entityManager->flush();
@@ -155,11 +150,21 @@ class OAuthController extends ExtendedAbstractController
         $grantType = $data['grant_type'];
 
         if ('authorization_code' === $grantType) {
-            $response = $this->oauthServer->handleAuthCodeConsumptionRequest($data);
+            $response = $this->oauthServer->handleAuthCodeConsumptionRequest(
+                $data['code'],
+                $data['redirect_uri'],
+                $data['client_id'],
+                $data['client_secret'],
+            );
         } elseif ('refresh_token' === $grantType) {
-            $response = $this->oauthServer->handleRefreshTokenConsumptionRequest($data);
+            $response = $this->oauthServer->handleRefreshTokenConsumptionRequest(
+                $data['refresh_token'],
+                $data['redirect_uri'],
+                $data['client_id'],
+                $data['client_secret'],
+            );
         } else {
-            throw new OAuthBadRequestException('Invalid grant_type');
+            throw new OAuthBadRequestException($this->trans('oauth_server.invalid_grant_type'));
         }
 
         $this->entityManager->flush();
@@ -226,6 +231,6 @@ class OAuthController extends ExtendedAbstractController
     )]
     public function jwks(): JsonResponse
     {
-        return $this->jsons($this->oauthServer->getJwks());
+        return $this->jsons($this->encryptionService->getJwks());
     }
 }

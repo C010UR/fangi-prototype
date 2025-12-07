@@ -138,7 +138,9 @@ class Sporae {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error_description || `Authentication failed with status: ${response.status}`);
+      throw new Error(
+        error.error_description || `Authentication failed with status: ${response.status}`
+      );
     }
 
     const data = await response.json();
@@ -157,7 +159,9 @@ class Sporae {
       const profileResponse = await this.fetch(`${serverUri}/api/v1/profile`);
       if (!profileResponse.ok) {
         const error = await profileResponse.json();
-        throw new Error(error.error_description || `Profile fetch failed with status: ${profileResponse.status}`);
+        throw new Error(
+          error.error_description || `Profile fetch failed with status: ${profileResponse.status}`
+        );
       }
       this.profile = await profileResponse.json();
     } catch (error) {
@@ -202,7 +206,9 @@ class Sporae {
 
   public async read(path: string, inline: boolean = false): Promise<Blob> {
     this.validateInitialized();
-    const response = await this.fetch(`${this.serverUri}/api/v1/read${path}${inline ? '?inline=true' : ''}`);
+    const response = await this.fetch(
+      `${this.serverUri}/api/v1/read${path}${inline ? '?inline=true' : ''}`
+    );
 
     if (!response.ok) {
       const error = await response.json();
@@ -289,10 +295,10 @@ const sporaeClient = new Sporae({
   // import.meta.env.VITE_SPORAE_CLIENT_ID || '',
   // import.meta.env.VITE_SPORAE_BASE_URI || '',
   // import.meta.env.VITE_SPORAE_REDIRECT_URI || '',
-  clientId: 'e4f171b0-fe35-4416-8f7f-daadb9f91f27',
+  clientId: '92249381-48d5-4fe5-90cc-12ab5a44d670',
   baseUri: 'http://host.docker.internal:10000',
   redirectUri: 'http://host.docker.internal:10000/oauth/callback',
-  authServerUri: 'http://localhost:8001/oauth/authorize'
+  authServerUri: 'http://localhost:8001/oauth/authorize',
 });
 
 export { Sporae, sporaeClient };

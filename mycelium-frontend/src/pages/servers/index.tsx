@@ -38,11 +38,13 @@ import { ApiRoutes } from '@/lib/api';
 import { useNavigate } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { FormDialog } from '@/components/ui/form-dialog';
-import { ServerForm } from '@/components/servers/server-form';
+import { ServerForm } from '@/pages/servers/components/server-form';
 import { Code } from '@/components/ui/code';
 import { useServerActions } from '@/hooks/use-server-actions';
-import { ServerActionDialogs } from '@/components/servers/server-action-dialogs';
+import { ServerActionDialogs } from '@/pages/servers/components/server-action-dialogs';
 import { usePermissions } from '@/hooks/use-permissions';
+import { getBaseUrl } from '@/lib/url';
+import { TruncatedList } from '@/components/ui/truncated-list';
 
 export default function ServersPage() {
   const navigate = useNavigate();
@@ -116,63 +118,16 @@ export default function ServersPage() {
       baseColumns.push(
         {
           accessorKey: 'urls',
-          header: 'Allowed URLs',
+          header: 'URLs',
           size: 250,
-          cell: ({ row }) => {
-            const urls = row.original.urls || [];
-            const maxVisible = 1;
-
-            if (urls.length === 0) {
-              return (
-                <div className="text-muted-foreground">
-                  <Code>-</Code>
-                </div>
-              );
-            }
-
-            if (urls.length <= maxVisible) {
-              return (
-                <div className="truncate">
-                  {urls.map((url, index) => (
-                    <Code copy key={index}>
-                      {url}
-                    </Code>
-                  ))}
-                </div>
-              );
-            }
-
-            return (
-              <div>
-                <HoverCard>
-                  <HoverCardTrigger asChild onClick={e => e.stopPropagation()}>
-                    <div>
-                      {urls.slice(0, maxVisible).map((url, index) => (
-                        <Code copy key={index}>
-                          {url}
-                        </Code>
-                      ))}
-                      <span className="text-muted-foreground">+ {urls.length - maxVisible}</span>
-                    </div>
-                  </HoverCardTrigger>
-                  <HoverCardContent align="start">
-                    <div className="flex flex-col gap-2">
-                      <h4 className="font-medium leading-none">Allowed URLs</h4>
-                      <div className="text-sm text-muted-foreground">
-                        <ul className="space-y-1">
-                          {urls.map((url, i) => (
-                            <li key={i} className="break-all">
-                              <Code copy>{url}</Code>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </HoverCardContent>
-                </HoverCard>
-              </div>
-            );
-          },
+          cell: ({ row }) => (
+            <TruncatedList
+              items={row.original.urls?.map(getBaseUrl)}
+              title="URLs"
+              emptyMessage={<Code>-</Code>}
+              renderItem={url => <Code copy>{url}</Code>}
+            />
+          ),
         },
         {
           header: 'Client ID',

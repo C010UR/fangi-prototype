@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import {
   FileUpload,
   FileUploadDropzone,
@@ -27,21 +28,17 @@ import {
   FileUploadItemMetadata,
   FileUploadItemDelete,
 } from '@/components/ui/file-upload';
-import type { Server } from '@/types';
+import type { Module } from '@/types';
 import { ApiRoutes, fangiFetch, FetchError } from '@/lib/api';
 
 const formSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters').max(255),
+  description: z.string().max(4096, 'Description must be at most 4096 characters').optional(),
   image: z.array(z.instanceof(File)).max(1, 'Only one image is allowed').optional(),
   urls: z
     .array(
       z.object({
-        value: z
-          .string()
-          .regex(
-            /^https?:\/\/([a-zA-Z0-9.-]+|[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})(:\d{1,5})?$/,
-            'URL must follow format: http(s)://domain-or-ip(:port)'
-          ),
+        value: z.url(),
       })
     )
     .min(1, 'At least one URL is required')
@@ -54,16 +51,17 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface ServerFormProps {
-  initialData?: Server;
-  onSuccess?: (server: Server) => void;
+interface ModuleFormProps {
+  initialData?: Module;
+  onSuccess?: (module: Module) => void;
 }
 
-export function ServerForm({ initialData, onSuccess }: ServerFormProps) {
+export function ModuleForm({ initialData, onSuccess }: ModuleFormProps) {
   const [isPending, setIsPending] = React.useState(false);
 
   const defaultValues: Partial<FormValues> = {
     name: initialData?.name || '',
+    description: initialData?.description || '',
     urls: initialData?.urls?.map(url => ({ value: url })) || [{ value: '' }],
     image: [],
   };
@@ -86,38 +84,37 @@ export function ServerForm({ initialData, onSuccess }: ServerFormProps) {
 
       const payload = {
         name: data.name,
+        description: data.description || null,
         image: imageFile,
         urls: urls,
       };
 
-      let server: Server;
+      let module: Module;
       if (initialData) {
-        server = await fangiFetch({
-          route: ApiRoutes.SERVER.UPDATE(initialData.id.toString()),
+        module = await fangiFetch({
+          route: ApiRoutes.MODULES.UPDATE(initialData.id.toString()),
           method: 'POST',
           contentType: 'multipart/form-data',
           body: payload,
           useCredentials: true,
         });
-        toast.success('Server updated successfully');
+        toast.success('Module updated successfully');
       } else {
         if (!payload.name || !payload.urls) {
           throw new Error('Missing required fields');
         }
-        server = await fangiFetch({
-          route: ApiRoutes.SERVER.CREATE,
+        module = await fangiFetch({
+          route: ApiRoutes.MODULES.CREATE,
           method: 'POST',
           contentType: 'multipart/form-data',
           body: payload,
           useCredentials: true,
         });
-        toast.success(
-          'Server created successfully. Server setup information was sent to your email inbox.'
-        );
+        toast.success('Module created successfully');
       }
 
       if (onSuccess) {
-        onSuccess(server);
+        onSuccess(module);
       }
     } catch (error) {
       if (error instanceof FetchError) {
@@ -125,7 +122,7 @@ export function ServerForm({ initialData, onSuccess }: ServerFormProps) {
       } else if (error instanceof Error) {
         toast.error(error.message);
       } else {
-        toast.error('Failed to create server');
+        toast.error('Failed to create module');
       }
     } finally {
       setIsPending(false);
@@ -140,10 +137,32 @@ export function ServerForm({ initialData, onSuccess }: ServerFormProps) {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Server Name</FormLabel>
+              <FormLabel>Module Name</FormLabel>
               <FormControl>
-                <Input placeholder="Mycelium Server" {...field} />
+                <Input placeholder="My Module" {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Describe what this module does..."
+                  className="resize-none"
+                  rows={4}
+                  {...field}
+                />
+              </FormControl>
+              <FormDescription>
+                Provide a brief description of your module (optional).
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -154,12 +173,12 @@ export function ServerForm({ initialData, onSuccess }: ServerFormProps) {
           name="image"
           render={({ field: { value, onChange, ...field } }) => (
             <FormItem>
-              <FormLabel>Server Image</FormLabel>
+              <FormLabel>Module Image</FormLabel>
               {initialData?.image_url && !value?.length && (
                 <div className="mb-2">
                   <img
                     src={initialData.image_url}
-                    alt="Current server image"
+                    alt="Current module image"
                     className="h-32 w-32 rounded-md object-cover"
                   />
                 </div>
@@ -196,7 +215,7 @@ export function ServerForm({ initialData, onSuccess }: ServerFormProps) {
                   </FileUploadList>
                 </FileUpload>
               </FormControl>
-              <FormDescription>Upload an image for your server (optional).</FormDescription>
+              <FormDescription>Upload an image for your module (optional).</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -208,7 +227,7 @@ export function ServerForm({ initialData, onSuccess }: ServerFormProps) {
           render={() => (
             <FormItem className="space-y-4">
               <div className="flex items-center justify-between">
-                <FormLabel>List of URLs allowed for this server</FormLabel>
+                <FormLabel>List of URLs allowed for this module</FormLabel>
                 <Button
                   type="button"
                   variant="outline"
@@ -260,7 +279,7 @@ export function ServerForm({ initialData, onSuccess }: ServerFormProps) {
 
         <Button type="submit" disabled={isPending}>
           {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {initialData ? 'Update Server' : 'Create Server'}
+          {initialData ? 'Update Module' : 'Create Module'}
         </Button>
       </form>
     </Form>

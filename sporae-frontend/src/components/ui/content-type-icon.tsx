@@ -47,7 +47,7 @@ export function ContentTypeIcon({ contentType, className, ...props }: ContentTyp
         'text/x-c',
         'text/x-c++',
         'text/xml',
-      ].some((t) => type.startsWith(t))
+      ].some(t => type.startsWith(t))
     ) {
       return <FileCode className={cn('size-4', className)} {...props} />;
     }
@@ -61,7 +61,7 @@ export function ContentTypeIcon({ contentType, className, ...props }: ContentTyp
       'application/javascript',
       'application/typescript',
       'application/x-httpd-php',
-    ].some((t) => type.startsWith(t))
+    ].some(t => type.startsWith(t))
   ) {
     return <FileCode className={cn('size-4', className)} {...props} />;
   }
@@ -76,7 +76,7 @@ export function ContentTypeIcon({ contentType, className, ...props }: ContentTyp
       'application/x-rar-compressed',
       'application/x-bzip',
       'application/x-bzip2',
-    ].some((t) => type.startsWith(t))
+    ].some(t => type.startsWith(t))
   ) {
     return <FileArchive className={cn('size-4', className)} {...props} />;
   }
@@ -88,11 +88,10 @@ export function ContentTypeIcon({ contentType, className, ...props }: ContentTyp
       'application/vnd.android.package-archive',
       'application/x-debian-package',
       'application/x-redhat-package-manager',
-    ].some((t) => type.startsWith(t))
+    ].some(t => type.startsWith(t))
   ) {
     return <FileCog className={cn('size-4', className)} {...props} />;
   }
 
   return <File className={cn('size-4', className)} {...props} />;
 }
-

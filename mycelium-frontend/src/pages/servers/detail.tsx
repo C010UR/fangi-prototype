@@ -54,13 +54,15 @@ import { useDebouncedCallback } from '@/hooks/use-debounced-callback';
 import { ApiRoutes } from '@/lib/api';
 import { fangiFetch } from '@/lib/api/fetch';
 import type { Server, ServerAllowedModule } from '@/types';
-import { ServerModuleForm } from '@/components/servers/server-module-form';
+import { ServerModuleForm } from '@/pages/servers/components/server-module-form';
 import { ChevronRight, ChevronDown, Trash2, Plus } from 'lucide-react';
 import { toast } from 'sonner';
-import { ServerActionsMenu } from '@/components/servers/server-actions-menu';
-import { ServerActionDialogs } from '@/components/servers/server-action-dialogs';
+import { ServerActionsMenu } from '@/pages/servers/components/server-actions-menu';
+import { ServerActionDialogs } from '@/pages/servers/components/server-action-dialogs';
 import { useServerActions } from '@/hooks/use-server-actions';
 import { usePermissions } from '@/hooks/use-permissions';
+import { TruncatedList } from '@/components/ui/truncated-list';
+import { getBaseUrl } from '@/lib/url';
 
 export default function ServerDetailPage() {
   const { serverId } = useParams({ from: '/servers/$serverId' });
@@ -194,63 +196,14 @@ export default function ServerDetailPage() {
           accessorKey: 'module.urls',
           header: 'Allowed URLs',
           size: 250,
-          cell: ({ row }) => {
-            const urls = row.original.module.urls || [];
-            const maxVisible = 1;
-
-            if (urls.length === 0) {
-              return (
-                <div className="text-muted-foreground">
-                  <Code>-</Code>
-                </div>
-              );
-            }
-
-            if (urls.length <= maxVisible) {
-              return (
-                <div className="truncate">
-                  {urls.map(url => (
-                    <Code copy key={url}>
-                      {url}
-                    </Code>
-                  ))}
-                </div>
-              );
-            }
-
-            return (
-              <div>
-                <HoverCard>
-                  <HoverCardTrigger asChild onClick={e => e.stopPropagation()}>
-                    <div>
-                      {urls.slice(0, maxVisible).map(url => (
-                        <Code copy key={url}>
-                          {url}
-                        </Code>
-                      ))}
-                      <span className="text-muted-foreground ml-1">
-                        + {urls.length - maxVisible}
-                      </span>
-                    </div>
-                  </HoverCardTrigger>
-                  <HoverCardContent align="start">
-                    <div className="flex flex-col gap-2">
-                      <h4 className="font-medium leading-none">Allowed URLs</h4>
-                      <div className="text-sm text-muted-foreground">
-                        <ul className="space-y-1">
-                          {urls.map((url, i) => (
-                            <li key={i} className="break-all">
-                              <Code copy>{url}</Code>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </HoverCardContent>
-                </HoverCard>
-              </div>
-            );
-          },
+          cell: ({ row }) => (
+            <TruncatedList
+              items={row.original.module.urls?.map(getBaseUrl)}
+              title="Allowed URLs"
+              emptyMessage={<Code>-</Code>}
+              renderItem={url => <Code copy>{url}</Code>}
+            />
+          ),
         },
         {
           accessorKey: 'module.client_id',

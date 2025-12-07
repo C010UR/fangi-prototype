@@ -21,7 +21,7 @@ class ModuleFixtures extends AbstractFixture implements DependentFixtureInterfac
             $manager,
             name: FixtureConsts::MODULE_NAME,
             description: $this->faker->sentence(32),
-            urls: ['http://host.docker.internal:10000'],
+            urls: ['http://host.docker.internal:10000/oauth/callback'],
             createdByReference: FixtureReferenceConsts::USER_ADMIN,
             serverReference: FixtureReferenceConsts::SERVER_DEFAULT,
             reference: FixtureReferenceConsts::MODULE_DEFAULT,

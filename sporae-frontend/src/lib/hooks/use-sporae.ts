@@ -11,7 +11,7 @@ export function useSporaeProfile() {
   return useQuery({
     queryKey: SPORAE_KEYS.profile(),
     queryFn: async () => {
-      // If profile is already in memory, return it? 
+      // If profile is already in memory, return it?
       // Or always ensure initialization.
       if (!sporaeClient.profile) {
         await sporaeClient.initialize();
@@ -25,7 +25,7 @@ export function useSporaeProfile() {
 
 export function useSporaeFiles(path: string, enabled: boolean = true) {
   const { data: profile } = useSporaeProfile();
-  
+
   return useQuery({
     queryKey: SPORAE_KEYS.files(path),
     queryFn: async () => {
@@ -57,4 +57,3 @@ export function useSporaeLogout() {
     window.location.reload();
   };
 }
-

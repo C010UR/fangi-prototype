@@ -23,6 +23,7 @@ class UserRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('u')
             ->andWhere('u.email = :email')
             ->setParameter('email', $email)
+            ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
     }

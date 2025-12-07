@@ -17,7 +17,11 @@ interface DeleteFileDialogProps {
   onConfirm: () => void;
 }
 
-export const DeleteFileDialog = memo(function DeleteFileDialog({ file, onOpenChange, onConfirm }: DeleteFileDialogProps) {
+export const DeleteFileDialog = memo(function DeleteFileDialog({
+  file,
+  onOpenChange,
+  onConfirm,
+}: DeleteFileDialogProps) {
   return (
     <AlertDialog open={!!file} onOpenChange={onOpenChange}>
       <AlertDialogContent>
@@ -30,7 +34,10 @@ export const DeleteFileDialog = memo(function DeleteFileDialog({ file, onOpenCha
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+          <AlertDialogAction
+            onClick={onConfirm}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
             Delete
           </AlertDialogAction>
         </AlertDialogFooter>
@@ -38,4 +45,3 @@ export const DeleteFileDialog = memo(function DeleteFileDialog({ file, onOpenCha
     </AlertDialog>
   );
 });
-

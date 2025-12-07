@@ -31,7 +31,7 @@ import {
   TwoPaneCardBody,
   TwoPaneCardFooter,
 } from '@/components/pages/two-pane-card';
-import { MainHeader } from '@/components/main/main-header';
+import { MainHeader } from '@/pages/main/components/main-header';
 import { type Server, type ListResult, type ServerFile, type Module } from '@/types';
 import { ApiRoutes, fangiFetch } from '@/lib/api';
 import { toast } from 'sonner';

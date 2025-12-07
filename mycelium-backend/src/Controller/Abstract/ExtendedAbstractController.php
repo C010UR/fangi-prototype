@@ -21,6 +21,11 @@ abstract class ExtendedAbstractController extends AbstractController
         ]);
     }
 
+    protected function trans(string $message, array $parameters = [], string $domain = 'messages'): string
+    {
+        return $this->container->get('translator')->trans($message, $parameters, $domain);
+    }
+
     protected function getUser(): User
     {
         return parent::getUser();

@@ -8,9 +8,9 @@ use App\Entity\Server;
 use App\Entity\User;
 use App\Exception\OAuth\ServerUnavailableException;
 use App\Repository\UserRepository;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use JsonException;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -25,8 +25,7 @@ class FileServerIntegrationService
         private OAuthServer $oauthServer,
         private HttpClientInterface $client,
         private TranslatorInterface $translator,
-        #[Autowire(param: 'kernel.secret')]
-        private string $appSecret,
+        private EncryptionService $encryptionService,
     ) {
     }
 
@@ -48,15 +47,7 @@ class FileServerIntegrationService
 
     private function setAuthToken(Server $server, string $authToken): void
     {
-        $iv = substr($this->appSecret, 0, 16);
-        $encryptedAuthToken = openssl_encrypt(
-            $authToken,
-            'aes-256-cbc',
-            $this->appSecret,
-            \OPENSSL_RAW_DATA,
-            $iv,
-        );
-        $server->setAuthToken(base64_encode($encryptedAuthToken));
+        $server->setAuthToken($this->encryptionService->encrypt($authToken));
     }
 
     private function getAuthToken(Server $server): ?string
@@ -65,17 +56,7 @@ class FileServerIntegrationService
             return null;
         }
 
-        $encryptedAuthToken = base64_decode($server->getAuthToken(), true);
-        $iv = substr($this->appSecret, 0, 16);
-        $authToken = openssl_decrypt(
-            $encryptedAuthToken,
-            'aes-256-cbc',
-            $this->appSecret,
-            \OPENSSL_RAW_DATA,
-            $iv,
-        );
-
-        return $authToken;
+        return $this->encryptionService->decrypt($server->getAuthToken());
     }
 
     private function readDataFromResponse(ResponseInterface $response): array
@@ -136,6 +117,7 @@ class FileServerIntegrationService
             ['/:rw'],
             '',
             $nonce,
+            new DateTimeImmutable(),
         );
 
         $this->entityManager->flush();

@@ -28,7 +28,8 @@ class MyceliumExtension extends Extension
 
         $this->configureSecurity($container, $config['security']);
         $this->configureEmails($container, $config['emails']);
-        $this->configureOAuth($container, $config['oauth']);
+        $this->configureJWT($container, $config['jwt']);
+        $this->configureOAuthServer($container, $config['oauth_server']);
     }
 
     private function configureSecurity(ContainerBuilder $container, array $config): void
@@ -196,15 +197,20 @@ class MyceliumExtension extends Extension
         $container->setParameter('mycelium.emails', $config);
     }
 
-    private function configureOAuth(ContainerBuilder $container, array $config): void
+    private function configureJWT(ContainerBuilder $container, array $config): void
     {
-        $container->setParameter('mycelium.oauth.jwt_private_key', $config['jwt_private_key']);
-        $container->setParameter('mycelium.oauth.jwt_public_key', $config['jwt_public_key']);
-        $container->setParameter('mycelium.oauth.jwt_algorithm', $config['jwt_algorithm']);
-        $container->setParameter('mycelium.oauth.authorization_code_ttl', $config['authorization_code_ttl']);
-        $container->setParameter('mycelium.oauth.access_token_ttl', $config['access_token_ttl']);
-        $container->setParameter('mycelium.oauth.refresh_token_ttl', $config['refresh_token_ttl']);
-        $container->setParameter('mycelium.oauth.id_token_ttl', $config['id_token_ttl']);
+        $container->setParameter('mycelium.jwt.private_key', $config['private_key']);
+        $container->setParameter('mycelium.jwt.public_key', $config['public_key']);
+        $container->setParameter('mycelium.jwt.algorithm', $config['algorithm']);
+    }
+
+    private function configureOAuthServer(ContainerBuilder $container, array $config): void
+    {
+        $container->setParameter('mycelium.oauth_server.issuer', $config['issuer']);
+        $container->setParameter('mycelium.oauth_server.authorization_code_time', $config['authorization_code_time']);
+        $container->setParameter('mycelium.oauth_server.access_token_time', $config['access_token_time']);
+        $container->setParameter('mycelium.oauth_server.refresh_token_time', $config['refresh_token_time']);
+        $container->setParameter('mycelium.oauth_server.id_token_time', $config['id_token_time']);
     }
 
     public function getAlias(): string

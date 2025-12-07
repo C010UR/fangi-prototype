@@ -18,7 +18,6 @@ import { DataTableColumnHeader } from '@/components/ui/data-table-column-header'
 import { ListPagination } from '@/components/ui/list-pagination';
 import { Input } from '@/components/ui/input';
 import { useDebouncedCallback } from '@/hooks/use-debounced-callback';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import {
   type ColumnDef,
   type SortingState,
@@ -44,9 +43,11 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useQueryClient } from '@tanstack/react-query';
 import { FormDialog } from '@/components/ui/form-dialog';
-import { ModuleForm } from '@/components/modules/module-form';
+import { ModuleForm } from '@/pages/modules/components/module-form';
 import { useModuleActions } from '@/hooks/use-module-actions';
-import { ModuleActionDialogs } from '@/components/modules/module-action-dialogs';
+import { ModuleActionDialogs } from '@/pages/modules/components/module-action-dialogs';
+import { TruncatedList } from '@/components/ui/truncated-list';
+import { getBaseUrl } from '@/lib/url';
 
 export default function ModulesPage() {
   const queryClient = useQueryClient();
@@ -151,87 +152,36 @@ export default function ModulesPage() {
         accessorKey: 'name',
         header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
       },
+      {
+        accessorKey: 'urls',
+        header: 'URLs',
+        size: 250,
+        cell: ({ row }) => (
+          <TruncatedList
+            items={row.original.urls?.map(getBaseUrl)}
+            title="URLs"
+            emptyMessage={<Code>-</Code>}
+            renderItem={url => <Code copy>{url}</Code>}
+          />
+        ),
+      },
+      {
+        header: 'Client ID',
+        cell: ({ row }) => <Code copy>{row.original.client_id}</Code>,
+      },
     ];
 
     if (isAdmin) {
-      baseColumns.push(
-        {
-          accessorKey: 'urls',
-          header: 'Allowed URLs',
-          size: 250,
-          cell: ({ row }) => {
-            const urls = row.original.urls || [];
-            const maxVisible = 1;
-
-            if (urls.length === 0) {
-              return (
-                <div className="text-muted-foreground">
-                  <Code>-</Code>
-                </div>
-              );
-            }
-
-            if (urls.length <= maxVisible) {
-              return (
-                <div className="truncate">
-                  {urls.map(url => (
-                    <Code copy key={url}>
-                      {url}
-                    </Code>
-                  ))}
-                </div>
-              );
-            }
-
-            return (
-              <div>
-                <HoverCard>
-                  <HoverCardTrigger asChild onClick={e => e.stopPropagation()}>
-                    <div>
-                      {urls.slice(0, maxVisible).map(url => (
-                        <Code copy key={url}>
-                          {url}
-                        </Code>
-                      ))}
-                      <span className="text-muted-foreground ml-1">
-                        + {urls.length - maxVisible}
-                      </span>
-                    </div>
-                  </HoverCardTrigger>
-                  <HoverCardContent align="start">
-                    <div className="flex flex-col gap-2">
-                      <h4 className="font-medium leading-none">Allowed URLs</h4>
-                      <div className="text-sm text-muted-foreground">
-                        <ul className="space-y-1">
-                          {urls.map((url, i) => (
-                            <li key={i} className="break-all">
-                              <Code copy>{url}</Code>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </HoverCardContent>
-                </HoverCard>
-              </div>
-            );
-          },
-        },
-        {
-          header: 'Client ID',
-          cell: ({ row }) => <Code copy>{row.original.client_id}</Code>,
-        },
-        {
-          accessorKey: 'is_active',
-          header: ({ column }) => <DataTableColumnHeader column={column} title="Active" />,
-          size: 100,
-          cell: ({ row }) => (
-            <Badge variant={row.original.is_active ? 'default' : 'secondary'}>
-              {row.original.is_active ? 'Active' : 'Inactive'}
-            </Badge>
-          ),
-        }
-      );
+      baseColumns.push({
+        accessorKey: 'is_active',
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Active" />,
+        size: 100,
+        cell: ({ row }) => (
+          <Badge variant={row.original.is_active ? 'default' : 'secondary'}>
+            {row.original.is_active ? 'Active' : 'Inactive'}
+          </Badge>
+        ),
+      });
     }
 
     baseColumns.push(
@@ -352,16 +302,18 @@ export default function ModulesPage() {
               )}
             </div>
             <div className="flex items-center gap-4">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="show-mine"
-                  checked={showMine}
-                  onCheckedChange={handleShowMineChange}
-                />
-                <Label htmlFor="show-mine" className="cursor-pointer text-sm font-medium">
-                  Show owned
-                </Label>
-              </div>
+              {isAdmin && (
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="show-mine"
+                    checked={showMine}
+                    onCheckedChange={handleShowMineChange}
+                  />
+                  <Label htmlFor="show-mine" className="cursor-pointer text-sm font-medium">
+                    Show owned
+                  </Label>
+                </div>
+              )}
               <div className="w-72">
                 <Input
                   placeholder="Search modules..."
@@ -428,7 +380,7 @@ export default function ModulesPage() {
                                 <div className="flex flex-col gap-4">
                                   <div>
                                     <h4 className="text-xl font-bold">{row.original.name}</h4>
-                                    <p className="text-muted-foreground mt-1">
+                                    <p className="text-muted-foreground mt-1 break-words text-balance">
                                       {row.original.description || 'No description provided.'}
                                     </p>
                                   </div>
@@ -520,11 +472,11 @@ export default function ModulesPage() {
           onEditClose={() => setEditingModule(null)}
           onActivateClose={() => setActivateDialog({ open: false, module: null })}
           onDeactivateClose={() => setDeactivateDialog({ open: false, module: null })}
-          onActivateConfirm={moduleId => {
+          onActivateConfirm={(moduleId: string) => {
             activateModule(moduleId);
             setActivateDialog({ open: false, module: null });
           }}
-          onDeactivateConfirm={moduleId => {
+          onDeactivateConfirm={(moduleId: string) => {
             deactivateModule(moduleId);
             setDeactivateDialog({ open: false, module: null });
           }}

@@ -32,7 +32,7 @@ export default function OAuthCallbackPage() {
           onSuccess: () => {
             navigate({ to: '/' });
           },
-          onError: (err) => {
+          onError: err => {
             console.error('Authentication error:', err);
             setAuthError(err instanceof Error ? err.message : 'Authentication failed');
           },
@@ -46,17 +46,14 @@ export default function OAuthCallbackPage() {
   if (authError || error) {
     const displayError = authError || (error instanceof Error ? error.message : 'Unknown error');
     return (
-      <ErrorPage 
-        title="Authentication Failed" 
+      <ErrorPage
+        title="Authentication Failed"
         message={displayError}
         code={401}
-        reset={() => window.location.href = '/'} // Redirect home on retry? Or re-init flow?
+        reset={() => (window.location.href = '/')} // Redirect home on retry? Or re-init flow?
       />
     );
   }
 
-  return (
-    <LoadingPage message="Authenticating..." />
-  );
+  return <LoadingPage message="Authenticating..." />;
 }
-

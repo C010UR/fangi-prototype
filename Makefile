@@ -138,18 +138,18 @@ hyphae-vendor: ## Install Hyphae composer dependencies
 lint: ## Lint the project using php-cs-fixer
 	@ PHP_CS_FIXER_IGNORE_ENV=1 $(MYCELIUM_COMPOSER) run php-cs-fixer-lint
 	@ PHP_CS_FIXER_IGNORE_ENV=1 $(HYPHAE_COMPOSER) run php-cs-fixer-lint
-	@ $(MYCELIUM_NPM) run lint:check
 	@ $(MYCELIUM_NPM) run format:check
-	@ $(SPORAE_NPM) run lint:check
 	@ $(SPORAE_NPM) run format:check
+	@ $(MYCELIUM_NPM) run lint:check
+	@ $(SPORAE_NPM) run lint:check
 
 .PHONY: lint-fix
 lint-fix: ## Lint and fix issues of the project using php-cs-fixer
 	@ PHP_CS_FIXER_IGNORE_ENV=1 $(MYCELIUM_COMPOSER) run php-cs-fixer-fix
 	@ PHP_CS_FIXER_IGNORE_ENV=1 $(HYPHAE_COMPOSER) run php-cs-fixer-fix
 	@ $(MYCELIUM_NPM) run format
-	@ $(MYCELIUM_NPM) run lint
 	@ $(SPORAE_NPM) run format
+	@ $(MYCELIUM_NPM) run lint
 	@ $(SPORAE_NPM) run lint
 
 ## ——  Queue  ——————————————————————————————————————————————————————————————————————————————————————————————————————————

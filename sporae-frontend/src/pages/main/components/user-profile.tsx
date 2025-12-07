@@ -57,4 +57,3 @@ export const UserProfile = memo(function UserProfile({ userProfile, onLogout }: 
     </div>
   );
 });
-

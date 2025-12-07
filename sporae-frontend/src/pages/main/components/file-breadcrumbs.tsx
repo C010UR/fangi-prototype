@@ -7,7 +7,10 @@ interface FileBreadcrumbsProps {
   onNavigate: (path: string) => void;
 }
 
-export const FileBreadcrumbs = memo(function FileBreadcrumbs({ currentPath, onNavigate }: FileBreadcrumbsProps) {
+export const FileBreadcrumbs = memo(function FileBreadcrumbs({
+  currentPath,
+  onNavigate,
+}: FileBreadcrumbsProps) {
   const pathParts = useMemo(() => {
     return currentPath.split('/').filter(Boolean);
   }, [currentPath]);
@@ -42,4 +45,3 @@ export const FileBreadcrumbs = memo(function FileBreadcrumbs({ currentPath, onNa
     </div>
   );
 });
-

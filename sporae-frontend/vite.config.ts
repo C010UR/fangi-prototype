@@ -20,9 +20,7 @@ export default defineConfig({
         secure: false,
       },
     },
-    allowedHosts: [
-      'host.docker.internal'
-    ],
+    allowedHosts: ['host.docker.internal'],
     cors: true,
   },
   build: {

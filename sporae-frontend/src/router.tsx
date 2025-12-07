@@ -1,9 +1,4 @@
-import {
-  createRouter,
-  createRootRoute,
-  createRoute,
-  Outlet,
-} from '@tanstack/react-router';
+import { createRouter, createRootRoute, createRoute, Outlet } from '@tanstack/react-router';
 import NotFoundPage from '@/pages/not-found';
 import MainPage from '@/pages/main';
 import OAuthCallbackPage from '@/pages/oauth/callback';
@@ -35,11 +30,7 @@ const notFoundRoute = createRoute({
   component: NotFoundPage,
 });
 
-const routeTree = rootRoute.addChildren([
-  indexRoute,
-  oauthCallbackRoute,
-  notFoundRoute,
-]);
+const routeTree = rootRoute.addChildren([indexRoute, oauthCallbackRoute, notFoundRoute]);
 
 export const createAppRouter = () =>
   createRouter({

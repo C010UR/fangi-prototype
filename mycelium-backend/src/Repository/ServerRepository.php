@@ -80,8 +80,6 @@ class ServerRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('server')
             ->andWhere('server.clientId = :clientId')
             ->setParameter('clientId', $clientId)
-            ->andWhere('server.isActive = true')
-            ->andWhere('server.isBanned = false')
             ->getQuery()
             ->getOneOrNullResult();
     }

@@ -20,6 +20,8 @@ class RefreshToken
     #[ORM\Column(type: Types::TEXT)]
     private ?string $token = null;
 
+    private ?string $plainToken = null;
+
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;

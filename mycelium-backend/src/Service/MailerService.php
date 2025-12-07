@@ -21,6 +21,8 @@ class MailerService
         private MailerInterface $mailer,
         private TranslatorInterface $translator,
         private UserService $userService,
+        #[Autowire(param: 'api_host')]
+        private string $apiHost,
         #[Autowire(param: 'mycelium.emails')]
         private array $templates,
     ) {
@@ -120,6 +122,7 @@ class MailerService
             ->htmlTemplate($template['template'])
             ->context([
                 'name' => $server->getName(),
+                'server' => $this->apiHost,
                 'client_id' => $server->getClientId(),
                 'secret' => $server->getPlainSecret(),
             ]);

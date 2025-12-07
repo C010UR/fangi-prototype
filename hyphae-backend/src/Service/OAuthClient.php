@@ -65,7 +65,13 @@ class OAuthClient
         $jwks = $this->getJWKS();
 
         if ($response->getStatusCode() >= 400) {
-            throw new AuthenticationException(\sprintf('Federated authenticator returned %s: %s', $response->getStatusCode(), $response->getContent(false)));
+            try {
+                $data = $response->toArray(false);
+            } catch (JsonException $exception) {
+                throw new AuthenticationException(\sprintf('Federated authenticator returned %s', $response->getStatusCode()));
+            }
+
+            throw new AuthenticationException(\sprintf('Federated authenticator returned %s: %s', $response->getStatusCode(), $data['error_description'] ?? 'unknown error'));
         }
 
         try {
@@ -84,14 +90,9 @@ class OAuthClient
             throw new AuthenticationException('Federated authenticated returned invalid JWKS');
         }
 
-        $accessToken = json_decode(json_encode(JWT::decode($data['access_token'], $keys)), true);
-        $accessToken['raw'] = $data['access_token'];
-
-        $refreshToken = json_decode(json_encode(JWT::decode($data['refresh_token'], $keys)), true);
-        $refreshToken['raw'] = $data['refresh_token'];
-
-        $idToken = json_decode(json_encode(JWT::decode($data['id_token'], $keys)), true);
-        $idToken['raw'] = $data['id_token'];
+        $accessToken = (array)JWT::decode($data['access_token'], $keys);
+        $idToken = (array)JWT::decode($data['id_token'], $keys);
+        $refreshToken = $data['refresh_token'];
 
         if (null !== $nonce && ($idToken['nonce'] ?? '') !== $nonce) {
             throw new AuthenticationException('Invalid nonce');
@@ -146,12 +147,6 @@ class OAuthClient
 
     public function refreshSession(#[SensitiveParameter] Session $session): Session
     {
-        $refreshTokenData = $session->getRefreshToken();
-
-        if (empty($refreshTokenData['raw'])) {
-            throw new AuthenticationException('No refresh token available');
-        }
-
         $response = $this->client->request('POST', $this->oauthServer . '/oauth/token', [
             'headers' => [
                 'Accept' => 'application/json',
@@ -160,7 +155,7 @@ class OAuthClient
                 'client_id' => $this->oauthClientId,
                 'client_secret' => $this->oauthClientSecret,
                 'grant_type' => 'refresh_token',
-                'refresh_token' => $refreshTokenData['raw'],
+                'refresh_token' => $session->getRefreshToken(),
             ],
         ]);
 

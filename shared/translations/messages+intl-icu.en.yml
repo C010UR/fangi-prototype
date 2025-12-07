@@ -109,6 +109,26 @@ server:
   unavailable: "Server returned {status}. Please check if your server is running and accessible. Message from server: {message}"
   not_working: "Server is not working. Please check your server configuration."
 
+oauth_server:
+  missing_parameter: "Missing parameter: {parameter}"
+  invalid_grant_type: "Invalid grant type."
+  invalid_redirect_uri: "Invalid redirect URI."
+  module:
+    invalid: "Module is invalid. Please contact support for more information."
+    inactive: "Module \"{module}\" is inactive. Please contact support for more information."
+    banned: "Module \"{module}\" is banned. Please contact support for more information."
+  server:
+    invalid_client: "Server is invalid. Please contact support for more information."
+    client_authentication_required: "Server authentication required."
+    inactive: "Server \"{server}\" is inactive. Please contact support for more information."
+    banned: "Server \"{server}\" is banned. Please contact support for more information."
+  authorization_code:
+    invalid: "Authorization code is invalid."
+    expired: "Authorization code expired."
+  refresh_token:
+    invalid: "Refresh token is invalid."
+    expired: "Refresh token expired."
+
 # Framework's internal messages
 "Credentials invalid.": "Credentials invalid."
 "Access Denied.": "Access Denied."

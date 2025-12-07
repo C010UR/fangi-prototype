@@ -65,7 +65,7 @@ class LqmProcessor
         }
 
         if (empty($this->config->getSupportedFilters($this->availableRoles))) {
-            throw new LogicException(\sprintf('"%s" supports filters but doesn\'t return any filter params', $this->config::class));
+            return $this;
         }
 
         $this->filters = $this->extractor->extractFilters(

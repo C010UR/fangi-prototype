@@ -35,7 +35,7 @@ export const CreateFolderDialog = memo(function CreateFolderDialog({
             <Input
               id="name"
               value={folderName}
-              onChange={(e) => setFolderName(e.target.value)}
+              onChange={e => setFolderName(e.target.value)}
               placeholder="Folder name"
               autoFocus
             />
@@ -51,4 +51,3 @@ export const CreateFolderDialog = memo(function CreateFolderDialog({
     </Dialog>
   );
 });
-

@@ -32,8 +32,8 @@ class Session implements UserInterface
     #[ORM\Column(type: Types::JSON)]
     private array $idToken = [];
 
-    #[ORM\Column(type: Types::JSON)]
-    private array $refreshToken = [];
+    #[ORM\Column(type: Types::TEXT)]
+    private ?string $refreshToken = null;
 
     #[ORM\Column]
     private array $scopes = [];
@@ -92,7 +92,7 @@ class Session implements UserInterface
         return $this->refreshToken;
     }
 
-    public function setRefreshToken(array $refreshToken): static
+    public function setRefreshToken(string $refreshToken): static
     {
         $this->refreshToken = $refreshToken;
 

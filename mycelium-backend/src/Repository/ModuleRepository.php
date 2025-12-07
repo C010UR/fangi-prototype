@@ -90,8 +90,6 @@ class ModuleRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('module')
             ->andWhere('module.clientId = :clientId')
             ->setParameter('clientId', $clientId)
-            ->andWhere('module.isActive = true')
-            ->andWhere('module.isBanned = false')
             ->getQuery()
             ->getOneOrNullResult();
     }

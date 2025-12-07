@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { FormDialog } from '@/components/ui/form-dialog';
-import { UserForm } from '@/components/users/user-form';
+import { UserForm } from '@/pages/users/components/user-form';
 import { CheckCircle2Icon, XCircleIcon } from 'lucide-react';
 import type { User } from '@/types';
 

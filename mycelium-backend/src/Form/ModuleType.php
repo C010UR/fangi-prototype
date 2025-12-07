@@ -59,10 +59,7 @@ class ModuleType extends AbstractType implements PostSubmitFormInterface
                 'constraints' => [
                     new Assert\All([
                         new Assert\NotBlank(message: 'form.allowed_urls.empty_url'),
-                        new Assert\Regex(
-                            pattern: '/^https?:\/\/([a-zA-Z0-9.-]+|[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})(:\d{1,5})?$/',
-                            message: 'form.allowed_urls.invalid_format',
-                        ),
+                        new Assert\Url(message: 'form.allowed_urls.invalid_format'),
                     ]),
                     new Assert\Unique(message: 'form.allowed_urls.duplicate'),
                     new Assert\Count(min: 1, minMessage: 'form.allowed_urls.at_least_one'),

@@ -39,11 +39,13 @@ mycelium:
     server_setup:
       subject: "subject.server_setup"
       template: "emails/server_setup.html.twig"
-  oauth:
-    jwt_private_key: "%kernel.project_dir%/config/keys/jwt_private_key.pem"
-    jwt_public_key: "%kernel.project_dir%/config/keys/jwt_public_key.pem"
-    jwt_algorithm: "RS256"
-    authorization_code_ttl: 600
-    access_token_ttl: 3600
-    refresh_token_ttl: 2592000
-    id_token_ttl: 3600
+  jwt:
+    private_key: "%kernel.project_dir%/config/keys/jwt_private_key.pem"
+    public_key: "%kernel.project_dir%/config/keys/jwt_public_key.pem"
+    algorithm: "RS256"
+  oauth_server:
+    issuer: "mycelium"
+    authorization_code_time: PT10M
+    access_token_time: PT1H
+    refresh_token_time: P1M
+    id_token_time: PT1H

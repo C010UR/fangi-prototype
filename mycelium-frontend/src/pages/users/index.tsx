@@ -39,9 +39,9 @@ import { ApiRoutes } from '@/lib/api';
 import { usePermissions } from '@/hooks/use-permissions';
 import { useQueryClient } from '@tanstack/react-query';
 import { FormDialog } from '@/components/ui/form-dialog';
-import { UserForm } from '@/components/users/user-form';
+import { UserForm } from '@/pages/users/components/user-form';
 import { useUserActions } from '@/hooks/use-user-actions';
-import { UserActionDialogs } from '@/components/users/user-action-dialogs';
+import { UserActionDialogs } from '@/pages/users/components/user-action-dialogs';
 
 export default function UsersPage() {
   const queryClient = useQueryClient();

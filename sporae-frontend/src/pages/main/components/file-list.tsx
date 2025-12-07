@@ -231,7 +231,7 @@ export const FileList = memo(function FileList({
                                       size="icon"
                                       variant="ghost"
                                       className="h-7 w-7 shrink-0 text-green-500 hover:text-green-600 hover:bg-green-100 dark:hover:bg-green-900/20"
-                                      onClick={(e) => {
+                                      onClick={e => {
                                         e.stopPropagation();
                                         onRenameSubmit();
                                       }}
@@ -242,7 +242,7 @@ export const FileList = memo(function FileList({
                                       size="icon"
                                       variant="ghost"
                                       className="h-7 w-7 shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                      onClick={(e) => {
+                                      onClick={e => {
                                         e.stopPropagation();
                                         onRenameCancel();
                                       }}

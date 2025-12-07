@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { FormDialog } from '@/components/ui/form-dialog';
-import { ServerForm } from '@/components/servers/server-form';
+import { ServerForm } from '@/pages/servers/components/server-form';
 import { AlertCircleIcon, CheckCircle2Icon, XCircleIcon } from 'lucide-react';
 import type { Server } from '@/types';
 

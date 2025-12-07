@@ -8,7 +8,11 @@ interface FileToolbarProps {
   onUploadClick: () => void;
 }
 
-export const FileToolbar = memo(function FileToolbar({ itemCount, onCreateFolder, onUploadClick }: FileToolbarProps) {
+export const FileToolbar = memo(function FileToolbar({
+  itemCount,
+  onCreateFolder,
+  onUploadClick,
+}: FileToolbarProps) {
   return (
     <div className="flex items-center gap-2 p-2 border-b text-sm bg-background/50 min-h-[40px]">
       <div className="flex-1 pl-2 text-muted-foreground font-medium text-xs uppercase tracking-wider">
@@ -37,4 +41,3 @@ export const FileToolbar = memo(function FileToolbar({ itemCount, onCreateFolder
     </div>
   );
 });
-

@@ -6,13 +6,13 @@ import { toast } from 'sonner';
 import ErrorPage from '@/pages/error';
 import LoadingPage from '@/pages/loading';
 
-import { MainHeader } from '@/components/main/main-header';
-import { UserProfile } from '@/components/main/user-profile';
-import { FileBreadcrumbs } from '@/components/main/file-breadcrumbs';
-import { FileToolbar } from '@/components/main/file-toolbar';
-import { FileList } from '@/components/main/file-list';
-import { CreateFolderDialog } from '@/components/main/create-folder-dialog';
-import { DeleteFileDialog } from '@/components/main/delete-file-dialog';
+import { MainHeader } from '@/pages/main/components/main-header';
+import { UserProfile } from '@/pages/main/components/user-profile';
+import { FileBreadcrumbs } from '@/pages/main/components/file-breadcrumbs';
+import { FileToolbar } from '@/pages/main/components/file-toolbar';
+import { FileList } from '@/pages/main/components/file-list';
+import { CreateFolderDialog } from '@/pages/main/components/create-folder-dialog';
+import { DeleteFileDialog } from '@/pages/main/components/delete-file-dialog';
 
 export default function MainPage() {
   const [currentPath, setCurrentPath] = useState('/');

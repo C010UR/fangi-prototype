@@ -12,4 +12,3 @@ export const MainHeader = memo(function MainHeader() {
     </div>
   );
 });
-
