@@ -31,7 +31,7 @@ import {
   TwoPaneCardBody,
   TwoPaneCardFooter,
 } from '@/components/pages/two-pane-card';
-import { BrandLogo } from '@/components/pages/brand-logo';
+import { MainHeader } from '@/components/main/main-header';
 import { type Server, type ListResult, type ServerFile, type Module } from '@/types';
 import { ApiRoutes, fangiFetch } from '@/lib/api';
 import { toast } from 'sonner';
@@ -75,7 +75,6 @@ function ServerList({
     initialPageParam: 1,
   });
 
-  // Infinite scroll observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       entries => {
@@ -165,10 +164,6 @@ function FileBrowser({
 }) {
   const [currentPath, setCurrentPath] = useState('/');
 
-  // Normalize path to ensure it doesn't have leading/trailing slashes for display/logic where needed
-  // but keep one leading slash for root representation if desired.
-  // The API likely expects the path segment after /ls/
-
   const {
     data: files,
     isLoading,
@@ -176,14 +171,6 @@ function FileBrowser({
   } = useQuery({
     queryKey: ['server-files', serverId, currentPath],
     queryFn: async () => {
-      // Ensure path passed to LS does not start with / if it's not root, or handled by the route function
-      // Our ApiRoutes.SERVER.LS handles leading slash removal if present.
-      // But if path is just "/", it might be empty string in URL if we slice.
-      // Let's rely on the LS function logic: path.startsWith('/') ? path.slice(1) : path
-      // If currentPath is "/", slice(1) is "". So /ls/ works for root?
-      // Or maybe root is handled by /ls/ or /ls (trailing slash).
-      // Let's assume /ls/ works for root.
-
       return fangiFetch<ServerFile[]>({
         route: ApiRoutes.SERVER.LS(serverId, currentPath),
         useCredentials: true,
@@ -224,7 +211,6 @@ function FileBrowser({
 
   return (
     <div className="flex flex-col h-full border rounded-md bg-background overflow-hidden">
-      {/* Breadcrumbs */}
       <div className="flex items-center gap-1 p-2 border-b bg-muted/30 text-sm overflow-x-auto whitespace-nowrap shrink-0 scrollbar-thin">
         <Button
           variant="ghost"
@@ -277,11 +263,11 @@ function FileBrowser({
                   </div>
                 )}
                 {files
-                  ?.sort((a, b) => {
+                  ?.sort((a: ServerFile, b: ServerFile) => {
                     if (a.is_directory === b.is_directory) return a.name.localeCompare(b.name);
                     return a.is_directory ? -1 : 1;
                   })
-                  .map(file => {
+                  .map((file: ServerFile) => {
                     const selected = isSelected(file);
                     const parentSelected = isParentSelected(file);
                     const disabled = parentSelected;
@@ -294,10 +280,8 @@ function FileBrowser({
                           selected || parentSelected ? 'bg-primary/10' : 'hover:bg-accent/50'
                         )}
                         onClick={e => {
-                          // Navigate on directory click, toggle on file click
-                          // If clicking the checkbox (handled separately), this won't fire due to stopPropagation
                           if (file.is_directory) {
-                            e.preventDefault(); // Good practice though not strictly necessary for div
+                            e.preventDefault();
                             navigateTo(file.path);
                           } else if (!disabled) {
                             onFileToggle(file);
@@ -312,7 +296,6 @@ function FileBrowser({
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium truncate">{file.name}</p>
                           <p className="text-xs text-muted-foreground">
-                            {/* Add size or date if available in future, for now just type */}
                             {file.is_directory ? 'Directory' : file.content_type || 'File'}
                           </p>
                         </div>
@@ -458,14 +441,12 @@ export default function AuthorizePage() {
       if (exists) {
         newFiles = prev.filter(f => f.path !== file.path);
       } else {
-        // If the new selection is a directory, remove any existing selections that are its children
         newFiles = [
           ...prev.filter(f => !(file.is_directory && f.path.startsWith(file.path + '/'))),
           file,
         ];
       }
 
-      // Sort selected items ascending by path
       return newFiles.sort((a, b) => a.path.localeCompare(b.path));
     });
   };
@@ -512,9 +493,6 @@ export default function AuthorizePage() {
 
       toast.success('Authorization successful');
 
-      // Redirect back to the module callback URL if available, or dashboard
-      // The backend should probably return the redirect URL.
-      // For now, redirect to dashboard as placeholder
       navigate({ to: '/' });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Authorization failed');
@@ -563,10 +541,10 @@ export default function AuthorizePage() {
     return <LoadingPage />;
   }
 
-  // Step 1: Server Selection - Centered Card
   if (step === 'server') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <MainHeader />
         <TwoPaneCard imageSrc="/card-image.jpeg" imageAlt="Authorization" className="h-[800px]">
           <TwoPaneCardContent>
             <TwoPaneCardHeader>
@@ -607,10 +585,9 @@ export default function AuthorizePage() {
     );
   }
 
-  // Step 2: File Selection - Full Screen / Large Card
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <BrandLogo />
+      <MainHeader />
       <Card className="w-full max-w-6xl h-[800px] flex flex-col z-10">
         <CardHeader className="border-b px-4 py-3">
           <div className="flex items-center gap-3">
@@ -678,7 +655,6 @@ export default function AuthorizePage() {
 
         <CardContent className="flex-1 p-0 overflow-hidden">
           <div className="grid grid-cols-1 md:grid-cols-3 h-full divide-y md:divide-y-0 md:divide-x">
-            {/* File Browser - Takes up 2/3 space on desktop */}
             <div className="md:col-span-2 flex flex-col h-full p-4 overflow-hidden min-w-0">
               <div className="flex-1 min-h-0">
                 {selectedServer && (
@@ -691,7 +667,6 @@ export default function AuthorizePage() {
               </div>
             </div>
 
-            {/* Selected List - Takes up 1/3 space on desktop */}
             <div className="flex flex-col h-full p-4 overflow-hidden min-w-0">
               <div className="flex-1 min-h-0">
                 <SelectedFilesList files={selectedFiles} onRemove={handleFileRemove} />

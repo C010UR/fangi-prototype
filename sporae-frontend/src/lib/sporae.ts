@@ -88,6 +88,8 @@ class Sporae {
     const token = localStorage.getItem(this.storageKeys.serverToken);
     const headers = new Headers(init?.headers);
 
+    headers.set('Accept', 'application/json');
+
     if (token) {
       headers.set('Authorization', `Bearer ${token}`);
     }
@@ -135,7 +137,8 @@ class Sporae {
     );
 
     if (!response.ok) {
-      throw new Error(`Authentication failed with status: ${response.status}`);
+      const error = await response.json();
+      throw new Error(error.error_description || `Authentication failed with status: ${response.status}`);
     }
 
     const data = await response.json();
@@ -153,7 +156,8 @@ class Sporae {
     try {
       const profileResponse = await this.fetch(`${serverUri}/api/v1/profile`);
       if (!profileResponse.ok) {
-        throw new Error(`Profile fetch failed with status: ${profileResponse.status}`);
+        const error = await profileResponse.json();
+        throw new Error(error.error_description || `Profile fetch failed with status: ${profileResponse.status}`);
       }
       this.profile = await profileResponse.json();
     } catch (error) {
@@ -177,7 +181,8 @@ class Sporae {
     const response = await this.fetch(`${this.serverUri}/api/v1/ls${path}`);
 
     if (!response.ok) {
-      throw new Error(`Failed to list files: ${response.status}`);
+      const error = await response.json();
+      throw new Error(error.error_description || `Failed to list files: ${response.status}`);
     }
 
     return response.json();
@@ -188,7 +193,8 @@ class Sporae {
     const response = await this.fetch(`${this.serverUri}/api/v1/head${path}`);
 
     if (!response.ok) {
-      throw new Error(`Failed to get file info: ${response.status}`);
+      const error = await response.json();
+      throw new Error(error.error_description || `Failed to get file info: ${response.status}`);
     }
 
     return response.json();
@@ -199,7 +205,8 @@ class Sporae {
     const response = await this.fetch(`${this.serverUri}/api/v1/read${path}${inline ? '?inline=true' : ''}`);
 
     if (!response.ok) {
-      throw new Error(`Failed to read file: ${response.status}`);
+      const error = await response.json();
+      throw new Error(error.error_description || `Failed to read file: ${response.status}`);
     }
 
     return response.blob();
@@ -212,7 +219,8 @@ class Sporae {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to create directory: ${response.status}`);
+      const error = await response.json();
+      throw new Error(error.error_description || `Failed to create directory: ${response.status}`);
     }
 
     return response.json();
@@ -229,7 +237,8 @@ class Sporae {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to write file: ${response.status}`);
+      const error = await response.json();
+      throw new Error(error.error_description || `Failed to write file: ${response.status}`);
     }
 
     return response.json();
@@ -242,7 +251,8 @@ class Sporae {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to delete file: ${response.status}`);
+      const error = await response.json();
+      throw new Error(error.error_description || `Failed to delete file: ${response.status}`);
     }
   }
 
@@ -253,7 +263,8 @@ class Sporae {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to move file: ${response.status}`);
+      const error = await response.json();
+      throw new Error(error.error_description || `Failed to move file: ${response.status}`);
     }
 
     return response.json();
@@ -266,7 +277,8 @@ class Sporae {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to copy file: ${response.status}`);
+      const error = await response.json();
+      throw new Error(error.error_description || `Failed to copy file: ${response.status}`);
     }
 
     return response.json();

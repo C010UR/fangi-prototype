@@ -52,6 +52,41 @@
   --scrollbar-thumb-hover: oklch(0.53 0.03 110 / 0.4);
 }
 
+.dark {
+  --background: oklch(0.14 0.01 110);
+  --foreground: oklch(0.98 0.01 110);
+  --card: oklch(0.14 0.01 110);
+  --card-foreground: oklch(0.98 0.01 110);
+  --popover: oklch(0.14 0.01 110);
+  --popover-foreground: oklch(0.98 0.01 110);
+  --primary: oklch(0.6562 0.047 110);
+  --primary-foreground: oklch(0.98 0.01 110);
+  --secondary: oklch(0.2 0.04 120);
+  --secondary-foreground: oklch(0.98 0.01 110);
+  --muted: oklch(0.2 0.015 110);
+  --muted-foreground: oklch(0.6 0.03 110);
+  --accent: oklch(0.2 0.01 110);
+  --accent-foreground: oklch(0.98 0.01 110);
+  --destructive: oklch(0.4 0.2 25);
+  --destructive-foreground: oklch(0.98 0.01 110);
+  --border: oklch(0.2 0.015 110);
+  --input: oklch(0.2 0.01 110);
+  --ring: oklch(0.6562 0.047 110);
+  --chart-1: oklch(0.6562 0.047 110);
+  --chart-2: oklch(0.68 0.08 120);
+  --chart-3: oklch(0.63 0.1 95);
+  --chart-4: oklch(0.71 0.12 130);
+  --chart-5: oklch(0.61 0.09 100);
+  --sidebar: oklch(0.14 0.01 110);
+  --sidebar-foreground: oklch(0.98 0.01 110);
+  --sidebar-primary: oklch(0.6562 0.047 110);
+  --sidebar-primary-foreground: oklch(0.98 0.01 110);
+  --sidebar-accent: oklch(0.2 0.01 110);
+  --sidebar-accent-foreground: oklch(0.98 0.01 110);
+  --sidebar-border: oklch(0.2 0.015 110);
+  --sidebar-ring: oklch(0.6562 0.047 110);
+}
+
 @theme inline {
   --font-source-code: 'Source Code Pro', monospace;
   --radius-sm: calc(var(--radius) - 4px);

@@ -1,6 +1,7 @@
 import { Link, useRouter } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { MoveLeft, Home, RefreshCw } from 'lucide-react';
+import { MainHeader } from '@/components/main/main-header';
 
 interface ErrorPageProps {
   error?: Error | unknown;
@@ -31,16 +32,7 @@ export default function ErrorPage({
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-background relative overflow-hidden">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-destructive/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-red-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4 pointer-events-none" />
-
-      <div className="absolute top-8 left-8 flex items-center gap-3">
-        <div className="h-10 w-10 bg-destructive/10 rounded-xl flex items-center justify-center">
-          <img src="/logo.svg" alt="Fangi logo" className="h-6 w-6" />
-        </div>
-        <span className="text-xl font-bold tracking-tight text-foreground/80">Fangi</span>
-      </div>
+      <MainHeader />
 
       <div className="relative z-10 container mx-auto px-4 flex flex-col items-center text-center">
         <h1 className="text-[12rem] md:text-[16rem] font-black leading-none text-transparent bg-clip-text bg-linear-to-b from-foreground/5 to-foreground/0 select-none pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10">
@@ -59,7 +51,7 @@ export default function ErrorPage({
             <Button
               onClick={handleRetry}
               size="lg"
-              className="rounded-full px-8 h-12 text-base font-medium shadow-lg hover:shadow-destructive/25 transition-all"
+              className="rounded-xl px-8 h-12 text-base font-medium shadow-lg hover:shadow-destructive/25 transition-all"
             >
               <RefreshCw className="mr-2 h-4 w-4" />
               Try Again
@@ -69,7 +61,7 @@ export default function ErrorPage({
               asChild
               variant="outline"
               size="lg"
-              className="rounded-full px-8 h-12 text-base font-medium"
+              className="rounded-xl px-8 h-12 text-base font-medium"
             >
               <Link to="/">
                 <Home className="mr-2 h-4 w-4" />
@@ -81,7 +73,7 @@ export default function ErrorPage({
               asChild
               variant="ghost"
               size="lg"
-              className="rounded-full px-8 h-12 text-base font-medium hover:bg-muted"
+              className="rounded-xl px-8 h-12 text-base font-medium hover:bg-muted"
             >
               <Link to="..">
                 <MoveLeft className="mr-2 h-4 w-4" />

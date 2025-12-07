@@ -13,6 +13,7 @@ use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FileService
 {
@@ -25,6 +26,7 @@ class FileService
         private FileIndexRepository $fileIndexRepository,
         private EntityManagerInterface $entityManager,
         private SecurityService $securityService,
+        private TranslatorInterface $translator,
     ) {
         $this->projectDir = \sprintf('%s/var/hyphae', $projectDir);
         $this->uploadsDir = \sprintf('%s/data', $this->projectDir);
@@ -49,7 +51,7 @@ class FileService
     private function toFullPath(string $path): string
     {
         if (!Path::isValid($path)) {
-            throw new FileException('file.invalid_path');
+            throw new FileException($this->translator->trans('file.invalid_path'));
         }
 
         return \sprintf('%s%s', $this->uploadsDir, $path);
@@ -105,19 +107,35 @@ class FileService
         $parent = $this->fileIndexRepository->findByPath($parentPath);
 
         if (!$parent) {
-            throw new FileException('file.parent_not_found');
+            throw new FileException($this->translator->trans('file.parent_not_found'));
         }
 
         if (!$parent->isDirectory()) {
-            throw new FileException('file.parent_not_directory');
+            throw new FileException($this->translator->trans('file.parent_not_directory'));
+        }
+    }
+
+    private function checkParentWritePermission(string $path): void
+    {
+        $parent = \dirname($path);
+
+        if (!$this->securityService->canWrite($parent)) {
+            throw new FileForbiddenException($this->translator->trans('file.path_cant_write', ['path' => $parent]));
+        }
+    }
+
+    private function checkParentReadPermission(string $path): void
+    {
+        $parent = \dirname($path);
+
+        if (!$this->securityService->canRead($parent)) {
+            throw new FileForbiddenException($this->translator->trans('file.path_cant_read', ['path' => $parent]));
         }
     }
 
     public function createDirectory(string $path): FileIndex
     {
-        if (!$this->securityService->canWrite($path)) {
-            throw new FileForbiddenException('file.path_not_found');
-        }
+        $this->checkParentWritePermission($path);
 
         $this->ensureParentExists($path);
 
@@ -127,15 +145,15 @@ class FileService
             $fileIndex = $this->fileIndexRepository->findByPath($path);
 
             if (!$fileIndex || $fileIndex->isDirectory()) {
-                throw new FileException('file.inconsistent_index');
+                throw new FileException($this->translator->trans('file.inconsistent_index'));
             } else {
-                throw new FileException('file.path_is_file');
+                throw new FileException($this->translator->trans('file.path_is_file'));
             }
         } elseif (file_exists($fullPath) && is_dir($fullPath)) {
             $fileIndex = $this->fileIndexRepository->findByPath($path);
 
             if (!$fileIndex || !$fileIndex->isDirectory()) {
-                throw new FileException('file.inconsistent_index');
+                throw new FileException($this->translator->trans('file.inconsistent_index'));
             } else {
                 $fileIndex->setUpdatedAt(new DateTimeImmutable());
                 $fileIndex->setUpdatedBy($this->securityService->getUser());
@@ -155,9 +173,7 @@ class FileService
 
     public function createFile(string $path, UploadedFile $file): FileIndex
     {
-        if (!$this->securityService->canWrite($path)) {
-            throw new FileForbiddenException('file.path_not_found');
-        }
+        $this->checkParentWritePermission($path);
 
         $this->ensureParentExists($path);
 
@@ -167,15 +183,15 @@ class FileService
             $fileIndex = $this->fileIndexRepository->findByPath($path);
 
             if (!$fileIndex || !$fileIndex->isDirectory()) {
-                throw new FileException('file.inconsistent_index');
+                throw new FileException($this->translator->trans('file.inconsistent_index'));
             } else {
-                throw new FileException('file.path_is_dir');
+                throw new FileException($this->translator->trans('file.path_is_dir'));
             }
         } elseif (file_exists($fullPath) && is_file($fullPath)) {
             $fileIndex = $this->fileIndexRepository->findByPath($path);
 
             if (!$fileIndex || $fileIndex->isDirectory()) {
-                throw new FileException('file.path_is_dir');
+                throw new FileException($this->translator->trans('file.path_is_dir'));
             } else {
                 $fileIndex->setContentType($file->getMimeType());
                 $fileIndex->setUpdatedAt(new DateTimeImmutable());
@@ -200,7 +216,7 @@ class FileService
     public function list(string $path): array
     {
         if (!Path::isValid($path)) {
-            throw new FileException('file.invalid_path');
+            throw new FileException($this->translator->trans('file.invalid_path'));
         }
 
         $result = $this->securityService->filterFilesByPermissions(
@@ -209,7 +225,7 @@ class FileService
         );
 
         if (null === $result) {
-            throw new FileForbiddenException('file.path_not_found');
+            throw new FileForbiddenException($this->translator->trans('file.path_cant_read', ['path' => $path]));
         }
 
         return $result;
@@ -218,13 +234,13 @@ class FileService
     public function head(string $path): FileIndex
     {
         if (!$this->securityService->canRead($path)) {
-            throw new FileForbiddenException('file.path_not_found');
+            throw new FileForbiddenException($this->translator->trans('file.path_cant_read', ['path' => $path]));
         }
 
         $fileIndex = $this->fileIndexRepository->findByPath($path);
 
         if (!$fileIndex) {
-            throw new FileForbiddenException('file.path_not_found');
+            throw new FileForbiddenException($this->translator->trans('file.path_cant_read', ['path' => $path]));
         }
 
         return $fileIndex;
@@ -237,7 +253,7 @@ class FileService
         $path = $this->toFullPath($path);
 
         if (!file_exists($path)) {
-            throw new FileForbiddenException('file.path_not_found');
+            throw new FileForbiddenException($this->translator->trans('file.path_cant_read', ['path' => $path]));
         }
 
         return $path;
@@ -247,9 +263,7 @@ class FileService
     {
         $fileIndex = $this->head($path);
 
-        if (!$this->securityService->canWrite($path)) {
-            throw new FileForbiddenException('file.access_denied');
-        }
+        $this->checkParentWritePermission($path);
 
         $fullPath = $this->toFullPath($path);
 
@@ -277,13 +291,8 @@ class FileService
     {
         $fileIndex = $this->head($path);
 
-        if (!$this->securityService->canWrite($path)) {
-            throw new FileForbiddenException('file.access_denied');
-        }
-
-        if (!$this->securityService->canWrite($newPath)) {
-            throw new FileForbiddenException('file.access_denied');
-        }
+        $this->checkParentWritePermission($path);
+        $this->checkParentWritePermission($newPath);
 
         $this->ensureParentExists($newPath);
 
@@ -291,14 +300,14 @@ class FileService
         $newFullPath = $this->toFullPath($newPath);
 
         if (!file_exists($fullPath)) {
-            throw new FileException('file.source_not_found');
+            throw new FileException($this->translator->trans('file.source_not_found'));
         }
 
         $newFileIndex = $this->fileIndexRepository->findByPath($newPath);
 
         if (file_exists($newFullPath)) {
             if (is_dir($newFullPath)) {
-                throw new FileException('file.target_is_directory');
+                throw new FileException($this->translator->trans('file.target_is_directory'));
             }
             unlink($newFullPath);
         }
@@ -337,9 +346,7 @@ class FileService
     {
         $fileIndex = $this->head($path);
 
-        if (!$this->securityService->canWrite($newPath)) {
-            throw new FileForbiddenException('file.access_denied');
-        }
+        $this->checkParentWritePermission($newPath);
 
         $this->ensureParentExists($newPath);
 
@@ -347,14 +354,14 @@ class FileService
         $newFullPath = $this->toFullPath($newPath);
 
         if (!file_exists($fullPath)) {
-            throw new FileException('file.source_not_found');
+            throw new FileException($this->translator->trans('file.source_not_found'));
         }
 
         $existingTargetIndex = $this->fileIndexRepository->findByPath($newPath);
 
         if (file_exists($newFullPath)) {
             if (is_dir($newFullPath)) {
-                throw new FileException('file.target_is_directory');
+                throw new FileException($this->translator->trans('file.target_is_directory'));
             }
             unlink($newFullPath);
         }

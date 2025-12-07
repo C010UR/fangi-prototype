@@ -7,7 +7,7 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light;
+  color-scheme: light dark;
   color: var(--foreground);
   background-color: var(--background);
 
@@ -16,7 +16,6 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* Retro Tech Palette */
   --white: #ffffff;
   --te-white: #f5f5f5;
   --te-black: #0f0e12;
@@ -36,7 +35,6 @@
   --success: var(--te-green);
   --error: #c0262c;
 
-  /* Theme Variables */
   --radius: 0.25rem;
 
   --background: var(--te-grey-100);
@@ -90,6 +88,53 @@
 
   --scrollbar-thumb: var(--te-grey-500);
   --scrollbar-thumb-hover: var(--te-grey-900);
+}
+
+.dark {
+  --radius: 0.25rem;
+
+  --background: var(--te-black);
+  --foreground: var(--te-white);
+
+  --card: var(--te-grey-1000);
+  --card-foreground: var(--te-white);
+
+  --popover: var(--te-grey-1000);
+  --popover-foreground: var(--te-white);
+
+  --primary: var(--te-orange);
+  --primary-foreground: var(--te-white);
+
+  --secondary: var(--te-grey-200);
+  --secondary-foreground: var(--te-black);
+
+  --muted: var(--te-grey-1000);
+  --muted-foreground: var(--te-grey-500);
+
+  --accent: var(--te-grey-1000);
+  --accent-foreground: var(--te-white);
+
+  --destructive: var(--te-red);
+  --destructive-foreground: var(--te-white);
+
+  --border: var(--te-grey-900);
+  --input: var(--te-grey-900);
+  --ring: var(--te-orange);
+
+  --chart-1: var(--te-blue);
+  --chart-2: var(--te-green);
+  --chart-3: var(--te-orange);
+  --chart-4: var(--te-yellow);
+  --chart-5: var(--te-red);
+
+  --sidebar: var(--te-grey-1000);
+  --sidebar-foreground: var(--te-white);
+  --sidebar-primary: var(--te-blue);
+  --sidebar-primary-foreground: var(--te-white);
+  --sidebar-accent: var(--te-grey-900);
+  --sidebar-accent-foreground: var(--te-white);
+  --sidebar-border: var(--te-grey-900);
+  --sidebar-ring: var(--te-blue);
 }
 
 @theme inline {

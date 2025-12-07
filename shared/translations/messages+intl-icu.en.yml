@@ -95,12 +95,15 @@ form:
 
 file:
   path_not_found: "Path not found."
+  path_cant_write: "Path \"{path}\" is not writable."
+  path_cant_read: "Path \"{path}\" is not readable."
   inconsistent_index: "Inconsistent index."
   path_is_file: "Path is a file."
   path_is_dir: "Path is a directory."
   no_file_provided: "No file provided."
   parent_not_found: "Parent not found."
   parent_not_directory: "Parent directory not found."
+  source_not_found: "Source not found."
 
 server:
   unavailable: "Server returned {status}. Please check if your server is running and accessible. Message from server: {message}"
