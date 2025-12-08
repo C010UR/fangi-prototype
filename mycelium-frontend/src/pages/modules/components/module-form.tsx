@@ -1,6 +1,6 @@
 'use client';
 
-import * as React from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { useFieldArray, useForm, type FieldError } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -57,8 +57,6 @@ interface ModuleFormProps {
 }
 
 export function ModuleForm({ initialData, onSuccess }: ModuleFormProps) {
-  const [isPending, setIsPending] = React.useState(false);
-
   const defaultValues: Partial<FormValues> = {
     name: initialData?.name || '',
     description: initialData?.description || '',
@@ -74,11 +72,11 @@ export function ModuleForm({ initialData, onSuccess }: ModuleFormProps) {
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'urls',
+    keyName: '_id',
   });
 
-  async function onSubmit(data: FormValues) {
-    setIsPending(true);
-    try {
+  const { mutate: submitModule, isPending } = useMutation({
+    mutationFn: async (data: FormValues) => {
       const urls = data.urls?.map(item => item.value) || [];
       const imageFile = data.image?.[0] || null;
 
@@ -89,44 +87,46 @@ export function ModuleForm({ initialData, onSuccess }: ModuleFormProps) {
         urls: urls,
       };
 
-      let module: Module;
       if (initialData) {
-        module = await fangiFetch({
+        return fangiFetch<Module>({
           route: ApiRoutes.MODULES.UPDATE(initialData.id.toString()),
           method: 'POST',
           contentType: 'multipart/form-data',
           body: payload,
           useCredentials: true,
         });
-        toast.success('Module updated successfully');
       } else {
         if (!payload.name || !payload.urls) {
           throw new Error('Missing required fields');
         }
-        module = await fangiFetch({
+        return fangiFetch<Module>({
           route: ApiRoutes.MODULES.CREATE,
           method: 'POST',
           contentType: 'multipart/form-data',
           body: payload,
           useCredentials: true,
         });
-        toast.success('Module created successfully');
       }
-
+    },
+    onSuccess: module => {
+      toast.success(initialData ? 'Module updated successfully' : 'Module created successfully');
       if (onSuccess) {
         onSuccess(module);
       }
-    } catch (error) {
+    },
+    onError: error => {
       if (error instanceof FetchError) {
         error.errors.reverse().forEach(errorMsg => toast.error(errorMsg));
       } else if (error instanceof Error) {
         toast.error(error.message);
       } else {
-        toast.error('Failed to create module');
+        toast.error(initialData ? 'Failed to update module' : 'Failed to create module');
       }
-    } finally {
-      setIsPending(false);
-    }
+    },
+  });
+
+  function onSubmit(data: FormValues) {
+    submitModule(data);
   }
 
   return (
@@ -242,7 +242,7 @@ export function ModuleForm({ initialData, onSuccess }: ModuleFormProps) {
               <div className="space-y-2">
                 {fields.map((field, index) => (
                   <FormField
-                    key={field.id}
+                    key={field._id}
                     control={form.control}
                     name={`urls.${index}.value`}
                     render={({ field }) => (

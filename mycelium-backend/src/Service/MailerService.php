@@ -96,7 +96,7 @@ class MailerService
         UserActionToken $token,
         User $user,
     ): void {
-        $template = $this->templates['account_registration'];
+        $template = $this->templates['registration'];
 
         $email = new TemplatedEmail()
             ->to($user->getEmail())

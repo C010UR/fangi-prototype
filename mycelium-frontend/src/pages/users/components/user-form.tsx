@@ -1,7 +1,7 @@
 'use client';
 
-import * as React from 'react';
 import { useForm } from 'react-hook-form';
+import { useMutation } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Loader2, Upload, X } from 'lucide-react';
@@ -61,8 +61,6 @@ interface UserFormProps {
 }
 
 export function UserForm({ initialData, onSuccess }: UserFormProps) {
-  const [isPending, setIsPending] = React.useState(false);
-
   const defaultValues: FormValues = {
     username: initialData?.username || '',
     email: initialData?.email || '',
@@ -76,9 +74,8 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
     defaultValues,
   });
 
-  async function onSubmit(data: FormValues) {
-    setIsPending(true);
-    try {
+  const { mutate: submitUser, isPending } = useMutation({
+    mutationFn: async (data: FormValues) => {
       const imageFile = data.image?.[0] || null;
 
       const basePayload = {
@@ -88,31 +85,31 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
         servers: (data.servers as unknown as ServerShort[])?.map(s => s.id) || [],
       };
 
-      let user: User;
       if (initialData) {
-        user = await fangiFetch({
+        return fangiFetch<User>({
           route: ApiRoutes.USERS.UPDATE(initialData.id.toString()),
           method: 'POST',
           contentType: 'multipart/form-data',
           body: basePayload,
           useCredentials: true,
         });
-        toast.success('User updated successfully');
       } else {
-        user = await fangiFetch({
+        return fangiFetch<User>({
           route: ApiRoutes.USERS.CREATE,
           method: 'POST',
           contentType: 'multipart/form-data',
           body: { ...basePayload, email: data.email },
           useCredentials: true,
         });
-        toast.success('User created successfully');
       }
-
+    },
+    onSuccess: user => {
+      toast.success(initialData ? 'User updated successfully' : 'User created successfully');
       if (onSuccess) {
         onSuccess(user);
       }
-    } catch (error) {
+    },
+    onError: error => {
       if (error instanceof FetchError) {
         error.errors.reverse().forEach(errorMsg => toast.error(errorMsg));
       } else if (error instanceof Error) {
@@ -120,9 +117,11 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
       } else {
         toast.error('Failed to save user');
       }
-    } finally {
-      setIsPending(false);
-    }
+    },
+  });
+
+  function onSubmit(data: FormValues) {
+    submitUser(data);
   }
 
   return (

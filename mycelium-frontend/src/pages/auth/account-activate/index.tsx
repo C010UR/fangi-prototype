@@ -83,126 +83,118 @@ function AccountActivatePage() {
 
   if (accountActivateMutation.isSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <TwoPaneCard imageSrc="/card-image.jpeg" imageAlt="Mycelium artwork">
-          <TwoPaneCardContent>
-            <TwoPaneCardHeader>
-              <TwoPaneCardTitle>Account activated</TwoPaneCardTitle>
-              <TwoPaneCardDescription>
-                Your account has been successfully activated
-              </TwoPaneCardDescription>
-            </TwoPaneCardHeader>
+      <TwoPaneCard imageSrc="/card-image.jpeg" imageAlt="Mycelium artwork">
+        <TwoPaneCardContent>
+          <TwoPaneCardHeader>
+            <TwoPaneCardTitle>Account activated</TwoPaneCardTitle>
+            <TwoPaneCardDescription>
+              Your account has been successfully activated
+            </TwoPaneCardDescription>
+          </TwoPaneCardHeader>
 
-            <TwoPaneCardBody>
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Your account has been activated. You can now sign in with your password.
-                </p>
-              </div>
-            </TwoPaneCardBody>
+          <TwoPaneCardBody>
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Your account has been activated. You can now sign in with your password.
+              </p>
+            </div>
+          </TwoPaneCardBody>
 
-            <TwoPaneCardFooter>
-              <Button asChild className="w-full">
-                <Link to="/login">Sign in</Link>
-              </Button>
-            </TwoPaneCardFooter>
-          </TwoPaneCardContent>
-        </TwoPaneCard>
-      </div>
+          <TwoPaneCardFooter>
+            <Button asChild className="w-full">
+              <Link to="/login">Sign in</Link>
+            </Button>
+          </TwoPaneCardFooter>
+        </TwoPaneCardContent>
+      </TwoPaneCard>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <TwoPaneCard imageSrc="/card-image.jpeg" imageAlt="Mycelium artwork">
-        <TwoPaneCardContent>
-          <TwoPaneCardHeader>
-            <TwoPaneCardTitle>Activate Account</TwoPaneCardTitle>
-            <TwoPaneCardDescription>
-              Set your password to activate your account
-            </TwoPaneCardDescription>
-          </TwoPaneCardHeader>
+    <TwoPaneCard imageSrc="/card-image.jpeg" imageAlt="Mycelium artwork">
+      <TwoPaneCardContent>
+        <TwoPaneCardHeader>
+          <TwoPaneCardTitle>Activate Account</TwoPaneCardTitle>
+          <TwoPaneCardDescription>
+            Set your password to activate your account
+          </TwoPaneCardDescription>
+        </TwoPaneCardHeader>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              <TwoPaneCardBody>
-                {accountActivateMutation.isError && (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                      {errorMessages.length === 1 ? (
-                        errorMessages[0]
-                      ) : (
-                        <ul className="list-disc list-inside space-y-1">
-                          {errorMessages.map((msg, idx) => (
-                            <li key={idx}>{msg}</li>
-                          ))}
-                        </ul>
-                      )}
-                    </AlertDescription>
-                  </Alert>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <TwoPaneCardBody>
+              {accountActivateMutation.isError && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    {errorMessages.length === 1 ? (
+                      errorMessages[0]
+                    ) : (
+                      <ul className="list-disc list-inside space-y-1">
+                        {errorMessages.map((msg, idx) => (
+                          <li key={idx}>{msg}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>New password</FormLabel>
+                    <FormControl>
+                      <PasswordInput
+                        placeholder="Enter your new password"
+                        autoComplete="new-password"
+                        disabled={accountActivateMutation.isPending}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
+              />
 
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>New password</FormLabel>
-                      <FormControl>
-                        <PasswordInput
-                          placeholder="Enter your new password"
-                          autoComplete="new-password"
-                          disabled={accountActivateMutation.isPending}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Confirm password</FormLabel>
+                    <FormControl>
+                      <PasswordInput
+                        placeholder="Confirm your new password"
+                        autoComplete="new-password"
+                        disabled={accountActivateMutation.isPending}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                <FormField
-                  control={form.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirm password</FormLabel>
-                      <FormControl>
-                        <PasswordInput
-                          placeholder="Confirm your new password"
-                          autoComplete="new-password"
-                          disabled={accountActivateMutation.isPending}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={accountActivateMutation.isPending}
-                >
-                  {accountActivateMutation.isPending ? 'Activating...' : 'Activate Account'}
-                </Button>
-              </TwoPaneCardBody>
-            </form>
-          </Form>
-
-          <TwoPaneCardFooter>
-            <p className="text-center text-sm text-muted-foreground">
-              Already have an account?{' '}
-              <Button asChild variant="link" className="p-0 h-auto font-medium">
-                <Link to="/login">Sign in</Link>
+              <Button type="submit" className="w-full" disabled={accountActivateMutation.isPending}>
+                {accountActivateMutation.isPending ? 'Activating...' : 'Activate Account'}
               </Button>
-            </p>
-          </TwoPaneCardFooter>
-        </TwoPaneCardContent>
-      </TwoPaneCard>
-    </div>
+            </TwoPaneCardBody>
+          </form>
+        </Form>
+
+        <TwoPaneCardFooter>
+          <p className="text-center text-sm text-muted-foreground">
+            Already have an account?{' '}
+            <Button asChild variant="link" className="p-0 h-auto font-medium">
+              <Link to="/login">Sign in</Link>
+            </Button>
+          </p>
+        </TwoPaneCardFooter>
+      </TwoPaneCardContent>
+    </TwoPaneCard>
   );
 }
 

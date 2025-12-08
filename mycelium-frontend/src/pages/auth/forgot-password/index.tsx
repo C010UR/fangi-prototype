@@ -69,108 +69,100 @@ function ForgotPasswordPage() {
 
   if (forgotPasswordMutation.isSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <TwoPaneCard imageSrc="/card-image.jpeg" imageAlt="Mycelium artwork">
-          <TwoPaneCardContent>
-            <TwoPaneCardHeader>
-              <TwoPaneCardTitle>Check your email</TwoPaneCardTitle>
-              <TwoPaneCardDescription>
-                We've sent you instructions to reset your password
-              </TwoPaneCardDescription>
-            </TwoPaneCardHeader>
+      <TwoPaneCard imageSrc="/card-image.jpeg" imageAlt="Mycelium artwork">
+        <TwoPaneCardContent>
+          <TwoPaneCardHeader>
+            <TwoPaneCardTitle>Check your email</TwoPaneCardTitle>
+            <TwoPaneCardDescription>
+              We've sent you instructions to reset your password
+            </TwoPaneCardDescription>
+          </TwoPaneCardHeader>
 
-            <TwoPaneCardBody>
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  If an account exists with the email you provided, you'll receive an email with a
-                  link to reset your password.
-                </p>
-              </div>
-            </TwoPaneCardBody>
+          <TwoPaneCardBody>
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                If an account exists with the email you provided, you'll receive an email with a
+                link to reset your password.
+              </p>
+            </div>
+          </TwoPaneCardBody>
 
-            <TwoPaneCardFooter>
-              <Button asChild variant="outline" className="w-full">
-                <Link to="/login">Back to sign in</Link>
-              </Button>
-            </TwoPaneCardFooter>
-          </TwoPaneCardContent>
-        </TwoPaneCard>
-      </div>
+          <TwoPaneCardFooter>
+            <Button asChild variant="outline" className="w-full">
+              <Link to="/login">Back to sign in</Link>
+            </Button>
+          </TwoPaneCardFooter>
+        </TwoPaneCardContent>
+      </TwoPaneCard>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <TwoPaneCard imageSrc="/card-image.jpeg" imageAlt="Mycelium artwork">
-        <TwoPaneCardContent>
-          <TwoPaneCardHeader>
-            <TwoPaneCardTitle>Forgot password?</TwoPaneCardTitle>
-            <TwoPaneCardDescription>
-              Enter your email address and we'll send you a link to reset your password
-            </TwoPaneCardDescription>
-          </TwoPaneCardHeader>
+    <TwoPaneCard imageSrc="/card-image.jpeg" imageAlt="Mycelium artwork">
+      <TwoPaneCardContent>
+        <TwoPaneCardHeader>
+          <TwoPaneCardTitle>Forgot password?</TwoPaneCardTitle>
+          <TwoPaneCardDescription>
+            Enter your email address and we'll send you a link to reset your password
+          </TwoPaneCardDescription>
+        </TwoPaneCardHeader>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              <TwoPaneCardBody>
-                {forgotPasswordMutation.isError && (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                      {errorMessages.length === 1 ? (
-                        errorMessages[0]
-                      ) : (
-                        <ul className="list-disc list-inside space-y-1">
-                          {errorMessages.map((msg, idx) => (
-                            <li key={idx}>{msg}</li>
-                          ))}
-                        </ul>
-                      )}
-                    </AlertDescription>
-                  </Alert>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <TwoPaneCardBody>
+              {forgotPasswordMutation.isError && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    {errorMessages.length === 1 ? (
+                      errorMessages[0]
+                    ) : (
+                      <ul className="list-disc list-inside space-y-1">
+                        {errorMessages.map((msg, idx) => (
+                          <li key={idx}>{msg}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter your email"
+                        autoComplete="email"
+                        disabled={forgotPasswordMutation.isPending}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
+              />
 
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter your email"
-                          autoComplete="email"
-                          disabled={forgotPasswordMutation.isPending}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={forgotPasswordMutation.isPending}
-                >
-                  {forgotPasswordMutation.isPending ? 'Sending...' : 'Send reset link'}
-                </Button>
-              </TwoPaneCardBody>
-            </form>
-          </Form>
-
-          <TwoPaneCardFooter>
-            <p className="text-center text-sm text-muted-foreground">
-              Remember your password?{' '}
-              <Button asChild variant="link" className="p-0 h-auto font-medium">
-                <Link to="/login">Sign in</Link>
+              <Button type="submit" className="w-full" disabled={forgotPasswordMutation.isPending}>
+                {forgotPasswordMutation.isPending ? 'Sending...' : 'Send reset link'}
               </Button>
-            </p>
-          </TwoPaneCardFooter>
-        </TwoPaneCardContent>
-      </TwoPaneCard>
-    </div>
+            </TwoPaneCardBody>
+          </form>
+        </Form>
+
+        <TwoPaneCardFooter>
+          <p className="text-center text-sm text-muted-foreground">
+            Remember your password?{' '}
+            <Button asChild variant="link" className="p-0 h-auto font-medium">
+              <Link to="/login">Sign in</Link>
+            </Button>
+          </p>
+        </TwoPaneCardFooter>
+      </TwoPaneCardContent>
+    </TwoPaneCard>
   );
 }
 

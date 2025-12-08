@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useNavigate, Link } from '@tanstack/react-router';
+import { Link } from '@tanstack/react-router';
 
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -27,7 +27,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { useAuth } from '@/lib/auth/context';
-import { getStoredRedirect } from '@/lib/router-utils';
 
 const loginSchema = z.object({
   email: z.email('Please enter a valid email address').min(1, 'Email is required'),
@@ -40,7 +39,6 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 function LoginPage() {
-  const navigate = useNavigate();
   const { login } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -58,111 +56,96 @@ function LoginPage() {
     setIsLoading(true);
 
     try {
-      const response = await login({
+      await login({
         username: values.email,
         password: values.password,
       });
-
-      if (response.mfa_required) {
-        navigate({ to: '/mfa' });
-      } else {
-        const redirect = getStoredRedirect();
-        if (redirect) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          navigate({ ...redirect } as any);
-        } else {
-          navigate({ to: '/' });
-        }
-      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
-    } finally {
       setIsLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <TwoPaneCard imageSrc="/card-image.jpeg" imageAlt="Mycelium artwork">
-        <TwoPaneCardContent>
-          <TwoPaneCardHeader>
-            <TwoPaneCardTitle>Welcome back</TwoPaneCardTitle>
-            <TwoPaneCardDescription>
-              Sign in to your account to continue your journey
-            </TwoPaneCardDescription>
-          </TwoPaneCardHeader>
+    <TwoPaneCard imageSrc="/card-image.jpeg" imageAlt="Mycelium artwork">
+      <TwoPaneCardContent>
+        <TwoPaneCardHeader>
+          <TwoPaneCardTitle>Welcome back</TwoPaneCardTitle>
+          <TwoPaneCardDescription>
+            Sign in to your account to continue your journey
+          </TwoPaneCardDescription>
+        </TwoPaneCardHeader>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              <TwoPaneCardBody>
-                {error && (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <TwoPaneCardBody>
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter your email"
+                        autoComplete="email"
+                        disabled={isLoading}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
+              />
 
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter your email"
-                          autoComplete="email"
-                          disabled={isLoading}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Password</FormLabel>
+                      <Button asChild variant="link" className="p-0 h-auto text-sm">
+                        <Link to="/forgot-password">Forgot password?</Link>
+                      </Button>
+                    </div>
+                    <FormControl>
+                      <PasswordInput
+                        placeholder="Enter your password"
+                        autoComplete="current-password"
+                        disabled={isLoading}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="flex items-center justify-between">
-                        <FormLabel>Password</FormLabel>
-                        <Button asChild variant="link" className="p-0 h-auto text-sm">
-                          <Link to="/forgot-password">Forgot password?</Link>
-                        </Button>
-                      </div>
-                      <FormControl>
-                        <PasswordInput
-                          placeholder="Enter your password"
-                          autoComplete="current-password"
-                          disabled={isLoading}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? 'Signing in...' : 'Sign in'}
-                </Button>
-              </TwoPaneCardBody>
-            </form>
-          </Form>
-
-          <TwoPaneCardFooter>
-            <p className="text-center text-sm text-muted-foreground">
-              Don't have an account?{' '}
-              <Button asChild variant="link" className="p-0 h-auto font-medium">
-                <Link to="/register">Create an account</Link>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? 'Signing in...' : 'Sign in'}
               </Button>
-            </p>
-          </TwoPaneCardFooter>
-        </TwoPaneCardContent>
-      </TwoPaneCard>
-    </div>
+            </TwoPaneCardBody>
+          </form>
+        </Form>
+
+        <TwoPaneCardFooter>
+          <p className="text-center text-sm text-muted-foreground">
+            Don't have an account?{' '}
+            <Button asChild variant="link" className="p-0 h-auto font-medium">
+              <Link to="/register">Create an account</Link>
+            </Button>
+          </p>
+        </TwoPaneCardFooter>
+      </TwoPaneCardContent>
+    </TwoPaneCard>
   );
 }
 

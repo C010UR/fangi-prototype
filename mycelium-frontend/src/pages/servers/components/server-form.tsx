@@ -1,6 +1,6 @@
 'use client';
 
-import * as React from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { useFieldArray, useForm, type FieldError } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -55,8 +55,6 @@ interface ServerFormProps {
 }
 
 export function ServerForm({ initialData, onSuccess }: ServerFormProps) {
-  const [isPending, setIsPending] = React.useState(false);
-
   const defaultValues: Partial<FormValues> = {
     name: initialData?.name || '',
     urls: initialData?.urls?.map(url => ({ value: url })) || [{ value: '' }],
@@ -73,9 +71,8 @@ export function ServerForm({ initialData, onSuccess }: ServerFormProps) {
     name: 'urls',
   });
 
-  async function onSubmit(data: FormValues) {
-    setIsPending(true);
-    try {
+  const { mutate: submitServer, isPending } = useMutation({
+    mutationFn: async (data: FormValues) => {
       const urls = data.urls?.map(item => item.value) || [];
       const imageFile = data.image?.[0] || null;
 
@@ -85,27 +82,31 @@ export function ServerForm({ initialData, onSuccess }: ServerFormProps) {
         urls: urls,
       };
 
-      let server: Server;
       if (initialData) {
-        server = await fangiFetch({
+        return fangiFetch<Server>({
           route: ApiRoutes.SERVER.UPDATE(initialData.id.toString()),
           method: 'POST',
           contentType: 'multipart/form-data',
           body: payload,
           useCredentials: true,
         });
-        toast.success('Server updated successfully');
       } else {
         if (!payload.name || !payload.urls) {
           throw new Error('Missing required fields');
         }
-        server = await fangiFetch({
+        return fangiFetch<Server>({
           route: ApiRoutes.SERVER.CREATE,
           method: 'POST',
           contentType: 'multipart/form-data',
           body: payload,
           useCredentials: true,
         });
+      }
+    },
+    onSuccess: server => {
+      if (initialData) {
+        toast.success('Server updated successfully');
+      } else {
         toast.success(
           'Server created successfully. Server setup information was sent to your email inbox.'
         );
@@ -114,7 +115,8 @@ export function ServerForm({ initialData, onSuccess }: ServerFormProps) {
       if (onSuccess) {
         onSuccess(server);
       }
-    } catch (error) {
+    },
+    onError: error => {
       if (error instanceof FetchError) {
         error.errors.reverse().forEach(errorMsg => toast.error(errorMsg));
       } else if (error instanceof Error) {
@@ -122,9 +124,11 @@ export function ServerForm({ initialData, onSuccess }: ServerFormProps) {
       } else {
         toast.error('Failed to create server');
       }
-    } finally {
-      setIsPending(false);
-    }
+    },
+  });
+
+  function onSubmit(data: FormValues) {
+    submitServer(data);
   }
 
   return (

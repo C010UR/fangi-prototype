@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { SidePanel } from '@/components/pages/side-panel';
 import { PageHeader } from '@/components/pages/page-header';
@@ -26,10 +27,54 @@ export default function ProfilePage() {
 
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [username, setUsername] = useState('');
-  const [isUpdatingUsername, setIsUpdatingUsername] = useState(false);
 
-  const [isUpdatingImage, setIsUpdatingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { mutate: updateUsername, isPending: isUpdatingUsername } = useMutation({
+    mutationFn: async (newUsername: string) => {
+      return fangiFetch<User>({
+        route: ApiRoutes.AUTH.UPDATE_PROFILE,
+        method: 'POST',
+        body: { username: newUsername },
+        useCredentials: true,
+      });
+    },
+    onSuccess: () => {
+      toast.success('Username updated successfully');
+      refreshUser();
+      setIsEditingUsername(false);
+    },
+    onError: error => {
+      if (error instanceof FetchError) {
+        toast.error(error.message || 'Failed to update username');
+      } else {
+        toast.error('An unexpected error occurred');
+      }
+    },
+  });
+
+  const { mutate: updateImage, isPending: isUpdatingImage } = useMutation({
+    mutationFn: async (file: File) => {
+      return fangiFetch<User>({
+        route: ApiRoutes.AUTH.UPDATE_PROFILE,
+        method: 'POST',
+        contentType: 'multipart/form-data',
+        body: { image: file },
+        useCredentials: true,
+      });
+    },
+    onSuccess: () => {
+      toast.success('Profile image updated successfully');
+      refreshUser();
+    },
+    onError: error => {
+      if (error instanceof FetchError) {
+        toast.error(error.message || 'Failed to update profile image');
+      } else {
+        toast.error('An unexpected error occurred');
+      }
+    },
+  });
 
   if (isLoading) {
     return (
@@ -53,66 +98,26 @@ export default function ProfilePage() {
     setUsername('');
   };
 
-  const handleSaveUsername = async () => {
+  const handleSaveUsername = () => {
     if (!username || username.trim() === '' || username === user.username) {
       setIsEditingUsername(false);
       return;
     }
 
-    setIsUpdatingUsername(true);
-    try {
-      await fangiFetch<User>({
-        route: ApiRoutes.AUTH.UPDATE_PROFILE,
-        method: 'POST',
-        body: { username },
-        useCredentials: true,
-      });
-
-      toast.success('Username updated successfully');
-      refreshUser();
-      setIsEditingUsername(false);
-    } catch (error) {
-      if (error instanceof FetchError) {
-        toast.error(error.message || 'Failed to update username');
-      } else {
-        toast.error('An unexpected error occurred');
-      }
-    } finally {
-      setIsUpdatingUsername(false);
-    }
+    updateUsername(username);
   };
 
   const handleImageClick = () => {
     fileInputRef.current?.click();
   };
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     e.target.value = '';
 
-    setIsUpdatingImage(true);
-    try {
-      await fangiFetch<User>({
-        route: ApiRoutes.AUTH.UPDATE_PROFILE,
-        method: 'POST',
-        contentType: 'multipart/form-data',
-        body: { image: file },
-        useCredentials: true,
-      });
-
-      toast.success('Profile image updated successfully');
-      refreshUser();
-    } catch (error) {
-      if (error instanceof FetchError) {
-        toast.error(error.message || 'Failed to update profile image');
-      } else {
-        toast.error('An unexpected error occurred');
-      }
-    } finally {
-      setIsUpdatingImage(false);
-    }
+    updateImage(file);
   };
 
   return (

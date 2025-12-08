@@ -491,7 +491,7 @@ export default function ServerDetailPage() {
                                       <h4 className="text-xl font-bold">
                                         {row.original.module.name}
                                       </h4>
-                                      <p className="text-muted-foreground mt-1">
+                                      <p className="text-muted-foreground mt-1 break-words text-balance">
                                         {row.original.module.description ||
                                           'No description provided.'}
                                       </p>

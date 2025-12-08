@@ -41,16 +41,45 @@ function Code({
     const codeElement = e.currentTarget.parentElement;
     if (!codeElement) return;
 
-    // Clone to safely remove button for text extraction
     const clone = codeElement.cloneNode(true) as HTMLElement;
     const button = clone.querySelector('button');
     if (button) button.remove();
 
     const textToCopy = clone.textContent || '';
 
-    navigator.clipboard.writeText(textToCopy);
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
+    const copyToClipboard = (text: string) => {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(text);
+      } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        try {
+          return Promise.resolve(document.execCommand('copy'));
+        } catch (err) {
+          console.error('Fallback copy method failed', err);
+          return Promise.reject(err);
+        } finally {
+          document.body.removeChild(textArea);
+        }
+      }
+    };
+
+    copyToClipboard(textToCopy)
+      .then(() => {
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+      })
+      .catch(err => {
+        console.error('Failed to copy text: ', err);
+      });
   };
 
   return (

@@ -51,6 +51,7 @@ export const handleRedirectAfterLogin = () => {
 };
 
 export const handleAuthenticatedRedirect = () => {
+  handleRedirectAfterLogin();
   throw redirect({ to: '/' });
 };
 

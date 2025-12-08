@@ -14,7 +14,7 @@ export function CardLayout({ children, className, variant = 'default' }: CardLay
   return (
     <div
       className={cn(
-        'min-h-screen w-full flex flex-col items-center bg-background relative overflow-hidden',
+        'min-h-screen max-h-screen w-full flex flex-col items-center bg-background relative overflow-hidden',
         className
       )}
     >

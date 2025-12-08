@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useNavigate, useLocation } from '@tanstack/react-router';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import { Spinner } from '@/components/ui/spinner';
@@ -44,8 +44,41 @@ export default function AuthorizePage() {
   const [step, setStep] = useState<'server' | 'file'>('server');
   const [selectedServer, setSelectedServer] = useState<Server | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<ServerFile[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const {
+    mutate: authorize,
+    isPending: isSubmitting,
+    error: mutationError,
+    reset: resetMutation,
+  } = useMutation({
+    mutationFn: async () => {
+      if (!selectedServer || selectedFiles.length === 0) throw new Error('Invalid selection');
+
+      return fangiFetch({
+        route: ApiRoutes.OAUTH.AUTHORIZE,
+        method: 'POST',
+        params: {
+          client_id: clientId || undefined,
+          redirect_uri: redirectUri || undefined,
+          state: state || undefined,
+          nonce: nonce || undefined,
+        },
+        body: {
+          server: selectedServer.id,
+          files: selectedFiles.map(f =>
+            f.is_directory && !f.path.endsWith('/') ? `${f.path}/` : f.path
+          ),
+        },
+        useCredentials: true,
+      });
+    },
+    onSuccess: () => {
+      toast.success('Authorization successful');
+      navigate({ to: '/' });
+    },
+  });
+
+  const submitError = mutationError instanceof Error ? mutationError.message : null;
 
   const handleServerSelect = (server: Server) => {
     setSelectedServer(server);
@@ -110,7 +143,7 @@ export default function AuthorizePage() {
     if (step === 'server' && selectedServer) {
       setStep('file');
     } else if (step === 'file' && selectedFiles.length > 0) {
-      handleSubmit();
+      authorize();
     }
   };
 
@@ -121,38 +154,8 @@ export default function AuthorizePage() {
     }
   };
 
-  const handleSubmit = async () => {
-    if (!selectedServer || selectedFiles.length === 0) return;
-
-    setIsSubmitting(true);
-    setSubmitError(null);
-    try {
-      await fangiFetch({
-        route: ApiRoutes.OAUTH.AUTHORIZE,
-        method: 'POST',
-        params: {
-          client_id: clientId || undefined,
-          redirect_uri: redirectUri || undefined,
-          state: state || undefined,
-          nonce: nonce || undefined,
-        },
-        body: {
-          server: selectedServer.id,
-          files: selectedFiles.map(f =>
-            f.is_directory && !f.path.endsWith('/') ? `${f.path}/` : f.path
-          ),
-        },
-        useCredentials: true,
-      });
-
-      toast.success('Authorization successful');
-
-      navigate({ to: '/' });
-    } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'Authorization failed');
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleSubmit = () => {
+    authorize();
   };
 
   if (!clientId) {
@@ -172,7 +175,7 @@ export default function AuthorizePage() {
   }
 
   if (submitError) {
-    return <AuthorizationFailedError error={submitError} onRetry={() => setSubmitError(null)} />;
+    return <AuthorizationFailedError error={submitError} onRetry={resetMutation} />;
   }
 
   if (step === 'server') {
