@@ -13,10 +13,26 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, CheckCircle, Ban, Pencil, ChevronRight, ChevronDown } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/components/ui/empty';
+import {
+  MoreHorizontal,
+  CheckCircle,
+  Ban,
+  Pencil,
+  ChevronRight,
+  ChevronDown,
+  Inbox,
+  Search,
+} from 'lucide-react';
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
 import { ListPagination } from '@/components/ui/list-pagination';
-import { Input } from '@/components/ui/input';
 import { useDebouncedCallback } from '@/hooks/use-debounced-callback';
 import {
   type ColumnDef,
@@ -48,6 +64,7 @@ import { useModuleActions } from '@/hooks/use-module-actions';
 import { ModuleActionDialogs } from '@/pages/modules/components/module-action-dialogs';
 import { TruncatedList } from '@/components/ui/truncated-list';
 import { getBaseUrl } from '@/lib/url';
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 
 export default function ModulesPage() {
   const queryClient = useQueryClient();
@@ -55,7 +72,7 @@ export default function ModulesPage() {
   const { user } = useAuth();
   const [expanded, setExpanded] = React.useState<ExpandedState>({});
   const [showMine, setShowMine] = React.useState(false);
-  const { data, setParams, meta } = useList<Module>({
+  const { data, setParams, meta, isLoading } = useList<Module>({
     route: ApiRoutes.MODULES.LIST,
     queryKey: ['modules'],
   });
@@ -250,7 +267,7 @@ export default function ModulesPage() {
     }
 
     return baseColumns;
-  }, [isAdmin]);
+  }, [isAdmin, user?.id]);
 
   const table = useReactTable({
     data: data?.data || [],
@@ -282,8 +299,32 @@ export default function ModulesPage() {
       <SidebarInset>
         <PageHeader title="Module List" />
         <div className="flex-1 p-4 flex flex-col gap-4">
-          <div className="flex justify-between items-center">
-            <div className="flex gap-4 items-center">
+          <div className="flex justify-end items-center">
+            <div className="flex items-center gap-2">
+              {isAdmin && (
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="show-mine"
+                    checked={showMine}
+                    onCheckedChange={handleShowMineChange}
+                  />
+                  <Label htmlFor="show-mine" className="cursor-pointer text-sm font-medium">
+                    Show owned
+                  </Label>
+                </div>
+              )}
+              <div className="w-72">
+                <InputGroup>
+                  <InputGroupAddon>
+                    <Search />
+                  </InputGroupAddon>
+                  <InputGroupInput
+                    placeholder="Search servers..."
+                    defaultValue={meta.search}
+                    onChange={e => onSearch(e.target.value)}
+                  />
+                </InputGroup>
+              </div>
               {isAdmin && (
                 <FormDialog
                   trigger={<Button>Create Module</Button>}
@@ -300,27 +341,6 @@ export default function ModulesPage() {
                   )}
                 </FormDialog>
               )}
-            </div>
-            <div className="flex items-center gap-4">
-              {isAdmin && (
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="show-mine"
-                    checked={showMine}
-                    onCheckedChange={handleShowMineChange}
-                  />
-                  <Label htmlFor="show-mine" className="cursor-pointer text-sm font-medium">
-                    Show owned
-                  </Label>
-                </div>
-              )}
-              <div className="w-72">
-                <Input
-                  placeholder="Search modules..."
-                  defaultValue={meta.search}
-                  onChange={e => onSearch(e.target.value)}
-                />
-              </div>
             </div>
           </div>
 
@@ -348,7 +368,17 @@ export default function ModulesPage() {
                   ))}
                 </TableHeader>
                 <TableBody>
-                  {table.getRowModel().rows?.length ? (
+                  {isLoading ? (
+                    Array.from({ length: 5 }).map((_, index) => (
+                      <TableRow key={index}>
+                        {columns.map((_, cellIndex) => (
+                          <TableCell key={cellIndex}>
+                            <Skeleton className="h-4 w-full" />
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  ) : table.getRowModel().rows?.length ? (
                     table.getRowModel().rows.map(row => (
                       <React.Fragment key={row.id}>
                         <TableRow
@@ -447,7 +477,17 @@ export default function ModulesPage() {
                   ) : (
                     <TableRow>
                       <TableCell colSpan={columns.length} className="h-24 text-center">
-                        No results.
+                        <Empty className="py-8">
+                          <EmptyMedia>
+                            <Inbox className="h-8 w-8 text-muted-foreground" />
+                          </EmptyMedia>
+                          <EmptyHeader>
+                            <EmptyTitle>No modules found</EmptyTitle>
+                            <EmptyDescription>
+                              Try adjusting your search or filters to find what you're looking for.
+                            </EmptyDescription>
+                          </EmptyHeader>
+                        </Empty>
                       </TableCell>
                     </TableRow>
                   )}

@@ -122,7 +122,7 @@ export function InfiniteFetchSelect<T extends { value: string; label: string }>(
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-[--radix-popover-trigger-width] min-w-[8rem] p-0"
+          className="w-[--radix-popover-trigger-width] min-w-[22.75rem] p-0"
           align="start"
         >
           <Command shouldFilter={false} onWheelCapture={handleWheel}>

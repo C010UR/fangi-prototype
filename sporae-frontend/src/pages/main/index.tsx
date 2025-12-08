@@ -3,21 +3,21 @@ import { sporaeClient, type ServerFile } from '@/lib/sporae';
 import { useSporaeProfile, useSporaeFiles, useSporaeLogout } from '@/lib/hooks/use-sporae';
 import { toast } from 'sonner';
 
-import ErrorPage from '@/pages/error';
 import LoadingPage from '@/pages/loading';
 
-import { MainHeader } from '@/pages/main/components/main-header';
+import { BrandLogo } from '@/components/ui/brand-logo';
 import { UserProfile } from '@/pages/main/components/user-profile';
 import { FileBreadcrumbs } from '@/pages/main/components/file-breadcrumbs';
 import { FileToolbar } from '@/pages/main/components/file-toolbar';
 import { FileList } from '@/pages/main/components/file-list';
 import { CreateFolderDialog } from '@/pages/main/components/create-folder-dialog';
 import { DeleteFileDialog } from '@/pages/main/components/delete-file-dialog';
+import { Card } from '@/components/ui/card';
+import LoginPage from '../login';
 
 export default function MainPage() {
   const [currentPath, setCurrentPath] = useState('/');
   const uploadInputRef = useRef<HTMLInputElement>(null);
-
   const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
   const [renamingFile, setRenamingFile] = useState<ServerFile | null>(null);
@@ -174,19 +174,12 @@ export default function MainPage() {
   }
 
   if (profileError || !userProfile) {
-    return (
-      <ErrorPage
-        title="Authentication Required"
-        message="Please log in to access your files."
-        code={401}
-        reset={() => sporaeClient.redirectToAuth()}
-      />
-    );
+    return <LoginPage />;
   }
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-background">
-      <MainHeader />
+      <BrandLogo />
       <UserProfile userProfile={userProfile} onLogout={handleLogout} />
 
       <main className="flex-1 flex flex-col min-h-0 container mx-auto p-6 pt-24 max-w-8xl">
@@ -197,7 +190,7 @@ export default function MainPage() {
           onChange={handleUploadFile}
           multiple
         />
-        <div className="bg-card rounded-xl border shadow-sm overflow-hidden flex flex-col flex-1 min-h-0">
+        <Card className="overflow-hidden flex flex-col flex-1 min-h-0 gap-0 p-0">
           <FileBreadcrumbs currentPath={currentPath} onNavigate={navigateTo} />
 
           <FileToolbar
@@ -225,7 +218,7 @@ export default function MainPage() {
             onFileClick={handleFileClick}
             onDownload={handleFileDownload}
           />
-        </div>
+        </Card>
       </main>
 
       <CreateFolderDialog

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { sporaeClient } from '@/lib/sporae';
 import { useSporaeAuth } from '@/lib/hooks/use-sporae';
 import ErrorPage from '@/pages/error';
 import LoadingPage from '@/pages/loading';
@@ -50,7 +49,7 @@ export default function OAuthCallbackPage() {
         title="Authentication Failed"
         message={displayError}
         code={401}
-        reset={() => (window.location.href = '/')} // Redirect home on retry? Or re-init flow?
+        reset={() => (window.location.href = '/')}
       />
     );
   }

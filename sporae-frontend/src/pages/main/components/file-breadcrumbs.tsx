@@ -1,6 +1,14 @@
-import { useMemo, memo } from 'react';
-import { HomeIcon, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useMemo, memo, Fragment } from 'react';
+import { HomeIcon } from 'lucide-react';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
+import { cn } from '@/lib/utils';
 
 interface FileBreadcrumbsProps {
   currentPath: string;
@@ -16,32 +24,42 @@ export const FileBreadcrumbs = memo(function FileBreadcrumbs({
   }, [currentPath]);
 
   return (
-    <div className="flex items-center gap-1 p-1 border-b bg-muted/30 text-sm overflow-x-auto whitespace-nowrap shrink-0 scrollbar-thin">
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8 cursor-pointer"
-        onClick={() => onNavigate('/')}
-        disabled={currentPath === '/'}
-      >
-        <HomeIcon className="h-4 w-4" />
-      </Button>
-      {pathParts.map((part, index) => {
-        const path = '/' + pathParts.slice(0, index + 1).join('/');
-        return (
-          <div key={path} className="flex items-center">
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 px-2 text-sm font-normal cursor-pointer"
-              onClick={() => onNavigate(path)}
-            >
-              {part}
-            </Button>
-          </div>
-        );
-      })}
-    </div>
+    <Breadcrumb className="border-b bg-muted/30 p-1 shrink-0">
+      <BreadcrumbList className="flex-nowrap overflow-x-auto whitespace-nowrap scrollbar-thin sm:gap-1 px-1">
+        <BreadcrumbItem>
+          <BreadcrumbLink
+            onClick={() => onNavigate('/')}
+            className={cn(
+              'flex items-center cursor-pointer p-1 rounded-md hover:bg-muted/50 transition-colors',
+              currentPath === '/' && 'pointer-events-none opacity-50'
+            )}
+          >
+            <HomeIcon className="h-4 w-4" />
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        {pathParts.map((part, index) => {
+          const path = '/' + pathParts.slice(0, index + 1).join('/');
+          const isLast = index === pathParts.length - 1;
+
+          return (
+            <Fragment key={path}>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                {isLast ? (
+                  <BreadcrumbPage className="px-2 font-medium">{part}</BreadcrumbPage>
+                ) : (
+                  <BreadcrumbLink
+                    onClick={() => onNavigate(path)}
+                    className="cursor-pointer px-2 py-0.5 rounded-md hover:bg-muted/50 transition-colors font-normal text-foreground"
+                  >
+                    {part}
+                  </BreadcrumbLink>
+                )}
+              </BreadcrumbItem>
+            </Fragment>
+          );
+        })}
+      </BreadcrumbList>
+    </Breadcrumb>
   );
 });

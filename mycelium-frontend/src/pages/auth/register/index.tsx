@@ -36,7 +36,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { ApiRoutes, fangiFetch, FetchError } from '@/lib/api';
-import type { ApiSuccess } from '@/types';
+import type { ApiSuccess, ApiError } from '@/types';
 
 const registrationSchema = z.object({
   email: z
@@ -71,7 +71,7 @@ function RegisterPage() {
 
   const registerMutation = useMutation({
     mutationFn: (data: RegistrationFormValues) =>
-      fangiFetch<ApiSuccess, RegistrationFormValues>({
+      fangiFetch<ApiSuccess | ApiError, RegistrationFormValues>({
         route: ApiRoutes.REGISTER.POST,
         method: 'POST',
         contentType: 'multipart/form-data',
@@ -117,9 +117,9 @@ function RegisterPage() {
                   )}
                   <AlertDescription>
                     {isSuccess
-                      ? response.message ||
+                      ? (response as ApiSuccess).message ||
                         'Account registered successfully. Please check your email for the activation link.'
-                      : response.error_description ||
+                      : (response as ApiError).error_description ||
                         'Registration request is invalid. Please try again.'}
                   </AlertDescription>
                 </Alert>
@@ -127,12 +127,9 @@ function RegisterPage() {
             </TwoPaneCardBody>
 
             <TwoPaneCardFooter>
-              <Link
-                to="/login"
-                className="w-full inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-              >
-                Sign in
-              </Link>
+              <Button asChild className="w-full">
+                <Link to="/login">Sign in</Link>
+              </Button>
             </TwoPaneCardFooter>
           </TwoPaneCardContent>
         </TwoPaneCard>
@@ -289,12 +286,9 @@ function RegisterPage() {
           <TwoPaneCardFooter>
             <p className="text-center text-sm text-muted-foreground">
               Already have an account?{' '}
-              <Link
-                to="/login"
-                className="font-medium text-primary hover:text-primary/80 transition-colors"
-              >
-                Sign in
-              </Link>
+              <Button asChild variant="link" className="p-0 h-auto font-medium">
+                <Link to="/login">Sign in</Link>
+              </Button>
             </p>
           </TwoPaneCardFooter>
         </TwoPaneCardContent>

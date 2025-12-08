@@ -82,6 +82,11 @@ class Path
         return true;
     }
 
+    public static function isDirectory(string $path): bool
+    {
+        return str_ends_with($path, '/');
+    }
+
     public static function toParts(string $path): array
     {
         $parts = explode('/', $path);

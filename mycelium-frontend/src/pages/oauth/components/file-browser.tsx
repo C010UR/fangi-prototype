@@ -1,12 +1,20 @@
-import { useState, useCallback, useMemo, memo } from 'react';
+import { useState, useCallback, useMemo, memo, Fragment } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Check, ChevronRight, Folder, Home, Loader2 } from 'lucide-react';
+import { Check, Folder, Home, AlertCircle } from 'lucide-react';
 import { List } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
 import { ContentTypeIcon } from '@/components/ui/content-type-icon';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Spinner } from '@/components/ui/spinner';
+import { Empty, EmptyDescription, EmptyTitle, EmptyMedia } from '@/components/ui/empty';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 import { cn } from '@/lib/utils';
 import { type ServerFile } from '@/types';
 import { ApiRoutes, fangiFetch } from '@/lib/api';
@@ -147,7 +155,7 @@ const FileList = memo(
           rowCount={sortedFiles.length}
           rowHeight={60}
           rowProps={rowProps}
-          rowComponent={FileRow as any}
+          rowComponent={FileRow as any} // eslint-disable-line @typescript-eslint/no-explicit-any
         />
       </div>
     );
@@ -276,41 +284,52 @@ export function FileBrowser({
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-destructive p-4">
-        <p>Error loading files</p>
-        <p className="text-sm text-muted-foreground">{(error as Error).message}</p>
-      </div>
+      <Empty className="h-full border-none">
+        <EmptyMedia className="text-destructive">
+          <AlertCircle className="size-10" />
+        </EmptyMedia>
+        <EmptyTitle className="text-destructive">Error loading files</EmptyTitle>
+        <EmptyDescription>{(error as Error).message}</EmptyDescription>
+      </Empty>
     );
   }
 
   return (
     <div className="flex flex-col h-full border rounded-md bg-background overflow-hidden">
       <div className="flex items-center gap-1 p-2 border-b bg-muted/30 text-sm overflow-x-auto whitespace-nowrap shrink-0 scrollbar-thin">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-6 w-6 cursor-pointer"
-          onClick={() => navigateTo('/')}
-          disabled={currentPath === '/'}
-        >
-          <Home className="h-4 w-4" />
-        </Button>
-        {pathParts.map((part, index) => {
-          const path = '/' + pathParts.slice(0, index + 1).join('/');
-          return (
-            <div key={path} className="flex items-center">
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        <Breadcrumb>
+          <BreadcrumbList className="flex-nowrap sm:gap-1.5">
+            <BreadcrumbItem>
               <Button
                 variant="ghost"
-                size="sm"
-                className="h-6 px-2 text-xs cursor-pointer"
-                onClick={() => navigateTo(path)}
+                size="icon"
+                className="h-6 w-6 cursor-pointer"
+                onClick={() => navigateTo('/')}
+                disabled={currentPath === '/'}
               >
-                {part}
+                <Home className="h-4 w-4" />
               </Button>
-            </div>
-          );
-        })}
+            </BreadcrumbItem>
+            {pathParts.map((part, index) => {
+              const path = '/' + pathParts.slice(0, index + 1).join('/');
+              return (
+                <Fragment key={path}>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2 text-xs cursor-pointer"
+                      onClick={() => navigateTo(path)}
+                    >
+                      {part}
+                    </Button>
+                  </BreadcrumbItem>
+                </Fragment>
+              );
+            })}
+          </BreadcrumbList>
+        </Breadcrumb>
       </div>
 
       {!isLoading && !error && files && files.length > 0 && (
@@ -356,7 +375,7 @@ export function FileBrowser({
         <div className="h-full w-full">
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <Spinner className="h-6 w-6 text-muted-foreground" />
             </div>
           ) : (
             <div className="h-full flex flex-col">
@@ -370,7 +389,9 @@ export function FileBrowser({
                 </div>
               )}
               {files?.length === 0 && (
-                <div className="text-center py-8 text-sm text-muted-foreground">No files found</div>
+                <Empty className="py-8 border-none">
+                  <EmptyDescription>No files found</EmptyDescription>
+                </Empty>
               )}
 
               <div className="flex-1 min-h-0">

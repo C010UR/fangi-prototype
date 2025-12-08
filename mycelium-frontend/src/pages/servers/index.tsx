@@ -13,12 +13,26 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, CheckCircle, Ban, Pencil, Key } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/components/ui/empty';
+import {
+  MoreHorizontal,
+  CheckCircle,
+  Ban,
+  Pencil,
+  Key,
+  Server as ServerIcon,
+  Search,
+} from 'lucide-react';
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
 import { ListPagination } from '@/components/ui/list-pagination';
-import { Input } from '@/components/ui/input';
 import { useDebouncedCallback } from '@/hooks/use-debounced-callback';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import {
   type ColumnDef,
   type SortingState,
@@ -45,12 +59,13 @@ import { ServerActionDialogs } from '@/pages/servers/components/server-action-di
 import { usePermissions } from '@/hooks/use-permissions';
 import { getBaseUrl } from '@/lib/url';
 import { TruncatedList } from '@/components/ui/truncated-list';
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 
 export default function ServersPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isAdmin } = usePermissions();
-  const { data, setParams, meta } = useList<Server>({
+  const { data, setParams, meta, isLoading } = useList<Server>({
     route: ApiRoutes.SERVER.LIST,
     queryKey: ['servers'],
   });
@@ -239,8 +254,20 @@ export default function ServersPage() {
       <SidebarInset>
         <PageHeader title="Server List" />
         <div className="flex-1 p-4 flex flex-col gap-4">
-          <div className="flex justify-between items-center">
-            <div className="flex gap-2">
+          <div className="flex justify-end items-center">
+            <div className="flex items-center gap-2">
+              <div className="w-72">
+                <InputGroup>
+                  <InputGroupAddon>
+                    <Search />
+                  </InputGroupAddon>
+                  <InputGroupInput
+                    placeholder="Search servers..."
+                    defaultValue={meta.search}
+                    onChange={e => onSearch(e.target.value)}
+                  />
+                </InputGroup>
+              </div>
               {isAdmin && (
                 <FormDialog
                   trigger={<Button>Create Server</Button>}
@@ -257,13 +284,6 @@ export default function ServersPage() {
                   )}
                 </FormDialog>
               )}
-            </div>
-            <div className="w-72">
-              <Input
-                placeholder="Search servers..."
-                defaultValue={meta.search}
-                onChange={e => onSearch(e.target.value)}
-              />
             </div>
           </div>
 
@@ -291,7 +311,17 @@ export default function ServersPage() {
                   ))}
                 </TableHeader>
                 <TableBody>
-                  {table.getRowModel().rows?.length ? (
+                  {isLoading ? (
+                    Array.from({ length: 5 }).map((_, index) => (
+                      <TableRow key={index}>
+                        {columns.map((_, cellIndex) => (
+                          <TableCell key={cellIndex}>
+                            <Skeleton className="h-4 w-full" />
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  ) : table.getRowModel().rows?.length ? (
                     table.getRowModel().rows.map(row => (
                       <TableRow
                         key={row.id}
@@ -309,7 +339,17 @@ export default function ServersPage() {
                   ) : (
                     <TableRow>
                       <TableCell colSpan={columns.length} className="h-24 text-center">
-                        No results.
+                        <Empty className="py-8">
+                          <EmptyMedia>
+                            <ServerIcon className="h-8 w-8 text-muted-foreground" />
+                          </EmptyMedia>
+                          <EmptyHeader>
+                            <EmptyTitle>No servers found</EmptyTitle>
+                            <EmptyDescription>
+                              Try adjusting your search to find what you're looking for.
+                            </EmptyDescription>
+                          </EmptyHeader>
+                        </Empty>
                       </TableCell>
                     </TableRow>
                   )}

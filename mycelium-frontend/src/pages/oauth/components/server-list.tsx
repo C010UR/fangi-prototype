@@ -2,9 +2,11 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { Search, Check } from 'lucide-react';
 
-import { Input } from '@/components/ui/input';
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Spinner } from '@/components/ui/spinner';
+import { Empty, EmptyDescription } from '@/components/ui/empty';
 import { type Server, type ListResult } from '@/types';
 import { ApiRoutes, fangiFetch } from '@/lib/api';
 
@@ -68,24 +70,29 @@ export function ServerList({ selectedId, onSelect }: ServerListProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="relative">
-        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input
+      <InputGroup>
+        <InputGroupAddon>
+          <Search />
+        </InputGroupAddon>
+        <InputGroupInput
           placeholder="Search servers..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="pl-8"
         />
-      </div>
+      </InputGroup>
 
       <div className="rounded-md border">
         <ScrollArea className="h-[350px]">
           <div className="p-2 space-y-1">
             {isLoading && (
-              <div className="p-4 text-sm text-center text-muted-foreground">Loading...</div>
+              <div className="flex items-center justify-center p-4">
+                <Spinner className="h-6 w-6 text-muted-foreground" />
+              </div>
             )}
             {!isLoading && servers.length === 0 && (
-              <div className="p-4 text-sm text-center text-muted-foreground">No servers found.</div>
+              <Empty className="p-4 border-none min-h-[100px]">
+                <EmptyDescription>No servers found.</EmptyDescription>
+              </Empty>
             )}
             {servers.map(server => {
               const isSelected = selectedId === server.id;

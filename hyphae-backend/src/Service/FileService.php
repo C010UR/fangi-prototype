@@ -119,7 +119,7 @@ class FileService
     {
         $parent = \dirname($path);
 
-        if (!$this->securityService->canWrite($parent)) {
+        if (!$this->securityService->inUserWriteScope($parent, true)) {
             throw new FileForbiddenException($this->translator->trans('file.path_cant_write', ['path' => $parent]));
         }
     }
@@ -128,7 +128,7 @@ class FileService
     {
         $parent = \dirname($path);
 
-        if (!$this->securityService->canRead($parent)) {
+        if (!$this->securityService->inUserReadScope($parent, true)) {
             throw new FileForbiddenException($this->translator->trans('file.path_cant_read', ['path' => $parent]));
         }
     }
@@ -219,7 +219,7 @@ class FileService
             throw new FileException($this->translator->trans('file.invalid_path'));
         }
 
-        $result = $this->securityService->filterFilesByPermissions(
+        $result = $this->securityService->filterReadFilesByUserScopes(
             $path,
             $this->fileIndexRepository->findDirectChildrenByParent($path),
         );
@@ -233,7 +233,7 @@ class FileService
 
     public function head(string $path): FileIndex
     {
-        if (!$this->securityService->canRead($path)) {
+        if (!$this->securityService->inUserReadScope($path)) {
             throw new FileForbiddenException($this->translator->trans('file.path_cant_read', ['path' => $path]));
         }
 

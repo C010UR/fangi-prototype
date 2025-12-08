@@ -13,7 +13,6 @@ import {
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { SidePanel } from '@/components/pages/side-panel';
 import { PageHeader } from '@/components/pages/page-header';
-import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -27,8 +26,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Code } from '@/components/ui/code';
 import { Spinner } from '@/components/ui/spinner';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -55,7 +54,7 @@ import { ApiRoutes } from '@/lib/api';
 import { fangiFetch } from '@/lib/api/fetch';
 import type { Server, ServerAllowedModule } from '@/types';
 import { ServerModuleForm } from '@/pages/servers/components/server-module-form';
-import { ChevronRight, ChevronDown, Trash2, Plus } from 'lucide-react';
+import { ChevronRight, ChevronDown, Trash2, Plus, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { ServerActionsMenu } from '@/pages/servers/components/server-actions-menu';
 import { ServerActionDialogs } from '@/pages/servers/components/server-action-dialogs';
@@ -63,6 +62,7 @@ import { useServerActions } from '@/hooks/use-server-actions';
 import { usePermissions } from '@/hooks/use-permissions';
 import { TruncatedList } from '@/components/ui/truncated-list';
 import { getBaseUrl } from '@/lib/url';
+import { InputGroup, InputGroupInput, InputGroupAddon } from '@/components/ui/input-group';
 
 export default function ServerDetailPage() {
   const { serverId } = useParams({ from: '/servers/$serverId' });
@@ -123,7 +123,7 @@ export default function ServerDetailPage() {
       toast.success('Module removed successfully');
       queryClient.invalidateQueries({ queryKey: ['server-modules', serverId] });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(error.message || 'Failed to remove module');
     },
   });
@@ -321,15 +321,15 @@ export default function ServerDetailPage() {
       <SidebarInset>
         <PageHeader title={`Server: ${server.name}`} />
         <div className="flex-1 p-4 flex flex-col gap-6">
-          <div className="rounded-lg border p-4">
-            <div className="flex items-start justify-between mb-4">
+          <Card>
+            <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
               <div className="flex items-start gap-4">
                 <Avatar className="h-16 w-16">
                   <AvatarImage src={server.image_url || undefined} alt={server.name} />
                   <AvatarFallback>{server.name.charAt(0).toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col gap-2">
-                  <h2 className="text-xl font-bold">{server.name}</h2>
+                  <CardTitle className="text-xl font-bold">{server.name}</CardTitle>
                   {isAdmin && (
                     <div className="flex flex-col gap-1">
                       <Code copy>{server.client_id}</Code>
@@ -346,65 +346,72 @@ export default function ServerDetailPage() {
                   onGenerateSecret={server => setGenerateSecretDialog({ open: true, server })}
                 />
               )}
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-3">
-                {isAdmin && (
-                  <div className="grid grid-cols-[100px_1fr] items-center gap-2">
-                    <span className="font-medium text-sm text-muted-foreground">Status</span>
-                    <Badge variant={server.is_active ? 'default' : 'secondary'} className="w-fit">
-                      {server.is_active ? 'Active' : 'Inactive'}
-                    </Badge>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-[100px_1fr] items-center gap-2">
-                  <span className="font-medium text-sm text-muted-foreground">Created By</span>
-                  <span className="text-sm">{server.created_by || '-'}</span>
-                </div>
-
-                <div className="grid grid-cols-[100px_1fr] items-center gap-2">
-                  <span className="font-medium text-sm text-muted-foreground">Created At</span>
-                  <span className="text-sm">{new Date(server.created_at).toLocaleString()}</span>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-3">
-                {isAdmin && (
-                  <div className="grid grid-cols-[100px_1fr] items-start gap-2">
-                    <span className="font-medium text-sm text-muted-foreground pt-1">URLs</span>
-                    <div className="flex flex-col gap-1">
-                      {server.urls && server.urls.length > 0 ? (
-                        server.urls.map((url, index) => (
-                          <Code key={index} copy>
-                            {url}
-                          </Code>
-                        ))
-                      ) : (
-                        <span className="text-sm text-muted-foreground">-</span>
-                      )}
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-3">
+                  {isAdmin && (
+                    <div className="grid grid-cols-[100px_1fr] items-center gap-2">
+                      <span className="font-medium text-sm text-muted-foreground">Status</span>
+                      <Badge variant={server.is_active ? 'default' : 'secondary'} className="w-fit">
+                        {server.is_active ? 'Active' : 'Inactive'}
+                      </Badge>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                <div className="grid grid-cols-[100px_1fr] items-center gap-2">
-                  <span className="font-medium text-sm text-muted-foreground">Updated At</span>
-                  <span className="text-sm">{new Date(server.updated_at).toLocaleString()}</span>
+                  <div className="grid grid-cols-[100px_1fr] items-center gap-2">
+                    <span className="font-medium text-sm text-muted-foreground">Created By</span>
+                    <span className="text-sm">{server.created_by || '-'}</span>
+                  </div>
+
+                  <div className="grid grid-cols-[100px_1fr] items-center gap-2">
+                    <span className="font-medium text-sm text-muted-foreground">Created At</span>
+                    <span className="text-sm">{new Date(server.created_at).toLocaleString()}</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  {isAdmin && (
+                    <div className="grid grid-cols-[100px_1fr] items-start gap-2">
+                      <span className="font-medium text-sm text-muted-foreground pt-1">URLs</span>
+                      <div className="flex flex-col gap-1">
+                        {server.urls && server.urls.length > 0 ? (
+                          server.urls.map((url, index) => (
+                            <Code key={index} copy>
+                              {url}
+                            </Code>
+                          ))
+                        ) : (
+                          <span className="text-sm text-muted-foreground">-</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-[100px_1fr] items-center gap-2">
+                    <span className="font-medium text-sm text-muted-foreground">Updated At</span>
+                    <span className="text-sm">{new Date(server.updated_at).toLocaleString()}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           <div className="flex flex-col gap-4">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold">Modules</h3>
               <div className="flex items-center gap-2">
                 <div className="w-72">
-                  <Input
-                    placeholder="Search modules..."
-                    defaultValue={meta.search}
-                    onChange={e => onSearch(e.target.value)}
-                  />
+                  <InputGroup>
+                    <InputGroupAddon>
+                      <Search />
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      placeholder="Search modules..."
+                      defaultValue={meta.search}
+                      onChange={e => onSearch(e.target.value)}
+                    />
+                  </InputGroup>
                 </div>
                 {isAdmin && serverId && (
                   <Dialog>

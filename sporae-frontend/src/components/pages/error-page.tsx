@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
+import { BrandLogo } from '../ui/brand-logo';
 
 interface ErrorPageProps {
   code?: string;
@@ -46,12 +47,7 @@ export function ErrorPage({
         )}
       />
 
-      <div className="absolute top-8 left-8 flex items-center gap-3">
-        <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center">
-          <img src="/logo.svg" alt="Fangi logo" className="h-6 w-6" />
-        </div>
-        <span className="text-xl font-bold tracking-tight text-foreground/80">Fangi</span>
-      </div>
+      <BrandLogo />
 
       <div className="relative z-10 container mx-auto px-4 flex flex-col items-center text-center">
         <h1

@@ -1,7 +1,6 @@
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
-import { BrandLogo } from './brand-logo';
 import {
   Card,
   CardHeader,
@@ -10,6 +9,7 @@ import {
   CardContent,
   CardFooter,
 } from '@/components/ui/card';
+import { CardLayout } from '../layout/card-layout';
 
 interface TwoPaneCardProps extends React.ComponentProps<'div'> {
   imageSrc: string;
@@ -37,8 +37,7 @@ function TwoPaneCard({
   );
 
   return (
-    <>
-      <BrandLogo />
+    <CardLayout>
       <Card
         className={cn('w-full max-w-6xl h-[600px] flex-row p-0 overflow-hidden', className)}
         {...props}
@@ -55,7 +54,7 @@ function TwoPaneCard({
           </>
         )}
       </Card>
-    </>
+    </CardLayout>
   );
 }
 

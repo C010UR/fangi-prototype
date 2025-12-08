@@ -12,24 +12,28 @@ import {
   handleRedirectAfterLogin,
 } from '@/lib/router-utils';
 import { type RouterContext } from '@/types/router';
-import LoginPage from './pages/auth/login';
-import MfaPage from './pages/auth/mfa';
-import ForgotPasswordPage from './pages/auth/forgot-password';
-import ResetPasswordPage from './pages/auth/forgot-password/reset';
-import RegisterPage from './pages/auth/register';
-import AccountRegistrationPage from './pages/auth/register/reset';
-import AccountActivatePage from './pages/auth/account-activate';
-import ServersPage from './pages/servers';
-import ServerDetailPage from './pages/servers/detail';
-import ModulesPage from './pages/modules';
-import UsersPage from './pages/users';
-import ProfilePage from './pages/profile';
-import AuthorizePage from './pages/oauth';
-import NotFoundPage from './pages/not-found';
+import LoginPage from '@/pages/auth/login';
+import MfaPage from '@/pages/auth/mfa';
+import ForgotPasswordPage from '@/pages/auth/forgot-password';
+import ResetPasswordPage from '@/pages/auth/forgot-password/reset';
+import RegisterPage from '@/pages/auth/register';
+import AccountRegistrationPage from '@/pages/auth/register/reset';
+import AccountActivatePage from '@/pages/auth/account-activate';
+import ServersPage from '@/pages/servers';
+import ServerDetailPage from '@/pages/servers/detail';
+import ModulesPage from '@/pages/modules';
+import UsersPage from '@/pages/users';
+import ProfilePage from '@/pages/profile';
+import AuthorizePage from '@/pages/oauth';
+import NotFoundPage from '@/pages/not-found';
+import LoadingPage from '@/pages/loading';
+import ErrorPage from '@/pages/error';
 
 const rootRoute = createRootRouteWithContext<RouterContext>()({
   component: () => <Outlet />,
   notFoundComponent: NotFoundPage,
+  pendingComponent: LoadingPage,
+  errorComponent: ({ error, reset }) => <ErrorPage error={error} reset={reset} />,
 });
 
 const loginRoute = createRoute({

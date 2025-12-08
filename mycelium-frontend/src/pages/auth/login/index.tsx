@@ -128,12 +128,9 @@ function LoginPage() {
                     <FormItem>
                       <div className="flex items-center justify-between">
                         <FormLabel>Password</FormLabel>
-                        <Link
-                          to="/forgot-password"
-                          className="text-sm text-primary hover:text-primary/80 transition-colors"
-                        >
-                          Forgot password?
-                        </Link>
+                        <Button asChild variant="link" className="p-0 h-auto text-sm">
+                          <Link to="/forgot-password">Forgot password?</Link>
+                        </Button>
                       </div>
                       <FormControl>
                         <PasswordInput
@@ -158,12 +155,9 @@ function LoginPage() {
           <TwoPaneCardFooter>
             <p className="text-center text-sm text-muted-foreground">
               Don't have an account?{' '}
-              <Link
-                to="/register"
-                className="font-medium text-primary hover:text-primary/80 transition-colors"
-              >
-                Create an account
-              </Link>
+              <Button asChild variant="link" className="p-0 h-auto font-medium">
+                <Link to="/register">Create an account</Link>
+              </Button>
             </p>
           </TwoPaneCardFooter>
         </TwoPaneCardContent>

@@ -168,6 +168,20 @@ export interface ServerFile {
   updated_at: string;
 }
 
+export interface ModuleShort {
+  id: number;
+  name: string;
+  image_url: string | null;
+  description: string | null;
+  client_id: string;
+  urls: string[];
+  is_active: boolean;
+  is_banned: boolean;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Module {
   id: number;
   name: string;
@@ -189,8 +203,8 @@ export interface OAuthAuthorizeRequest {
 }
 
 export interface ServerAllowedModule {
-  server: Server;
-  module: Module;
+  server: ServerShort;
+  module: ModuleShort;
   created_by: string;
   created_by_entity: UserShort;
   created_at: string;

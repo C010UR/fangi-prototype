@@ -99,10 +99,6 @@ class Sporae {
       headers,
     });
 
-    if (response.status === 401) {
-      this.redirectToAuth();
-    }
-
     return response;
   }
 
@@ -111,7 +107,6 @@ class Sporae {
     const serverUri = localStorage.getItem(this.storageKeys.serverUri);
 
     if (!token || !serverUri) {
-      this.redirectToAuth();
       return;
     }
 
@@ -237,7 +232,7 @@ class Sporae {
     const formData = new FormData();
     formData.append('file', content);
 
-    const response = await this.fetch(`${this.serverUri}/api/v1/touch${path}`, {
+    const response = await this.fetch(`${this.serverUri}/api/v1/write${path}`, {
       method: 'POST',
       body: formData,
     });

@@ -9,12 +9,10 @@ use App\Entity\Session;
 use App\Entity\User;
 use App\Util\Path;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 class SecurityService
 {
     public function __construct(
-        private RequestStack $request,
         private Security $security,
     ) {
     }
@@ -29,39 +27,6 @@ class SecurityService
         return $this->security->getUser();
     }
 
-    private function getPathPermission(string $path): ?string
-    {
-        if (!Path::isValid($path)) {
-            return null;
-        }
-
-        $scopes = $this->getSession()?->getScopes();
-
-        if (empty($scopes)) {
-            return null;
-        }
-
-        $scopeMap = [];
-        foreach ($scopes as $scope) {
-            $parts = explode(':', $scope, 2);
-            if (2 === \count($parts)) {
-                $scopeMap[$parts[0]] = $parts[1];
-            }
-        }
-
-        $pathParts = Path::toParts($path);
-
-        $mode = null;
-
-        foreach ($pathParts as $part) {
-            if (isset($scopeMap[$part])) {
-                $mode = $scopeMap[$part];
-            }
-        }
-
-        return $mode;
-    }
-
     private function isReadPermission(?string $permission): bool
     {
         return null !== $permission && \in_array($permission, ['r', 'rw'], true);
@@ -72,14 +37,80 @@ class SecurityService
         return null !== $permission && \in_array($permission, ['rw'], true);
     }
 
-    public function canRead(string $path): bool
+    public function inUserReadScope(string $path, bool $isDirectory = false): bool
     {
-        return $this->isReadPermission($this->getPathPermission($path));
+        if (!Path::isValid($path)) {
+            return false;
+        }
+        $scopes = $this->getSession()?->getScopes();
+        if (empty($scopes)) {
+            return false;
+        }
+
+        $normalizedInputPath = $isDirectory && !str_ends_with($path, '/') ? $path . '/' : $path;
+
+        $scopeMap = [];
+        foreach ($scopes as $scope) {
+            $parts = explode(':', $scope, 2);
+            if (2 !== \count($parts)) {
+                continue;
+            }
+            $scopePath = $parts[0];
+            if ('/' === $scopePath && $this->isReadPermission($parts[1])) {
+                return true;
+            }
+
+            $scopeMap[$scopePath] = $parts[1];
+        }
+
+        if (isset($scopeMap[$normalizedInputPath]) && $this->isReadPermission($scopeMap[$normalizedInputPath])) {
+            return true;
+        }
+
+        $pathParts = Path::toParts($path);
+        foreach ($pathParts as $part) {
+            if (isset($scopeMap[$part . '/']) && $this->isReadPermission($scopeMap[$part . '/'])) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
-    public function canWrite(string $path): bool
+    public function inUserWriteScope(string $path, bool $isDirectory = false): bool
     {
-        return $this->isWritePermission($this->getPathPermission($path));
+        if (!Path::isValid($path)) {
+            return false;
+        }
+        $scopes = $this->getSession()?->getScopes();
+        if (empty($scopes)) {
+            return false;
+        }
+
+        $normalizedInputPath = $isDirectory && !str_ends_with($path, '/') ? $path . '/' : $path;
+
+        foreach ($scopes as $scope) {
+            $parts = explode(':', $scope, 2);
+            if (2 !== \count($parts)) {
+                continue;
+            }
+            $scopePath = $parts[0];
+            $permission = $parts[1];
+
+            if ('/' === $scopePath && $this->isWritePermission($permission)) {
+                return true;
+            }
+
+            if ($scopePath === $normalizedInputPath && $this->isWritePermission($permission)) {
+                return true;
+            }
+
+            if (Path::isDirectory($scopePath) && str_starts_with($normalizedInputPath, $scopePath) && $this->isWritePermission($permission)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -87,9 +118,9 @@ class SecurityService
      *
      * @return FileIndex[]
      */
-    public function filterFilesByPermissions(string $path, array $files): ?array
+    public function filterReadFilesByUserScopes(string $path, array $files): ?array
     {
-        if ($this->canRead($path)) {
+        if ($this->inUserReadScope($path, true)) {
             return $files;
         }
 
@@ -112,7 +143,7 @@ class SecurityService
                 continue;
             }
 
-            if ($this->canRead($filePath)) {
+            if ($this->inUserReadScope($filePath, $file->isDirectory())) {
                 $filtered[] = $file;
                 continue;
             }

@@ -6,8 +6,18 @@ import { InfiniteFetchSelect } from '@/components/ui/infinite-fetch-select';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { ApiRoutes, fangiFetch } from '@/lib/api';
 import { cn } from '@/lib/utils';
-import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from '@/components/ui/item';
 import { Button } from '@/components/ui/button';
+import { getBaseUrl } from '@/lib/url';
+import { ServerCard } from '@/components/ui/server-card';
 
 interface ServerMultiSelectProps {
   value: ServerShort[];
@@ -75,43 +85,35 @@ export function ServerMultiSelect({ value = [], onChange, disabled }: ServerMult
     if (value.length === 0) return null;
 
     return (
-      <div className="rounded-md border">
-        <Table>
-          <TableBody>
-            {value.map(server => (
-              <TableRow key={server.id}>
-                <TableCell className="py-2 w-[40px]">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={server.image_url || undefined} alt={server.name} />
-                    <AvatarFallback>{server.name.charAt(0).toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                </TableCell>
-                <TableCell className="py-2">
-                  <div className="flex flex-col flex-1 min-w-0">
-                    <span className="truncate font-medium">{server.name}</span>
-                    <span className="text-xs text-muted-foreground truncate">
-                      ID: {server.client_id}
-                    </span>
-                  </div>
-                </TableCell>
-                <TableCell className="py-2 w-[40px]">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleRemove(server.id)}
-                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                    disabled={disabled}
-                  >
-                    <X className="h-4 w-4" />
-                    <span className="sr-only">Remove {server.name}</span>
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <ItemGroup className="rounded-md border p-1">
+        {value.map(server => (
+          <Item key={server.id} className="p-2 hover:bg-transparent">
+            <ItemMedia>
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={server.image_url || undefined} alt={server.name} />
+                <AvatarFallback>{server.name.charAt(0).toUpperCase()}</AvatarFallback>
+              </Avatar>
+            </ItemMedia>
+            <ItemContent>
+              <ItemTitle>{server.name}</ItemTitle>
+              <ItemDescription>{getBaseUrl(server.url)}</ItemDescription>
+            </ItemContent>
+            <ItemActions>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => handleRemove(server.id)}
+                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                disabled={disabled}
+              >
+                <X className="h-4 w-4" />
+                <span className="sr-only">Remove {server.name}</span>
+              </Button>
+            </ItemActions>
+          </Item>
+        ))}
+      </ItemGroup>
     );
   };
 
@@ -131,14 +133,7 @@ export function ServerMultiSelect({ value = [], onChange, disabled }: ServerMult
       renderOption={(option, isSelected) => (
         <div className="flex items-center gap-2 w-full">
           <Check className={cn('mr-2 h-4 w-4', isSelected ? 'opacity-100' : 'opacity-0')} />
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={option.image_url || undefined} alt={option.name} />
-            <AvatarFallback>{option.name.charAt(0).toUpperCase()}</AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col flex-1 min-w-0">
-            <span className="truncate font-medium">{option.name}</span>
-            <span className="text-xs text-muted-foreground truncate">ID: {option.client_id}</span>
-          </div>
+          <ServerCard server={option} />
         </div>
       )}
     />

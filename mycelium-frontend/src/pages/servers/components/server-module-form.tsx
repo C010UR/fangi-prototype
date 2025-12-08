@@ -19,7 +19,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -30,7 +29,7 @@ import {
 } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Code } from '@/components/ui/code';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { TruncatedList } from '@/components/ui/truncated-list';
 import { ListPagination } from '@/components/ui/list-pagination';
 import { Spinner } from '@/components/ui/spinner';
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
@@ -40,6 +39,10 @@ import { useDebouncedCallback } from '@/hooks/use-debounced-callback';
 import { ApiRoutes } from '@/lib/api';
 import { fangiFetch } from '@/lib/api/fetch';
 import type { Module } from '@/types';
+import { InputGroup } from '@/components/ui/input-group';
+import { InputGroupAddon } from '@/components/ui/input-group';
+import { InputGroupInput } from '@/components/ui/input-group';
+import { Search } from 'lucide-react';
 
 interface ServerModuleFormProps {
   serverId: string;
@@ -81,7 +84,7 @@ export function ServerModuleForm({ serverId, onSuccess }: ServerModuleFormProps)
         onSuccess();
       }
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(error.message || 'Failed to add module');
       setModuleToAdd(null);
     },
@@ -128,58 +131,13 @@ export function ServerModuleForm({ serverId, onSuccess }: ServerModuleFormProps)
         header: 'Allowed URLs',
         size: 250,
         cell: ({ row }) => {
-          const urls = row.original.urls || [];
-          const maxVisible = 1;
-
-          if (urls.length === 0) {
-            return (
-              <div className="text-muted-foreground">
-                <Code>-</Code>
-              </div>
-            );
-          }
-
-          if (urls.length <= maxVisible) {
-            return (
-              <div className="truncate">
-                {urls.map(url => (
-                  <Code copy key={url}>
-                    {url}
-                  </Code>
-                ))}
-              </div>
-            );
-          }
-
           return (
-            <div>
-              <HoverCard>
-                <HoverCardTrigger asChild onClick={e => e.stopPropagation()}>
-                  <div>
-                    {urls.slice(0, maxVisible).map(url => (
-                      <Code copy key={url}>
-                        {url}
-                      </Code>
-                    ))}
-                    <span className="text-muted-foreground ml-1">+ {urls.length - maxVisible}</span>
-                  </div>
-                </HoverCardTrigger>
-                <HoverCardContent align="start">
-                  <div className="flex flex-col gap-2">
-                    <h4 className="font-medium leading-none">Allowed URLs</h4>
-                    <div className="text-sm text-muted-foreground">
-                      <ul className="space-y-1">
-                        {urls.map((url, i) => (
-                          <li key={i} className="break-all">
-                            <Code copy>{url}</Code>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </HoverCardContent>
-              </HoverCard>
-            </div>
+            <TruncatedList
+              items={row.original.urls}
+              title="Allowed URLs"
+              emptyMessage={<Code>-</Code>}
+              renderItem={url => <Code copy>{url}</Code>}
+            />
           );
         },
       },
@@ -219,13 +177,17 @@ export function ServerModuleForm({ serverId, onSuccess }: ServerModuleFormProps)
 
   return (
     <>
-      <div className="flex flex-col gap-4 flex-1 overflow-hidden min-h-0 p-1 h-full">
+      <div className="flex flex-col gap-4 flex-1 overflow-hidden min-h-[600px] p-1 h-full">
         <div className="flex justify-between items-center">
-          <Input
-            placeholder="Search modules..."
-            onChange={e => onSearch(e.target.value)}
-            className="max-w-sm"
-          />
+          <InputGroup>
+            <InputGroupAddon>
+              <Search />
+            </InputGroupAddon>
+            <InputGroupInput
+              placeholder="Search modules..."
+              onChange={e => onSearch(e.target.value)}
+            />
+          </InputGroup>
         </div>
 
         <div className="rounded-md border overflow-hidden flex-1 min-h-0 relative flex flex-col">
@@ -306,7 +268,7 @@ export function ServerModuleForm({ serverId, onSuccess }: ServerModuleFormProps)
             <AlertDialogCancel disabled={isAdding}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               disabled={isAdding}
-              onClick={e => {
+              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.preventDefault();
                 if (moduleToAdd) {
                   addModule(moduleToAdd.id);

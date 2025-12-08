@@ -346,7 +346,7 @@ class OAuthServer
     ): array {
 
         $refreshToken = $this->findAndValidateRefreshToken($refreshToken);
-        $server = $refreshToken->getServer();
+        $server = $this->findAndValidateServer($clientId, $clientSecret, $redirectUri);
 
         if (!$server->getSecret()) {
             throw new OAuthBadRequestException($this->translator->trans('oauth_server.server.invalid_client'));

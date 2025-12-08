@@ -3,7 +3,7 @@ import { Link, useParams } from '@tanstack/react-router';
 import { useMutation } from '@tanstack/react-query';
 
 import { AlertCircle, CheckCircle } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import {
   TwoPaneCard,
@@ -36,7 +36,7 @@ function AccountRegistrationPage() {
 
   useEffect(() => {
     registerConfirmMutation.mutate();
-  }, []);
+  }, [registerConfirmMutation]);
 
   const errorMessages =
     registerConfirmMutation.error instanceof FetchError
@@ -82,12 +82,9 @@ function AccountRegistrationPage() {
             </TwoPaneCardBody>
 
             <TwoPaneCardFooter>
-              <Link
-                to="/login"
-                className="w-full inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-              >
-                Sign in
-              </Link>
+              <Button asChild className="w-full">
+                <Link to="/login">Sign in</Link>
+              </Button>
             </TwoPaneCardFooter>
           </TwoPaneCardContent>
         </TwoPaneCard>
@@ -127,7 +124,7 @@ function AccountRegistrationPage() {
 
               {registerConfirmMutation.isPending && (
                 <div className="flex items-center justify-center space-x-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                  <Spinner className="text-primary" />
                   <span className="text-sm text-muted-foreground">Processing registration...</span>
                 </div>
               )}

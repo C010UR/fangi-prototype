@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { useFieldArray, useForm, type FieldError } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Loader2, Plus, Trash, Upload, X } from 'lucide-react';
@@ -268,9 +268,9 @@ export function ModuleForm({ initialData, onSuccess }: ModuleFormProps) {
                 ))}
               </div>
               <FormMessage />
-              {(form.formState.errors.urls as any)?.root?.message && (
+              {(form.formState.errors.urls as unknown as { root?: FieldError })?.root?.message && (
                 <p className="text-[0.8rem] font-medium text-destructive">
-                  {(form.formState.errors.urls as any).root.message}
+                  {(form.formState.errors.urls as unknown as { root: FieldError }).root.message}
                 </p>
               )}
             </FormItem>

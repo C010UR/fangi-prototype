@@ -95,19 +95,22 @@ function SidebarUserProfile() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring">
-          <Avatar className="size-9">
+        <SidebarMenuButton
+          size="lg"
+          className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+        >
+          <Avatar className="h-8 w-8">
             {user?.image_url && <AvatarImage src={user.image_url} alt={user.username} />}
-            <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground text-xs font-medium">
+            <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground">
               {user?.username ? getUserInitials(user.username) : '?'}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1 overflow-hidden">
-            <p className="truncate text-sm font-medium">{user?.username ?? 'User'}</p>
-            <p className="truncate text-xs text-sidebar-foreground/60">{user?.email ?? ''}</p>
+          <div className="grid flex-1 text-left text-sm leading-tight">
+            <span className="truncate font-semibold">{user?.username ?? 'User'}</span>
+            <span className="truncate text-xs">{user?.email ?? ''}</span>
           </div>
-          <ChevronsUpDown className="size-4 shrink-0 text-sidebar-foreground/60" />
-        </button>
+          <ChevronsUpDown className="ml-auto size-4" />
+        </SidebarMenuButton>
       </DropdownMenuTrigger>
       <DropdownMenuContent side="top" align="start" className="w-54">
         <DropdownMenuLabel className="font-normal">

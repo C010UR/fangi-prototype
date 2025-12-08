@@ -4,6 +4,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface PasswordInputProps extends Omit<React.ComponentProps<'input'>, 'type'> {}
 
 function PasswordInput({ className, ...props }: PasswordInputProps) {

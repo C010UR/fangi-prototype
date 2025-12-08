@@ -13,7 +13,23 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, CheckCircle, Ban, Pencil, ChevronRight, ChevronDown } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/components/ui/empty';
+import {
+  MoreHorizontal,
+  CheckCircle,
+  Ban,
+  Pencil,
+  ChevronRight,
+  ChevronDown,
+  Users as UsersIcon,
+} from 'lucide-react';
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header';
 import { ListPagination } from '@/components/ui/list-pagination';
 import { Input } from '@/components/ui/input';
@@ -42,13 +58,14 @@ import { FormDialog } from '@/components/ui/form-dialog';
 import { UserForm } from '@/pages/users/components/user-form';
 import { useUserActions } from '@/hooks/use-user-actions';
 import { UserActionDialogs } from '@/pages/users/components/user-action-dialogs';
+import { ServerCard } from '@/components/ui/server-card';
 
 export default function UsersPage() {
   const queryClient = useQueryClient();
   const { isAdmin } = usePermissions();
   const [expanded, setExpanded] = React.useState<ExpandedState>({});
 
-  const { data, setParams, meta } = useList<User>({
+  const { data, setParams, meta, isLoading } = useList<User>({
     route: ApiRoutes.USERS.LIST,
     queryKey: ['users'],
   });
@@ -240,8 +257,15 @@ export default function UsersPage() {
       <SidebarInset>
         <PageHeader title="User List" />
         <div className="flex-1 p-4 flex flex-col gap-4">
-          <div className="flex justify-between items-center">
-            <div className="flex gap-4 items-center">
+          <div className="flex justify-end items-center">
+            <div className="flex items-center gap-2">
+              <div className="w-72">
+                <Input
+                  placeholder="Search users..."
+                  defaultValue={meta.search}
+                  onChange={e => onSearch(e.target.value)}
+                />
+              </div>
               {isAdmin && (
                 <FormDialog
                   trigger={<Button>Create User</Button>}
@@ -258,15 +282,6 @@ export default function UsersPage() {
                   )}
                 </FormDialog>
               )}
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="w-72">
-                <Input
-                  placeholder="Search users..."
-                  defaultValue={meta.search}
-                  onChange={e => onSearch(e.target.value)}
-                />
-              </div>
             </div>
           </div>
 
@@ -294,7 +309,17 @@ export default function UsersPage() {
                   ))}
                 </TableHeader>
                 <TableBody>
-                  {table.getRowModel().rows?.length ? (
+                  {isLoading ? (
+                    Array.from({ length: 5 }).map((_, index) => (
+                      <TableRow key={index}>
+                        {columns.map((_, cellIndex) => (
+                          <TableCell key={cellIndex}>
+                            <Skeleton className="h-4 w-full" />
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  ) : table.getRowModel().rows?.length ? (
                     table.getRowModel().rows.map(row => (
                       <React.Fragment key={row.id}>
                         <TableRow
@@ -386,23 +411,11 @@ export default function UsersPage() {
                                       <div className="flex flex-wrap gap-2">
                                         {row.original.servers?.length > 0 ? (
                                           row.original.servers.map(server => (
-                                            <div
+                                            <ServerCard
                                               key={server.id}
-                                              className="flex items-center gap-2 border rounded-md p-2 bg-background"
-                                            >
-                                              <Avatar className="h-6 w-6">
-                                                <AvatarImage
-                                                  src={server.image_url || undefined}
-                                                  alt={server.name}
-                                                />
-                                                <AvatarFallback>
-                                                  {server.name.charAt(0).toUpperCase()}
-                                                </AvatarFallback>
-                                              </Avatar>
-                                              <span className="text-sm font-medium">
-                                                {server.name}
-                                              </span>
-                                            </div>
+                                              server={server}
+                                              variant="outline"
+                                            />
                                           ))
                                         ) : (
                                           <span className="text-muted-foreground text-sm italic">
@@ -422,7 +435,17 @@ export default function UsersPage() {
                   ) : (
                     <TableRow>
                       <TableCell colSpan={columns.length} className="h-24 text-center">
-                        No results.
+                        <Empty className="py-8">
+                          <EmptyMedia>
+                            <UsersIcon className="h-8 w-8 text-muted-foreground" />
+                          </EmptyMedia>
+                          <EmptyHeader>
+                            <EmptyTitle>No users found</EmptyTitle>
+                            <EmptyDescription>
+                              Try adjusting your search to find what you're looking for.
+                            </EmptyDescription>
+                          </EmptyHeader>
+                        </Empty>
                       </TableCell>
                     </TableRow>
                   )}

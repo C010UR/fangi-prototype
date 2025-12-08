@@ -195,11 +195,11 @@ class FileController extends ExtendedAbstractController
         return $this->jsonl($file);
     }
 
-    #[Route('/touch/{path}', name: 'touch', requirements: ['path' => '.+'], methods: ['POST'])]
+    #[Route('/write/{path}', name: 'write', requirements: ['path' => '.+'], methods: ['POST'])]
     #[IsGranted('ROLE_USER')]
     #[OA\Post(
-        operationId: 'v1FileTouch',
-        summary: 'Create file',
+        operationId: 'v1FileWrite',
+        summary: 'Write file',
         tags: [
             'files',
         ],
@@ -215,7 +215,7 @@ class FileController extends ExtendedAbstractController
         responses: [
             new OAC\JsonResponse(
                 response: 200,
-                description: 'Successfully created file.',
+                description: 'Successfully written file.',
                 schema: '#/components/schemas/ServerFile',
             ),
             new OAC\UnauthorizedResponse(),

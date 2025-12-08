@@ -1,6 +1,5 @@
 import { memo, useRef } from 'react';
 import {
-  Loader2,
   RefreshCw,
   FolderIcon,
   Download,
@@ -16,6 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Spinner } from '@/components/ui/spinner';
 import { ContentTypeIcon } from '@/components/ui/content-type-icon';
 import {
   ContextMenu,
@@ -83,7 +83,7 @@ export const FileList = memo(function FileList({
       <div className="flex-1 relative min-h-0">
         {isLoading ? (
           <div className="absolute inset-0 flex items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <Spinner className="h-8 w-8 text-muted-foreground" />
           </div>
         ) : error ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-destructive p-4 text-center">
