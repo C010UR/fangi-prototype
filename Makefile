@@ -35,11 +35,14 @@ help: ## Output this help message
 
 ## ——  Docker  —————————————————————————————————————————————————————————————————————————————————————————————————————————
 .PHONY: init
-init: copy-env down build vendor cc cw database-reset ## Initialize Fangi Mycelium
+init: copy-env down build mycelium-vendor hyphae-vendor mycelium-cc mycelium-cw hyphae-cc hyphae-cw mycelium-database-reset hyphae-database-reset ## Initialize Fangi Mycelium
 
 .PHONY: copy-env
 copy-env:
-	@ cp .env .env.local
+	@ cp hyphae-backend/.env hyphae-backend/.env.local
+	@ cp mycelium-backend/.env mycelium-backend/.env.local
+	@ cp mycelium-frontend/.env mycelium-frontend/.env.local
+	@ cp sporae-frontend/.env sporae-frontend/.env.local
 
 .PHONY: restart
 restart: ## Restart Fangi Mycelium project
