@@ -140,7 +140,6 @@ final class ServerController extends ExtendedAbstractController
 
         $mailer->sendServerSetupEmail($server);
 
-        $this->entityManager->persist($server);
         $this->entityManager->flush();
 
         return $this->jsonl($server);
@@ -182,7 +181,6 @@ final class ServerController extends ExtendedAbstractController
             ],
         );
 
-        $this->entityManager->persist($server);
         $this->entityManager->flush();
 
         return $this->jsonl($server);
@@ -359,7 +357,6 @@ final class ServerController extends ExtendedAbstractController
             ],
         );
 
-        $this->entityManager->persist($serverAllowedModule);
         $this->entityManager->flush();
 
         return $this->jsonm('entity.server.module_added');

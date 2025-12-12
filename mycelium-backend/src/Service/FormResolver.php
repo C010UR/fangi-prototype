@@ -6,6 +6,7 @@ namespace App\Service;
 
 use App\Form\Interface\PostSubmitFormInterface;
 use App\Service\Exception\FormException;
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use JsonException;
 use Symfony\Component\Form\FormError;
@@ -26,6 +27,7 @@ class FormResolver
         private FormFactoryInterface $formFactory,
         private SerializerInterface&DenormalizerInterface $serializer,
         private TranslatorInterface $translator,
+        private EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -53,7 +55,12 @@ class FormResolver
 
         $formType = $form->getConfig()->getType()->getInnerType();
         if ($formType instanceof PostSubmitFormInterface) {
-            $entity = $formType->postSubmit($form, $entity, $form->getConfig()->getOptions());
+            $entity = $formType->postSubmit(
+                $form,
+                $this->entityManager,
+                $entity,
+                $form->getConfig()->getOptions(),
+            );
         }
 
         return $entity;

@@ -110,7 +110,6 @@ class UserController extends ExtendedAbstractController
             ['created_by' => $this->getUser()],
         );
 
-        $this->entityManager->persist($user);
         $passwordResetHandler->prepareAccountActivation($user);
 
         $this->entityManager->flush();
@@ -153,7 +152,6 @@ class UserController extends ExtendedAbstractController
             ['created_by' => $this->getUser()],
         );
 
-        $this->entityManager->persist($user);
         $this->entityManager->flush();
 
         return $this->jsonl($user);

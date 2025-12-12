@@ -10,6 +10,7 @@ use App\Entity\ServerAllowedModule;
 use App\Entity\User;
 use App\Form\Interface\PostSubmitFormInterface;
 use App\OpenApi\Attribute as OAC;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -64,10 +65,16 @@ class ServerAllowedModuleType extends AbstractType implements PostSubmitFormInte
      *
      * @return ServerAllowedModule
      */
-    public function postSubmit(FormInterface $form, object $entity, array $options): object
-    {
+    public function postSubmit(
+        FormInterface $form,
+        EntityManagerInterface $entityManager,
+        object|array $entity,
+        array $options,
+    ): object {
         $entity->setCreatedBy($options['created_by']);
         $entity->setServer($options['server']);
+
+        $entityManager->persist($entity);
 
         return $entity;
     }

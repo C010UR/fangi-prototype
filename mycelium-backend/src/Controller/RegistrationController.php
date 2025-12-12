@@ -47,7 +47,6 @@ final class RegistrationController extends ExtendedAbstractController
         $user = new User();
         $this->submitForm($request, RegistrationType::class, $user);
 
-        $this->entityManager->persist($user);
         $this->entityManager->flush();
 
         $this->accountRegistrationHandler->prepareAccountRegistration($user);

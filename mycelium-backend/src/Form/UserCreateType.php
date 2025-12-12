@@ -10,6 +10,7 @@ use App\Enum\UserRole;
 use App\Form\Interface\PostSubmitFormInterface;
 use App\OpenApi\Attribute as OAC;
 use App\Service\FileService;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -112,14 +113,20 @@ class UserCreateType extends AbstractType implements PostSubmitFormInterface
      *
      * @return User
      */
-    public function postSubmit(FormInterface $form, object $entity, array $options): object
-    {
+    public function postSubmit(
+        FormInterface $form,
+        EntityManagerInterface $entityManager,
+        object|array $entity,
+        array $options,
+    ): object {
         if ($image = $form['image']->getData()) {
             $url = $this->fileService->upload($image);
             $entity->setImageUrl($url);
         }
 
         $entity->setCreatedBy($options['created_by']);
+
+        $entityManager->persist($entity);
 
         return $entity;
     }

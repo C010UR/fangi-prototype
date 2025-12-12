@@ -4,5 +4,5 @@ hyphae:
     # client_id: "%env(resolve:HYPHAE_OAUTH_CLIENT_ID)%"
     # client_secret: "%env(resolve:HYPHAE_OAUTH_CLIENT_SECRET)%"
     server: "http://host.docker.internal:8000"
-    client_id: "195aabcb-1d23-4e89-895c-acf3fee350c0"
-    client_secret: "386754ee3993e64d8d8c4e863ab9f1a8fa6549237f89f10ac73854b008e681e6d0ada43b5d6a896dad34926cfa384d159e9472bead0de7d68ffec582f80d79bfebd86d91c1a2fdbab7646ed3fee684bd9880a9b4729e99818b1a0842b296c693244b5434bbc7546018cdcc1a410cc902b7b80c30f2b4e78459fbd90c74d54c6d"
+    client_id: ""
+    client_secret: ""

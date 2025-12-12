@@ -196,7 +196,6 @@ final class AuthenticationController extends ExtendedAbstractController
             ['method' => 'PATCH'],
         );
 
-        $this->entityManager->persist($user);
         $this->entityManager->flush();
 
         return $this->jsonl($user);

@@ -135,7 +135,6 @@ final class ModuleController extends ExtendedAbstractController
             ],
         );
 
-        $this->entityManager->persist($module);
         $this->entityManager->flush();
 
         return $this->jsonl($module);
@@ -177,7 +176,6 @@ final class ModuleController extends ExtendedAbstractController
             ],
         );
 
-        $this->entityManager->persist($module);
         $this->entityManager->flush();
 
         return $this->jsonl($module);

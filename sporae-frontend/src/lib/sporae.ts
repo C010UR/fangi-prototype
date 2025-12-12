@@ -287,13 +287,13 @@ class Sporae {
 }
 
 const sporaeClient = new Sporae({
-  // import.meta.env.VITE_SPORAE_CLIENT_ID || '',
-  // import.meta.env.VITE_SPORAE_BASE_URI || '',
-  // import.meta.env.VITE_SPORAE_REDIRECT_URI || '',
-  clientId: '711405d9-c9d2-45c4-bb32-8a6ccf7938c0',
+  // clientId: import.meta.env.VITE_SPORAE_CLIENT_ID || '',
+  // baseUri: import.meta.env.VITE_SPORAE_BASE_URI || '',
+  // redirectUri: import.meta.env.VITE_SPORAE_REDIRECT_URI || '',
+  clientId: '',
   baseUri: 'http://host.docker.internal:10000',
   redirectUri: 'http://host.docker.internal:10000/oauth/callback',
-  authServerUri: 'http://localhost:8001/oauth/authorize',
+  authServerUri: 'http://host.docker.internal:8001/oauth/authorize',
 });
 
 export { Sporae, sporaeClient };

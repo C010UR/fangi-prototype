@@ -9,6 +9,7 @@ use App\Entity\User;
 use App\Form\Interface\PostSubmitFormInterface;
 use App\OpenApi\Attribute as OAC;
 use App\Service\FileService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -88,8 +89,12 @@ class ModuleType extends AbstractType implements PostSubmitFormInterface
      *
      * @return Module
      */
-    public function postSubmit(FormInterface $form, object $entity, array $options): object
-    {
+    public function postSubmit(
+        FormInterface $form,
+        EntityManagerInterface $entityManager,
+        object|array $entity,
+        array $options,
+    ): object {
         $entity->setCreatedBy($options['created_by']);
 
         if ($image = $form['image']->getData()) {
@@ -100,6 +105,8 @@ class ModuleType extends AbstractType implements PostSubmitFormInterface
         if (null === $entity->getClientId()) {
             $entity->generateClientId();
         }
+
+        $entityManager->persist($entity);
 
         return $entity;
     }

@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Form;
 
+use App\Entity\MfaMethod;
 use App\Entity\User;
+use App\Enum\MfaType;
 use App\Enum\UserRole;
 use App\Form\Interface\PostSubmitFormInterface;
 use App\OpenApi\Attribute as OAC;
 use App\Service\FileService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -81,8 +84,12 @@ class RegistrationType extends AbstractType implements PostSubmitFormInterface
      *
      * @return User
      */
-    public function postSubmit(FormInterface $form, object $entity, array $options): object
-    {
+    public function postSubmit(
+        FormInterface $form,
+        EntityManagerInterface $entityManager,
+        object|array $entity,
+        array $options,
+    ): object {
         $entity->setPassword($this->passwordHasher->hashPassword($entity, $form['password']->getData()));
         $entity->setRoles([UserRole::ADMIN]);
 
@@ -90,6 +97,15 @@ class RegistrationType extends AbstractType implements PostSubmitFormInterface
             $url = $this->fileService->upload($image);
             $entity->setImageUrl($url);
         }
+
+        $entityManager->persist($entity);
+
+        $mfaMethod = new MfaMethod();
+        $mfaMethod
+            ->setMethod(MfaType::Email->value)
+            ->setRecipient($entity->getEmail());
+
+        $entityManager->persist($mfaMethod);
 
         return $entity;
     }

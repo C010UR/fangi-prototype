@@ -22,7 +22,7 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\Serializer\Attribute as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 
-#[AsTaggedItem('nelmio_api_doc.swagger.processor')]
+#[AsTaggedItem('nelmio_api_doc.swagger.processor', priority: 1000)]
 class ModelOpenApiProcessor
 {
     public function __invoke(Analysis $analysis)

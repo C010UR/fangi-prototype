@@ -55,7 +55,7 @@ const registrationSchema = z.object({
         .min(1, 'Password is required')
         .min(8, 'Password must be at least 8 characters')
         .regex(/[0-9]/, 'Password must contain at least one digit')
-        .regex(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least one special character'),
+        .regex(/[!@#$%^&*(),.?":{}|<>-]/, 'Password must contain at least one special character'),
       confirmPassword: z.string().min(1, 'Please confirm your password'),
     })
     .refine(data => data.password === data.confirmPassword, {
@@ -246,7 +246,7 @@ function RegisterPage() {
                     <FormControl>
                       <Input
                         placeholder="Choose a username (3-255 characters)"
-                        autoComplete="username"
+                        autoComplete="name"
                         disabled={registerMutation.isPending}
                         {...field}
                       />
@@ -266,7 +266,7 @@ function RegisterPage() {
                       <Input
                         placeholder="Enter your email"
                         type="email"
-                        autoComplete="email"
+                        autoComplete="username"
                         disabled={registerMutation.isPending}
                         {...field}
                       />

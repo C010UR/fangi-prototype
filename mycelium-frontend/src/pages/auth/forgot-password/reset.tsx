@@ -34,7 +34,7 @@ const resetPasswordSchema = z
       .min(1, 'Password is required')
       .min(8, 'Password must be at least 8 characters')
       .regex(/[0-9]/, 'Password must contain at least one digit')
-      .regex(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least one special character'),
+      .regex(/[!@#$%^&*(),.?":{}|<>-]/, 'Password must contain at least one special character'),
     confirmPassword: z.string().min(1, 'Please confirm your password'),
   })
   .refine(data => data.password === data.confirmPassword, {

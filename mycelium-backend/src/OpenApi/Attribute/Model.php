@@ -15,6 +15,11 @@ class Model
     ) {
     }
 
+    public function __toString(): string
+    {
+        return $this->className;
+    }
+
     public function getClassName(): string
     {
         return $this->className;
