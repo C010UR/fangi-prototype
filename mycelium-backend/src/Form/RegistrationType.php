@@ -102,6 +102,7 @@ class RegistrationType extends AbstractType implements PostSubmitFormInterface
 
         $mfaMethod = new MfaMethod();
         $mfaMethod
+            ->setUser($entity)
             ->setMethod(MfaType::Email->value)
             ->setRecipient($entity->getEmail());
 
