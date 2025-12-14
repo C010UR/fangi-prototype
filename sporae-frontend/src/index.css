@@ -4,18 +4,13 @@
 @import 'tw-animate-css';
 
 :root {
-  font-family: 'Source Code Pro', monospace;
-  line-height: 1.5;
-  font-weight: 400;
+  --primary-font: 'Source Code Pro', 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  --monospace-font: 'Source Code Pro', 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  --primary-font-line-height: 1.5;
+  --primary-font-weight: 400;
+  --radius: 0.625rem;
 
-  color-scheme: light dark;
-  color: var(--foreground);
-  background-color: var(--background);
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --radius: 0.25rem;
 
   --white: #ffffff;
   --te-white: #f5f5f5;
@@ -35,8 +30,6 @@
   --te-yellow: #fab413;
   --success: var(--te-green);
   --error: #c0262c;
-
-  --radius: 0.25rem;
 
   --background: var(--te-grey-100);
   --foreground: var(--te-black);
@@ -89,6 +82,19 @@
 
   --scrollbar-thumb: var(--te-grey-500);
   --scrollbar-thumb-hover: var(--te-grey-900);
+
+  font-family: var(--primary-font);
+  line-height: var(--primary-font-line-height);
+  font-weight: var(--primary-font-weight);
+
+  color-scheme: light dark;
+  color: var(--foreground);
+  background-color: var(--background);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .dark {

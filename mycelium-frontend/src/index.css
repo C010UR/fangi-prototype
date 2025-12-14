@@ -4,19 +4,13 @@
 @import 'tw-animate-css';
 
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  --primary-font: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --monospace-font: 'Source Code Pro', 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  --primary-font-line-height: 1.5;
+  --primary-font-weight: 400;
 
-  color-scheme: light dark;
-  color: oklch(0.27 0.02 85);
-  background-color: oklch(1 0.01 110);
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   --radius: 0.625rem;
+
   --background: oklch(1 0.01 110);
   --foreground: oklch(0.27 0.02 85);
   --card: oklch(1 0.005 110);
@@ -51,6 +45,19 @@
   --sidebar-ring: oklch(0.6562 0.047 110);
   --scrollbar-thumb: oklch(0.53 0.03 110 / 0.2);
   --scrollbar-thumb-hover: oklch(0.53 0.03 110 / 0.4);
+
+  font-family: var(--primary-font);
+  line-height: var(--primary-font-line-height);
+  font-weight: var(--primary-font-weight);
+
+  color-scheme: light dark;
+  color: var(--foreground);
+  background-color: var(--background);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .dark {
@@ -127,6 +134,10 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --color-scrollbar-thumb: var(--scrollbar-thumb);
   --color-scrollbar-thumb-hover: var(--scrollbar-thumb-hover);
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-foreground: var(--tertiary-foreground);
+  --color-quaternary: var(--quaternary);
+  --color-quaternary-foreground: var(--quaternary-foreground);
 }
 
 @layer base {

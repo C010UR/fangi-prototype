@@ -28,6 +28,7 @@ import AuthorizePage from '@/pages/oauth';
 import NotFoundPage from '@/pages/not-found';
 import LoadingPage from '@/pages/loading';
 import ErrorPage from '@/pages/error';
+import DesignShowcasePage from '@/pages/design-showcase';
 
 const rootRoute = createRootRouteWithContext<RouterContext>()({
   component: () => <Outlet />,
@@ -136,6 +137,12 @@ const authorizeRoute = createRoute({
   component: AuthorizePage,
 });
 
+const designShowcaseRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/design',
+  component: DesignShowcasePage,
+});
+
 const notFoundRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '*',
@@ -157,6 +164,7 @@ const routeTree = rootRoute.addChildren([
   usersRoute,
   profileRoute,
   authorizeRoute,
+  designShowcaseRoute,
   notFoundRoute,
 ]);
 
