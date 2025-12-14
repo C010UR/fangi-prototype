@@ -1,6 +1,10 @@
 framework:
   rate_limiter:
-    costly_action:
+    mfa:
+      policy: "sliding_window"
+      limit: 1
+      interval: "60 seconds"
+    password_reset:
       policy: "sliding_window"
       limit: 1
       interval: "60 seconds"

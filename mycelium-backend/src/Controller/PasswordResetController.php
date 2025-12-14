@@ -50,7 +50,7 @@ class PasswordResetController extends ExtendedAbstractController
     )]
     public function requestReset(
         Request $request,
-        #[Target('costly_action.limiter')]
+        #[Target('password_reset.limiter')]
         RateLimiterFactory $rateLimiter,
     ): JsonResponse {
         $passwordResetRequest = $this->submitForm($request, PasswordResetRequestType::class);

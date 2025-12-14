@@ -178,7 +178,7 @@ final class MFAController extends ExtendedAbstractController
         string $method,
         MFAHandler $mfaHandler,
         TokenStorageInterface $tokenStorage,
-        #[Target('costly_action.limiter')]
+        #[Target('mfa.limiter')]
         RateLimiterFactory $rateLimiter,
     ): JsonResponse {
         $token = $tokenStorage->getToken();
