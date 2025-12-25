@@ -26,8 +26,9 @@ supervisord.pid
 # Docker
 /docker/*
 !/docker/hyphae-nginx/
-!/docker/mycelium-nginx/
-!/docker/hyphae-php/
-!/docker/mycelium-php/
 !/docker/hyphae-node/
-
+!/docker/hyphae-php/
+!/docker/mycelium-nginx/
+!/docker/mycelium-node/
+!/docker/mycelium-php/
+!/docker/sporae-node/
