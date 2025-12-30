@@ -54,9 +54,10 @@ To run `php bin/console` in the container run `bin/mycelium-run` or `bin/hyphae-
 
 to run `composer` binary in the container run `bin/mycelium-composer` or `bin/hyphae-composer`, e.g.: `bin/composer install`.
 
-For better development experience it is recommended to add `127.0.0.1 host.docker.internal` to your `/etc/hosts` file.
-
 ## Configuration
+
+> [!important]
+> For better development experience it is recommended to add `127.0.0.1 host.docker.internal` to your `/etc/hosts` file.
 
 To configure the __Hyphae__ (file server) as an OAuth client modify values in the `hyphae-backend/config/packages/hyphae.yaml`.
 
